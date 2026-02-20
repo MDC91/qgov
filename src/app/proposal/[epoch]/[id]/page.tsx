@@ -18,7 +18,7 @@ async function getProposal(epoch: number, id: string): Promise<Proposal | null> 
       proposals = await getEpochHistory(epoch);
     }
 
-    const proposalsWithTranslations = proposals.map((p: any) => ({
+    const proposalsWithTranslations = await Promise.all(proposals.map(async (p: any) => ({
       id: p.id || p.url,
       epoch: p.epoch || epoch,
       title: p.title,
@@ -28,8 +28,8 @@ async function getProposal(epoch: number, id: string): Promise<Proposal | null> 
       noVotes: p.options?.[0]?.numberOfVotes || p.no_votes || 0,
       totalVotes: p.totalVotes || 0,
       approvalRate: p.approval_rate || 0,
-      translations: getAllTranslations(epoch, p.id?.toString() || p.url)
-    }));
+      translations: await getAllTranslations(epoch, p.id?.toString() || p.url)
+    })));
 
     return proposalsWithTranslations.find((p: Proposal) => String(p.id) === id) || null;
   } catch (error) {

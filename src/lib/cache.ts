@@ -9,9 +9,9 @@ type ProposalTranslations = Record<string, TranslationEntry>;
 
 const epochPrefix = (epoch: number) => `translations:epoch:${epoch}`;
 
-export function getTranslation(epoch: number, proposalId: string, lang: string): string | null {
+export async function getTranslation(epoch: number, proposalId: string, lang: string): Promise<string | null> {
   try {
-    const data = kv.get<ProposalTranslations>(`${epochPrefix(epoch)}:${proposalId}`);
+    const data = await kv.get<ProposalTranslations>(`${epochPrefix(epoch)}:${proposalId}`);
     return data?.[lang]?.text || null;
   } catch (error) {
     console.error('KV read error:', error);
@@ -19,13 +19,13 @@ export function getTranslation(epoch: number, proposalId: string, lang: string):
   }
 }
 
-export function setTranslation(epoch: number, proposalId: string, lang: string, text: string): void {
+export async function setTranslation(epoch: number, proposalId: string, lang: string, text: string): Promise<void> {
   try {
     const key = `${epochPrefix(epoch)}:${proposalId}`;
     let data: ProposalTranslations = {};
     
     try {
-      const existing = kv.get<ProposalTranslations>(key);
+      const existing = await kv.get<ProposalTranslations>(key);
       if (existing) data = existing;
     } catch {}
 
@@ -34,15 +34,15 @@ export function setTranslation(epoch: number, proposalId: string, lang: string, 
       updatedAt: Date.now()
     };
 
-    kv.set(key, data);
+    await kv.set(key, data);
   } catch (error) {
     console.error('KV write error:', error);
   }
 }
 
-export function getAllTranslations(epoch: number, proposalId: string): Record<string, TranslationEntry> {
+export async function getAllTranslations(epoch: number, proposalId: string): Promise<Record<string, TranslationEntry>> {
   try {
-    const data = kv.get<ProposalTranslations>(`${epochPrefix(epoch)}:${proposalId}`);
+    const data = await kv.get<ProposalTranslations>(`${epochPrefix(epoch)}:${proposalId}`);
     return data || {};
   } catch (error) {
     console.error('KV read error:', error);
@@ -50,9 +50,9 @@ export function getAllTranslations(epoch: number, proposalId: string): Record<st
   }
 }
 
-export function getProposalList(epoch: number): string[] {
+export async function getProposalList(epoch: number): Promise<string[]> {
   try {
-    const keys = kv.keys(`${epochPrefix(epoch)}:*`);
+    const keys = await kv.keys(`${epochPrefix(epoch)}:*`);
     return keys.map((k: string) => k.split(':').pop() || '');
   } catch (error) {
     console.error('KV keys error:', error);
