@@ -1,26 +1,70 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Glacial Indifference';
+  src: url('/brand/FONTS/BODY - GLACIAL INDIFFERENCE/GlacialIndifference-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Glacial Indifference';
+  src: url('/brand/FONTS/BODY - GLACIAL INDIFFERENCE/GlacialIndifference-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg-primary: #101820;
+  --bg-secondary: #151e27;
+  --bg-tertiary: #202e3c;
+  --accent-primary: #23ffff;
+  --accent-secondary: #23ffff;
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8;
+  --border: #202e3c;
+  --success: #22c55e;
+  --error: #ef4444;
+  --warning: #f59e0b;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --color-background: var(--bg-primary);
+  --color-foreground: var(--text-primary);
+  --font-sans: 'Glacial Indifference', system-ui, -apple-system, sans-serif;
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Glacial Indifference', system-ui, -apple-system, sans-serif;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.font-governance {
+  font-family: 'Glacial Indifference', system-ui, -apple-system, sans-serif;
+}
+
+.prose {
+  color: var(--text-primary);
+}
+
+.prose h1, .prose h2, .prose h3, .prose h4 {
+  color: var(--text-primary);
+}
+
+.prose a {
+  color: var(--accent-secondary);
+}
+
+.prose code {
+  background: var(--bg-tertiary);
+  color: var(--accent-secondary);
+}
+
+.prose pre {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
 }
