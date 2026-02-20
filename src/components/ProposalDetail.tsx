@@ -176,23 +176,12 @@ export default function ProposalDetail({ epoch, id, initialProposal }: ProposalD
           </div>
         ) : (
           <div className="text-center py-12">
-            <p className="mb-4" style={{ color: '#94a3b8' }}>
-              Translation not available for {LANGUAGES.find(l => l.code === selectedLang)?.name}
+            <p className="mb-2" style={{ color: '#94a3b8' }}>
+              Translation not yet available for {LANGUAGES.find(l => l.code === selectedLang)?.name}
             </p>
-            <button
-              onClick={generateTranslation}
-              disabled={loading}
-              className="px-6 py-2 rounded-lg font-medium transition-colors"
-              style={{ 
-                backgroundColor: '#23ffff', 
-                color: '#101820',
-                opacity: loading ? 0.5 : 1,
-                cursor: loading ? 'not-allowed' : 'pointer'
-              }}
-            >
-              {loading ? 'Generating...' : 'Generate Translation'}
-            </button>
-            {error && <p className="mt-4" style={{ color: '#ef4444' }}>{error}</p>}
+            <p style={{ color: '#64748b', fontSize: '0.875rem' }}>
+              Translations are generated daily at 12:00 UTC
+            </p>
           </div>
         )}
       </div>
