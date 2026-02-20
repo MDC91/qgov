@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { Proposal, PROPOSAL_STATUS } from '@/types';
+import { createProposalSlug } from '@/lib/proposal';
 
 interface ProposalCardProps {
   proposal: Proposal;
@@ -27,9 +28,11 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
   const displayRate = status === 'Approved' ? approvalRate : status === 'Rejected' ? rejectionRate : approvalRate;
   const rateLabel = status === 'Approved' ? 'Approved' : status === 'Rejected' ? 'Rejected' : 'Approval';
 
+  const slug = createProposalSlug(proposal.title, proposal.id);
+
   return (
     <Link
-      href={`/proposal/${proposal.epoch}/${encodeURIComponent(proposal.id)}`}
+      href={`/proposal/${proposal.epoch}/${slug}`}
       className="block rounded-xl p-5 transition-all group"
       style={{ 
         backgroundColor: '#151e27', 
