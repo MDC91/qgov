@@ -1,5 +1,7 @@
 import { Proposal } from '@/types';
 import ProposalDetail from '@/components/ProposalDetail';
+import { getCurrentEpoch, getActiveProposals, getEpochHistory } from '@/lib/qubic-api';
+import { getAllTranslations } from '@/lib/cache';
 
 interface PageProps {
   params: Promise<{ epoch: string; id: string }>;
@@ -7,17 +9,29 @@ interface PageProps {
 
 async function getProposal(epoch: number, id: string): Promise<Proposal | null> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL 
-      ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` 
-      : 'http://localhost:3000';
-    const response = await fetch(`${baseUrl}/api/proposals/${epoch}`, {
-      cache: 'no-store'
-    });
-    const data = await response.json();
-    console.log('API response for epoch', epoch, ':', data.proposals?.map((p: any) => ({ id: p.id, title: p.title })));
-    const proposal = data.proposals?.find((p: Proposal) => String(p.id) === id);
-    console.log('Looking for id:', id, 'Found:', proposal?.title);
-    return proposal || null;
+    const currentEpoch = await getCurrentEpoch();
+    let proposals: any[] = [];
+
+    if (epoch === currentEpoch) {
+      proposals = await getActiveProposals();
+    } else {
+      proposals = await getEpochHistory(epoch);
+    }
+
+    const proposalsWithTranslations = proposals.map((p: any) => ({
+      id: p.id || p.url,
+      epoch: p.epoch || epoch,
+      title: p.title,
+      url: p.url,
+      status: p.status,
+      yesVotes: p.options?.[1]?.numberOfVotes || p.yes_votes || 0,
+      noVotes: p.options?.[0]?.numberOfVotes || p.no_votes || 0,
+      totalVotes: p.totalVotes || 0,
+      approvalRate: p.approval_rate || 0,
+      translations: getAllTranslations(epoch, p.id?.toString() || p.url)
+    }));
+
+    return proposalsWithTranslations.find((p: Proposal) => String(p.id) === id) || null;
   } catch (error) {
     console.error('Error fetching proposal:', error);
     return null;
