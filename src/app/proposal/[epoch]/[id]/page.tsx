@@ -7,11 +7,14 @@ interface PageProps {
 
 async function getProposal(epoch: number, id: string): Promise<Proposal | null> {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/proposals/${epoch}`, {
+    const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL 
+      ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` 
+      : 'http://localhost:3000';
+    const response = await fetch(`${baseUrl}/api/proposals/${epoch}`, {
       cache: 'no-store'
     });
     const data = await response.json();
-    const proposal = data.proposals?.find((p: Proposal) => p.id === id);
+    const proposal = data.proposals?.find((p: Proposal) => String(p.id) === id);
     return proposal || null;
   } catch (error) {
     console.error('Error fetching proposal:', error);
