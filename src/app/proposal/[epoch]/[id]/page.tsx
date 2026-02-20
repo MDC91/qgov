@@ -10,13 +10,18 @@ interface PageProps {
 async function getProposal(epoch: number, id: string): Promise<Proposal | null> {
   try {
     const currentEpoch = await getCurrentEpoch();
+    console.log('Current epoch:', currentEpoch, 'Looking for epoch:', epoch);
     let proposals: any[] = [];
 
     if (epoch === currentEpoch) {
+      console.log('Fetching active proposals');
       proposals = await getActiveProposals();
     } else {
+      console.log('Fetching epoch history for', epoch);
       proposals = await getEpochHistory(epoch);
     }
+
+    console.log('Found proposals:', proposals.length, proposals.map(p => ({ id: p.id, title: p.title })));
 
     const proposalsWithTranslations = await Promise.all(proposals.map(async (p: any) => ({
       id: p.id || p.url,
@@ -31,7 +36,9 @@ async function getProposal(epoch: number, id: string): Promise<Proposal | null> 
       translations: await getAllTranslations(epoch, p.id?.toString() || p.url)
     })));
 
-    return proposalsWithTranslations.find((p: Proposal) => String(p.id) === id) || null;
+    const found = proposalsWithTranslations.find((p: Proposal) => String(p.id) === id);
+    console.log('Looking for id:', id, 'Found:', found?.title);
+    return found || null;
   } catch (error) {
     console.error('Error fetching proposal:', error);
     return null;
