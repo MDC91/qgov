@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getCurrentEpoch, getActiveProposals, getEpochHistory } from '@/lib/qubic-api';
-import { getAllTranslations } from '@/lib/cache';
+import { getAllTranslations, getEpochProposals, setEpochProposals } from '@/lib/cache';
 
 export async function GET(
   request: Request,
@@ -13,16 +13,31 @@ export async function GET(
 
     let proposals: any[] = [];
 
-    if (epoch === currentEpoch) {
-      proposals = await getActiveProposals();
+    // First check if we have stored proposals in Redis
+    const storedProposals = await getEpochProposals(epoch);
+    
+    if (storedProposals && storedProposals.length > 0) {
+      // Use stored proposals for historical data
+      proposals = storedProposals;
     } else {
-      proposals = await getEpochHistory(epoch);
+      // Fetch fresh from API
+      if (epoch === currentEpoch) {
+        proposals = await getActiveProposals();
+      } else {
+        proposals = await getEpochHistory(epoch);
+      }
+      
+      // Store for future use (especially historical)
+      if (proposals.length > 0 && epoch < currentEpoch) {
+        await setEpochProposals(epoch, proposals);
+      }
     }
 
-    const proposalsWithTranslations = proposals.map((p: any) => {
-      const translations = getAllTranslations(epoch, p.id?.toString() || p.url);
+    const proposalsWithTranslations = await Promise.all(proposals.map(async (p: any) => {
+      const proposalId = p.id?.toString() || p.url;
+      const translations = await getAllTranslations(epoch, proposalId);
       return {
-        id: p.id || p.url,
+        id: proposalId,
         epoch: p.epoch || epoch,
         title: p.title,
         url: p.url,
@@ -33,7 +48,7 @@ export async function GET(
         approvalRate: p.approval_rate || 0,
         translations
       };
-    });
+    }));
 
     return NextResponse.json({ proposals: proposalsWithTranslations });
   } catch (error) {

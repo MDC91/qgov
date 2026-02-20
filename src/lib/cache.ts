@@ -8,6 +8,7 @@ interface TranslationEntry {
 type ProposalTranslations = Record<string, TranslationEntry>;
 
 const epochPrefix = (epoch: number) => `translations:epoch:${epoch}`;
+const epochDataPrefix = (epoch: number) => `epoch:${epoch}`;
 
 export async function getTranslation(epoch: number, proposalId: string, lang: string): Promise<string | null> {
   try {
@@ -57,5 +58,23 @@ export async function getProposalList(epoch: number): Promise<string[]> {
   } catch (error) {
     console.error('KV keys error:', error);
     return [];
+  }
+}
+
+export async function getEpochProposals(epoch: number): Promise<any[]> {
+  try {
+    const data = await kv.get<any[]>(`${epochDataPrefix(epoch)}:proposals`);
+    return data || [];
+  } catch (error) {
+    console.error('KV read epoch proposals error:', error);
+    return [];
+  }
+}
+
+export async function setEpochProposals(epoch: number, proposals: any[]): Promise<void> {
+  try {
+    await kv.set(`${epochDataPrefix(epoch)}:proposals`, proposals);
+  } catch (error) {
+    console.error('KV write epoch proposals error:', error);
   }
 }
