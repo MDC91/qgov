@@ -14,7 +14,9 @@ async function getProposal(epoch: number, id: string): Promise<Proposal | null> 
       cache: 'no-store'
     });
     const data = await response.json();
+    console.log('API response for epoch', epoch, ':', data.proposals?.map((p: any) => ({ id: p.id, title: p.title })));
     const proposal = data.proposals?.find((p: Proposal) => String(p.id) === id);
+    console.log('Looking for id:', id, 'Found:', proposal?.title);
     return proposal || null;
   } catch (error) {
     console.error('Error fetching proposal:', error);
