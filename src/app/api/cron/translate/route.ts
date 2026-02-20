@@ -17,7 +17,7 @@ export async function GET(request: Request) {
     const apiKey = process.env.DEEPSEEK_API_KEY;
 
     const currentEpoch = await getCurrentEpoch();
-    const epochs = [currentEpoch, currentEpoch - 1];
+    const epochs = Array.from({ length: 10 }, (_, i) => currentEpoch - i);
 
     const results: any[] = [];
 
