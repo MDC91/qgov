@@ -41,8 +41,6 @@ export async function GET(
       let noVotes = 0;
       let totalVotes = 0;
       
-      console.log('Proposal raw:', { yesVotes: p.yesVotes, sumOption0: p.sumOption0, sumOption1: p.sumOption1, totalVotes: p.totalVotes });
-      
       // New format (165+): has yesVotes/noVotes directly
       if (p.yesVotes !== undefined) {
         yesVotes = p.yesVotes;
