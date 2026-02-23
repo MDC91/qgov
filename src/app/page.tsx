@@ -230,10 +230,13 @@ export default function Home() {
                   const totalVotes = result.totalVotes || (result.yesVotes + result.noVotes);
                   const approvalRate = totalVotes > 0 ? (result.yesVotes / totalVotes * 100) : 0;
                   const statusLabel = getStatusLabel(result.status);
-                  const statusClass = result.status === 3 ? 'bg-green-500/20 text-green-400 border-green-500/30' :
-                                      result.status === 6 || result.status === 4 ? 'bg-red-500/20 text-red-400 border-red-500/30' :
-                                      result.status === 2 ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' :
-                                      'bg-slate-500/20 text-slate-400 border-slate-500/30';
+                  
+                  let statusBg = '#64748b';
+                  let statusColor = '#ffffff';
+                  if (result.status === 3) { statusBg = '#22c55e'; statusColor = '#ffffff'; }
+                  else if (result.status === 6 || result.status === 4) { statusBg = '#ef4444'; statusColor = '#ffffff'; }
+                  else if (result.status === 2) { statusBg = '#f59e0b'; statusColor = '#000000'; }
+                  
                   const slug = createProposalSlug(result.title, result.id);
                   
                   return (
@@ -258,7 +261,7 @@ export default function Home() {
                         <span className="text-sm font-medium px-2 py-1 rounded" style={{ backgroundColor: '#23ffff', color: '#0f172a' }}>
                           Epoch {result.epoch}
                         </span>
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium border ${statusClass}`}>
+                        <span className="px-3 py-1 rounded-full text-xs font-medium border" style={{ backgroundColor: statusBg, color: statusColor, borderColor: statusBg }}>
                           {statusLabel}
                         </span>
                       </div>
