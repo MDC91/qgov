@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getCurrentEpoch, getActiveProposals, getEpochHistory } from '@/lib/qubic-api';
 import { getAllTranslations, getEpochProposals, setEpochProposals } from '@/lib/cache';
+import { extractTitleFromUrl } from '@/lib/proposal';
 
 export async function GET(
   request: Request,
@@ -57,7 +58,7 @@ export async function GET(
       return {
         id: proposalId,
         epoch: p.epoch || epoch,
-        title: p.title,
+        title: p.title || extractTitleFromUrl(p.url),
         url: p.url,
         status: p.status,
         yesVotes,

@@ -9,6 +9,37 @@ export function extractProposalId(url: string, fallbackUrl: string): string {
   }
 }
 
+export function extractTitleFromUrl(url: string): string {
+  if (!url) return '';
+  
+  try {
+    const parts = url.split('/');
+    let filename = parts[parts.length - 1] || parts[parts.length - 2];
+    
+    if (filename.includes('.md')) {
+      filename = filename.replace('.md', '');
+    }
+    
+    if (filename.includes(' at ')) {
+      filename = filename.split(' at ')[0];
+    }
+    
+    filename = filename
+      .replace(/[-_]/g, ' ')
+      .replace(/(\d{2}\.\d{2}\.\d{2}_)/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    
+    if (filename.length > 3) {
+      return filename.charAt(0).toUpperCase() + filename.slice(1);
+    }
+    
+    return '';
+  } catch {
+    return '';
+  }
+}
+
 export function createProposalSlug(title: string, id: string): string {
   if (!title) return encodeURIComponent(id);
   

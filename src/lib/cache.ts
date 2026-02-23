@@ -1,4 +1,5 @@
 import { createClient } from 'redis';
+import { extractTitleFromUrl } from './proposal';
 
 let redisClient: ReturnType<typeof createClient> | null = null;
 
@@ -161,10 +162,11 @@ export async function searchAllProposals(query: string, status?: number): Promis
           }
           
           if (status === undefined || pStatus === status) {
+            const displayTitle = title || extractTitleFromUrl(url) || 'Untitled Proposal';
             results.push({
               epoch,
               id: p.id?.toString() || p.url,
-              title: title || 'Untitled Proposal',
+              title: displayTitle,
               url,
               status: pStatus,
               yesVotes,
