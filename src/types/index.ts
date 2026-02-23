@@ -13,6 +13,7 @@ export interface Proposal {
   noVotes: number;
   totalVotes: number;
   approvalRate: number;
+  proposerIdentity: string | null;
   translations: Record<string, ProposalTranslation>;
 }
 

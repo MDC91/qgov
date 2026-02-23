@@ -75,6 +75,7 @@ async function getProposal(epoch: number, slug: string): Promise<Proposal | null
       noVotes,
       totalVotes,
       approvalRate: matchedProposal.approval_rate || 0,
+      proposerIdentity: matchedProposal.proposerIdentity || null,
       translations
     };
   } catch (error) {

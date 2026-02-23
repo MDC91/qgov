@@ -72,6 +72,7 @@ export async function GET(
         noVotes,
         totalVotes,
         approvalRate: p.approval_rate || 0,
+        proposerIdentity: p.proposerIdentity || null,
         translations
       };
     }));

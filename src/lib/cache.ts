@@ -130,6 +130,7 @@ export interface SearchResult {
   yesVotes: number;
   noVotes: number;
   totalVotes: number;
+  proposerIdentity: string | null;
 }
 
 export async function searchAllProposals(query: string, status?: number): Promise<SearchResult[]> {
@@ -171,7 +172,8 @@ export async function searchAllProposals(query: string, status?: number): Promis
               status: pStatus,
               yesVotes,
               noVotes,
-              totalVotes
+              totalVotes,
+              proposerIdentity: p.proposerIdentity || null
             });
           }
         }
