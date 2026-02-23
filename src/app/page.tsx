@@ -170,8 +170,8 @@ export default function Home() {
     const labels: Record<number, string> = {
       2: 'Active',
       3: 'Approved',
-      4: 'Rejected',
-      5: 'Expired',
+      4: 'Quorum not reached',
+      5: 'Cancelled',
       6: 'Rejected'
     };
     return labels[status] || `Status ${status}`;
@@ -268,6 +268,7 @@ export default function Home() {
                   else if (result.status === 6) { statusBg = '#ef4444'; statusColor = '#ffffff'; }
                   else if (result.status === 4) { statusBg = '#f59e0b'; statusColor = '#000000'; }
                   else if (result.status === 2) { statusBg = '#23ffff'; statusColor = '#000000'; }
+                  else if (result.status === 5) { statusBg = '#7f1d1d'; statusColor = '#ffffff'; }
                   
                   const slug = createProposalSlug(result.title, result.id);
                   

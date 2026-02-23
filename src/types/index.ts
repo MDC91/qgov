@@ -27,6 +27,7 @@ export const PROPOSAL_STATUS = {
   2: 'Active',
   3: 'Approved',
   4: 'Quorum not reached',
+  5: 'Cancelled',
   6: 'Rejected'
 } as const;
 

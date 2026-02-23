@@ -12,7 +12,8 @@ const statusColors: Record<string, string> = {
   Active: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30',
   Approved: 'bg-green-500/20 text-green-400 border-green-500/30',
   Rejected: 'bg-red-500/20 text-red-400 border-red-500/30',
-  'Quorum not reached': 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+  'Quorum not reached': 'bg-amber-500/20 text-amber-400 border-amber-500/30',
+  Cancelled: 'bg-red-900/80 text-white border-red-900'
 };
 
 export default function ProposalCard({ proposal }: ProposalCardProps) {
