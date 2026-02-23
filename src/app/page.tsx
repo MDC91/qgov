@@ -205,7 +205,7 @@ export default function Home() {
               placeholder="Search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-24 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2"
+              className="w-32 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2"
               style={{ 
                 backgroundColor: '#1a2332', 
                 borderColor: '#2d3748',
@@ -226,10 +226,10 @@ export default function Home() {
             />
             <input
               type="text"
-              placeholder="Publisher (Public ID)..."
+              placeholder="Publisher..."
               value={publisherQuery}
               onChange={(e) => setPublisherQuery(e.target.value)}
-              className="flex-1 min-w-[200px] px-3 py-2 rounded-lg border focus:outline-none focus:ring-2"
+              className="w-48 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2"
               style={{ 
                 backgroundColor: '#1a2332', 
                 borderColor: '#2d3748',
