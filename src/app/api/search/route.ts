@@ -5,17 +5,22 @@ export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
     const query = url.searchParams.get('q') || '';
+    const author = url.searchParams.get('author') || '';
+    const publisher = url.searchParams.get('publisher') || '';
     const statusParam = url.searchParams.get('status');
     const status = statusParam ? parseInt(statusParam, 10) : undefined;
 
-    if (!query) {
-      return NextResponse.json({ error: 'Query parameter "q" is required' }, { status: 400 });
+    if (!query && !author && !publisher && status === undefined) {
+      return NextResponse.json({ error: 'At least one search parameter is required' }, { status: 400 });
     }
 
-    const results = await searchAllProposals(query, status);
+    const results = await searchAllProposals(query, author, publisher, status);
 
     return NextResponse.json({ 
       query,
+      author,
+      publisher,
+      status,
       count: results.length,
       results
     });

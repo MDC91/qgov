@@ -24,6 +24,8 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   
   const [searchQuery, setSearchQuery] = useState('');
+  const [authorQuery, setAuthorQuery] = useState('');
+  const [publisherQuery, setPublisherQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
@@ -102,8 +104,8 @@ export default function Home() {
     }
   }, [selectedEpoch]);
 
-  const handleSearch = useCallback(async (query: string, status: number | '') => {
-    if (!query.trim() && status === '') {
+  const handleSearch = useCallback(async (query: string, author: string, publisher: string, status: number | '') => {
+    if (!query.trim() && !author.trim() && !publisher.trim() && status === '') {
       setIsSearching(false);
       setSearchResults([]);
       return;
@@ -116,6 +118,12 @@ export default function Home() {
       const params = new URLSearchParams();
       if (query.trim()) {
         params.set('q', query);
+      }
+      if (author.trim()) {
+        params.set('author', author);
+      }
+      if (publisher.trim()) {
+        params.set('publisher', publisher);
       }
       if (status !== '') {
         params.set('status', status.toString());
@@ -133,11 +141,11 @@ export default function Home() {
 
   useEffect(() => {
     const debounceTimer = setTimeout(() => {
-      handleSearch(searchQuery, statusFilter);
+      handleSearch(searchQuery, authorQuery, publisherQuery, statusFilter);
     }, 300);
 
     return () => clearTimeout(debounceTimer);
-  }, [searchQuery, statusFilter, handleSearch]);
+  }, [searchQuery, authorQuery, publisherQuery, statusFilter, handleSearch]);
 
   useEffect(() => {
     fetch('/api/epoches')
@@ -195,7 +203,7 @@ export default function Home() {
             <div className="flex-1 min-w-[300px]">
               <input
                 type="text"
-                placeholder="Search proposals across all epochs..."
+                placeholder="Search proposals..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2"
@@ -206,6 +214,30 @@ export default function Home() {
                 }}
               />
             </div>
+            <input
+              type="text"
+              placeholder="Author (GitHub)..."
+              value={authorQuery}
+              onChange={(e) => setAuthorQuery(e.target.value)}
+              className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2"
+              style={{ 
+                backgroundColor: '#1a2332', 
+                borderColor: '#2d3748',
+                color: '#e2e8f0'
+              }}
+            />
+            <input
+              type="text"
+              placeholder="Publisher (Public ID)..."
+              value={publisherQuery}
+              onChange={(e) => setPublisherQuery(e.target.value)}
+              className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2"
+              style={{ 
+                backgroundColor: '#1a2332', 
+                borderColor: '#2d3748',
+                color: '#e2e8f0'
+              }}
+            />
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value === '' ? '' : parseInt(e.target.value, 10))}
@@ -230,6 +262,9 @@ export default function Home() {
               onClick={() => {
                 setIsSearching(false);
                 setSearchQuery('');
+                setAuthorQuery('');
+                setPublisherQuery('');
+                setStatusFilter('');
                 setSearchResults([]);
               }}
               className="text-sm hover:underline"

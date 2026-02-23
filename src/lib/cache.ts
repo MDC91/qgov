@@ -133,10 +133,12 @@ export interface SearchResult {
   proposerIdentity: string | null;
 }
 
-export async function searchAllProposals(query: string, status?: number): Promise<SearchResult[]> {
+export async function searchAllProposals(query: string, author: string = '', publisher: string = '', status?: number): Promise<SearchResult[]> {
   try {
     const epochs = await getAllStoredEpochs();
     const queryLower = query.toLowerCase();
+    const authorLower = author.toLowerCase();
+    const publisherLower = publisher.toLowerCase();
     const results: SearchResult[] = [];
     
     const epochPromises = epochs.map(async (epoch) => {
@@ -146,7 +148,23 @@ export async function searchAllProposals(query: string, status?: number): Promis
         const title = p.title || '';
         const url = p.url || '';
         
-        if (queryLower && (title.toLowerCase().includes(queryLower) || url.toLowerCase().includes(queryLower))) {
+        // Extract author from URL (github username)
+        let authorFromUrl = '';
+        if (url.includes('github.com')) {
+          const parts = url.replace('https://', '').replace('http://', '').split('/');
+          if (parts.length >= 2) {
+            authorFromUrl = parts[1];
+          }
+        }
+        
+        const proposerIdentity = p.proposerIdentity || '';
+        
+        // Check if this proposal matches the search criteria
+        const matchesQuery = !queryLower || title.toLowerCase().includes(queryLower) || url.toLowerCase().includes(queryLower);
+        const matchesAuthor = !authorLower || authorFromUrl.toLowerCase().includes(authorLower);
+        const matchesPublisher = !publisherLower || proposerIdentity.toLowerCase().includes(publisherLower);
+        
+        if (matchesQuery && matchesAuthor && matchesPublisher) {
           let yesVotes = 0;
           let noVotes = 0;
           let totalVotes = 0;
