@@ -103,7 +103,7 @@ export default function Home() {
   }, [selectedEpoch]);
 
   const handleSearch = useCallback(async (query: string, status: number | '') => {
-    if (!query.trim()) {
+    if (!query.trim() && status === '') {
       setIsSearching(false);
       setSearchResults([]);
       return;
@@ -113,7 +113,10 @@ export default function Home() {
     setIsSearching(true);
 
     try {
-      const params = new URLSearchParams({ q: query });
+      const params = new URLSearchParams();
+      if (query.trim()) {
+        params.set('q', query);
+      }
       if (status !== '') {
         params.set('status', status.toString());
       }
@@ -130,12 +133,7 @@ export default function Home() {
 
   useEffect(() => {
     const debounceTimer = setTimeout(() => {
-      if (searchQuery.trim()) {
-        handleSearch(searchQuery, statusFilter);
-      } else {
-        setIsSearching(false);
-        setSearchResults([]);
-      }
+      handleSearch(searchQuery, statusFilter);
     }, 300);
 
     return () => clearTimeout(debounceTimer);
@@ -220,9 +218,9 @@ export default function Home() {
             >
               <option value="">All Status</option>
               <option value="2">Active</option>
-              <option value="3">Accepted</option>
-              <option value="4">Rejected</option>
-              <option value="5">Expired</option>
+              <option value="3">Approved</option>
+              <option value="4">Quorum not reached</option>
+              <option value="5">Cancelled</option>
               <option value="6">Rejected</option>
             </select>
           </div>
