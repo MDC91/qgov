@@ -29,6 +29,48 @@ export default function Home() {
   const [isSearching, setIsSearching] = useState(false);
   const [statusFilter, setStatusFilter] = useState<number | ''>('');
 
+  useEffect(() => {
+    const savedState = sessionStorage.getItem('qgov_state');
+    if (savedState) {
+      try {
+        const state = JSON.parse(savedState);
+        if (state.selectedEpoch) setSelectedEpoch(state.selectedEpoch);
+        if (state.searchQuery) {
+          setSearchQuery(state.searchQuery);
+          setIsSearching(true);
+        }
+        if (state.statusFilter) setStatusFilter(state.statusFilter);
+      } catch (e) {
+        console.error('Failed to parse saved state', e);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const state: any = {};
+    if (selectedEpoch) state.selectedEpoch = selectedEpoch;
+    if (searchQuery) state.searchQuery = searchQuery;
+    if (statusFilter) state.statusFilter = statusFilter;
+    
+    if (Object.keys(state).length > 0) {
+      sessionStorage.setItem('qgov_state', JSON.stringify(state));
+    }
+  }, [selectedEpoch, searchQuery, statusFilter]);
+
+  useEffect(() => {
+    fetch('/api/epoches')
+      .then(res => res.json())
+      .then(data => {
+        if (data.epochs && data.epochs.length > 0) {
+          setEpochs(data.epochs);
+          if (!selectedEpoch) {
+            setSelectedEpoch(data.epochs[0].epoch);
+          }
+        }
+      })
+      .catch(console.error);
+  }, [selectedEpoch]);
+
   const handleSearch = useCallback(async (query: string, status: number | '') => {
     if (!query.trim()) {
       setIsSearching(false);

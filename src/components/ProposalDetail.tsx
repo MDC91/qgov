@@ -147,6 +147,7 @@ export default function ProposalDetail({ epoch, id, initialProposal }: ProposalD
             <ReactMarkdown 
               remarkPlugins={[remarkGfm]}
               components={{
+                br: ({node, ...props}) => <br {...props} />,
                 h1: ({node, ...props}) => <h1 style={{color: '#ffffff', fontSize: '1.5em', fontWeight: 'bold', marginBottom: '0.5em', marginTop: '1em'}} {...props} />,
                 h2: ({node, ...props}) => <h2 style={{color: '#ffffff', fontSize: '1.3em', fontWeight: 'bold', marginTop: '1em', marginBottom: '0.5em'}} {...props} />,
                 h3: ({node, ...props}) => <h3 style={{color: '#ffffff', fontSize: '1.1em', fontWeight: 'bold', marginTop: '0.8em', marginBottom: '0.4em'}} {...props} />,
@@ -167,7 +168,7 @@ export default function ProposalDetail({ epoch, id, initialProposal }: ProposalD
                 hr: ({node, ...props}) => <hr style={{borderColor: '#202e3c', margin: '1.5em 0'}} {...props} />,
               }}
             >
-              {translation}
+              {translation.replace(/<br\s*\/?>/gi, '\n\n')}
             </ReactMarkdown>
           </div>
         ) : loading ? (
