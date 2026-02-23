@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getCurrentEpoch, getActiveProposals, getEpochHistory } from '@/lib/qubic-api';
-import { getEpochProposals } from '@/lib/cache';
+import { getEpochProposals, getAllStoredEpochs } from '@/lib/cache';
 
 export async function GET() {
   try {
@@ -13,12 +13,15 @@ export async function GET() {
       epochs.push({ epoch: currentEpoch, proposalCount: activeProposals.length, hasActive: true });
     }
 
-    // Then check stored historical epochs from Redis
-    for (let e = currentEpoch - 1; e >= 1; e--) {
-      const stored = await getEpochProposals(e);
-      
-      if (stored && stored.length > 0) {
-        epochs.push({ epoch: e, proposalCount: stored.length, hasActive: false });
+    // Get all stored epochs from Redis in one call
+    const storedEpochs = await getAllStoredEpochs();
+    
+    for (const e of storedEpochs) {
+      if (e < currentEpoch) {
+        const stored = await getEpochProposals(e);
+        if (stored && stored.length > 0) {
+          epochs.push({ epoch: e, proposalCount: stored.length, hasActive: false });
+        }
       }
     }
 
