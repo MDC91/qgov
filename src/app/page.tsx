@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Proposal } from '@/types';
 import EpochSelector from '@/components/EpochSelector';
 import ProposalCard from '@/components/ProposalCard';
+import { createProposalSlug } from '@/lib/proposal';
 
 interface SearchResult {
   epoch: number;
@@ -191,11 +192,12 @@ export default function Home() {
                                       result.status === 6 ? 'bg-red-500/20 text-red-400 border-red-500/30' :
                                       result.status === 2 ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' :
                                       'bg-slate-500/20 text-slate-400 border-slate-500/30';
+                  const slug = createProposalSlug(result.title, result.id);
                   
                   return (
                     <a
                       key={`${result.epoch}-${result.id}`}
-                      href={`/proposal/${result.epoch}/${encodeURIComponent(result.id)}`}
+                      href={`/proposal/${result.epoch}/${slug}`}
                       className="block rounded-xl p-5 transition-all group"
                       style={{ 
                         backgroundColor: '#151e27', 
