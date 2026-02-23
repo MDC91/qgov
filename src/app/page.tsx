@@ -198,28 +198,14 @@ export default function Home() {
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
-        <div className="mb-6 space-y-4">
-          <div className="flex gap-4 flex-wrap">
-            <div className="flex-1 min-w-[300px]">
-              <input
-                type="text"
-                placeholder="Search proposals..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2"
-                style={{ 
-                  backgroundColor: '#1a2332', 
-                  borderColor: '#2d3748',
-                  color: '#e2e8f0'
-                }}
-              />
-            </div>
+        <div className="mb-6">
+          <div className="flex gap-2 flex-wrap">
             <input
               type="text"
-              placeholder="Author (GitHub)..."
-              value={authorQuery}
-              onChange={(e) => setAuthorQuery(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="flex-1 min-w-[150px] px-3 py-2 rounded-lg border focus:outline-none focus:ring-2"
               style={{ 
                 backgroundColor: '#1a2332', 
                 borderColor: '#2d3748',
@@ -228,10 +214,22 @@ export default function Home() {
             />
             <input
               type="text"
-              placeholder="Publisher (Public ID)..."
+              placeholder="Author..."
+              value={authorQuery}
+              onChange={(e) => setAuthorQuery(e.target.value)}
+              className="w-32 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2"
+              style={{ 
+                backgroundColor: '#1a2332', 
+                borderColor: '#2d3748',
+                color: '#e2e8f0'
+              }}
+            />
+            <input
+              type="text"
+              placeholder="Publisher..."
               value={publisherQuery}
               onChange={(e) => setPublisherQuery(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2"
+              className="w-40 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2"
               style={{ 
                 backgroundColor: '#1a2332', 
                 borderColor: '#2d3748',
@@ -241,7 +239,7 @@ export default function Home() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value === '' ? '' : parseInt(e.target.value, 10))}
-              className="px-4 py-3 rounded-lg border focus:outline-none"
+              className="px-3 py-2 rounded-lg border focus:outline-none"
               style={{ 
                 backgroundColor: '#1a2332', 
                 borderColor: '#2d3748',
@@ -251,7 +249,7 @@ export default function Home() {
               <option value="">All Status</option>
               <option value="2">Active</option>
               <option value="3">Approved</option>
-              <option value="4">Quorum not reached</option>
+              <option value="4">Quorum</option>
               <option value="5">Cancelled</option>
               <option value="6">Rejected</option>
             </select>
