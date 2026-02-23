@@ -6,6 +6,22 @@ import remarkGfm from 'remark-gfm';
 import { Proposal, LANGUAGES, PROPOSAL_STATUS } from '@/types';
 import LanguageTabs from './LanguageTabs';
 
+function extractGitHubAuthor(url: string): { author: string; profileUrl: string } | null {
+  if (!url || !url.includes('github.com')) return null;
+  
+  try {
+    const parts = url.replace('https://', '').replace('http://', '').split('/');
+    if (parts.length >= 2) {
+      const author = parts[1];
+      return {
+        author,
+        profileUrl: `https://github.com/${author}`
+      };
+    }
+  } catch {}
+  return null;
+}
+
 interface ProposalDetailProps {
   epoch: number;
   id: string;
@@ -104,6 +120,25 @@ export default function ProposalDetail({ epoch, id, initialProposal }: ProposalD
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
           </svg>
         </a>
+
+        {extractGitHubAuthor(initialProposal.url) && (
+          <a 
+            href={extractGitHubAuthor(initialProposal.url)?.profileUrl || '#'}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            style={{ 
+              backgroundColor: '#202e3c', 
+              color: '#23ffff',
+              border: '1px solid #202e3c'
+            }}
+          >
+            Author: {extractGitHubAuthor(initialProposal.url)?.author}
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+          </a>
+        )}
 
         <div className="flex items-center gap-6 mt-6" style={{ borderColor: '#202e3c', borderTopWidth: '1px', borderStyle: 'solid', paddingTop: '24px' }}>
           <div className="text-center" style={{ minWidth: '80px' }}>
