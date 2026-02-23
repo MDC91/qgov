@@ -9,6 +9,32 @@ export function extractProposalId(url: string, fallbackUrl: string): string {
   }
 }
 
+export async function extractTitleFromMarkdown(url: string): Promise<string | null> {
+  if (!url || !url.includes('github.com')) return null;
+  
+  try {
+    const rawUrl = url
+      .replace('github.com', 'raw.githubusercontent.com')
+      .replace('/blob/', '/');
+    
+    const response = await fetch(rawUrl, { next: { revalidate: 3600 } });
+    if (!response.ok) return null;
+    
+    const content = await response.text();
+    
+    const lines = content.split('\n');
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (trimmed.startsWith('# ')) {
+        return trimmed.substring(2).trim();
+      }
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export function extractTitleFromUrl(url: string): string {
   if (!url) return '';
   

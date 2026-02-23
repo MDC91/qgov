@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getCurrentEpoch, getActiveProposals, getEpochHistory } from '@/lib/qubic-api';
 import { getAllTranslations, getEpochProposals, setEpochProposals } from '@/lib/cache';
-import { extractTitleFromUrl } from '@/lib/proposal';
+import { extractTitleFromUrl, extractTitleFromMarkdown } from '@/lib/proposal';
 
 export async function GET(
   request: Request,
@@ -55,10 +55,17 @@ export async function GET(
         totalVotes = parseInt(p.totalVotes || '0', 10);
       }
       
+      // Get title - prefer existing, then markdown, then URL
+      let title = p.title;
+      if (!title || title.includes('.md') || title.includes(' at ')) {
+        const markdownTitle = await extractTitleFromMarkdown(p.url);
+        title = markdownTitle || extractTitleFromUrl(p.url) || 'Untitled Proposal';
+      }
+      
       return {
         id: proposalId,
         epoch: p.epoch || epoch,
-        title: p.title || extractTitleFromUrl(p.url),
+        title,
         url: p.url,
         status: p.status,
         yesVotes,
