@@ -144,7 +144,7 @@ export async function searchAllProposals(query: string, status?: number): Promis
         const title = p.title || '';
         const url = p.url || '';
         
-        if (!queryLower || title.toLowerCase().includes(queryLower) || url.toLowerCase().includes(queryLower)) {
+        if (queryLower && (title.toLowerCase().includes(queryLower) || url.toLowerCase().includes(queryLower))) {
           let yesVotes = 0;
           let noVotes = 0;
           let totalVotes = 0;
