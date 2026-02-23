@@ -199,13 +199,13 @@ export default function Home() {
 
       <main className="max-w-6xl mx-auto px-4 py-8">
         <div className="mb-6">
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-2 flex-wrap items-center">
             <input
               type="text"
               placeholder="Search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 min-w-[150px] px-3 py-2 rounded-lg border focus:outline-none focus:ring-2"
+              className="w-24 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2"
               style={{ 
                 backgroundColor: '#1a2332', 
                 borderColor: '#2d3748',
@@ -217,7 +217,7 @@ export default function Home() {
               placeholder="Author..."
               value={authorQuery}
               onChange={(e) => setAuthorQuery(e.target.value)}
-              className="w-32 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2"
+              className="w-28 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2"
               style={{ 
                 backgroundColor: '#1a2332', 
                 borderColor: '#2d3748',
@@ -226,10 +226,10 @@ export default function Home() {
             />
             <input
               type="text"
-              placeholder="Publisher..."
+              placeholder="Publisher (Public ID)..."
               value={publisherQuery}
               onChange={(e) => setPublisherQuery(e.target.value)}
-              className="w-40 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2"
+              className="flex-1 min-w-[200px] px-3 py-2 rounded-lg border focus:outline-none focus:ring-2"
               style={{ 
                 backgroundColor: '#1a2332', 
                 borderColor: '#2d3748',
