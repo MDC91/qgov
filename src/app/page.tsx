@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { Proposal } from '@/types';
 import EpochSelector from '@/components/EpochSelector';
 import ProposalCard from '@/components/ProposalCard';
@@ -17,11 +18,16 @@ interface SearchResult {
   totalVotes: number;
 }
 
-export default function Home() {
+function HomeContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  
   const [epochs, setEpochs] = useState<{ epoch: number; proposalCount: number; hasActive: boolean }[]>([]);
-  const [selectedEpoch, setSelectedEpoch] = useState<number | null>(null);
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  const epochParam = searchParams.get('epoch');
+  const selectedEpoch = epochParam ? parseInt(epochParam, 10) : null;
   
   const [searchQuery, setSearchQuery] = useState('');
   const [authorQuery, setAuthorQuery] = useState('');
@@ -31,62 +37,11 @@ export default function Home() {
   const [isSearching, setIsSearching] = useState(false);
   const [statusFilter, setStatusFilter] = useState<number | ''>('');
 
-  // Load from sessionStorage on mount
-  useEffect(() => {
-    const savedState = sessionStorage.getItem('qgov_state');
-    if (savedState) {
-      try {
-        const state = JSON.parse(savedState);
-        if (state.selectedEpoch !== undefined) {
-          // We'll set this after epochs are loaded
-          sessionStorage.setItem('qgov_pending_epoch', state.selectedEpoch.toString());
-        }
-        if (state.searchQuery) setSearchQuery(state.searchQuery);
-        if (state.authorQuery) setAuthorQuery(state.authorQuery);
-        if (state.publisherQuery) setPublisherQuery(state.publisherQuery);
-        if (state.statusFilter) setStatusFilter(state.statusFilter);
-        if (state.searchQuery || state.authorQuery || state.publisherQuery || state.statusFilter) {
-          setIsSearching(true);
-        }
-      } catch (e) {
-        console.error('Failed to parse saved state', e);
-      }
-    }
-  }, []);
-
-  // Load epochs and set pending epoch
-  useEffect(() => {
-    fetch('/api/epoches')
-      .then(res => res.json())
-      .then(data => {
-        if (data.epochs && data.epochs.length > 0) {
-          setEpochs(data.epochs);
-          const pendingEpoch = sessionStorage.getItem('qgov_pending_epoch');
-          if (pendingEpoch) {
-            const epoch = parseInt(pendingEpoch, 10);
-            if (data.epochs.some((e: any) => e.epoch === epoch)) {
-              setSelectedEpoch(epoch);
-            }
-            sessionStorage.removeItem('qgov_pending_epoch');
-          } else {
-            setSelectedEpoch(data.epochs[0].epoch);
-          }
-        }
-      })
-      .catch(console.error);
-  }, []);
-
-  // Save to sessionStorage when state changes
-  useEffect(() => {
-    const state: any = {
-      selectedEpoch,
-      searchQuery,
-      authorQuery,
-      publisherQuery,
-      statusFilter
-    };
-    sessionStorage.setItem('qgov_state', JSON.stringify(state));
-  }, [selectedEpoch, searchQuery, authorQuery, publisherQuery, statusFilter]);
+  const setSelectedEpoch = useCallback((epoch: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('epoch', epoch.toString());
+    router.push(`/?${params.toString()}`, { scroll: false });
+  }, [searchParams, router]);
 
   useEffect(() => {
     fetch('/api/epoches')
@@ -94,8 +49,10 @@ export default function Home() {
       .then(data => {
         if (data.epochs && data.epochs.length > 0) {
           setEpochs(data.epochs);
-          if (!selectedEpoch && !sessionStorage.getItem('qgov_state')) {
-            setSelectedEpoch(data.epochs[0].epoch);
+          if (!selectedEpoch) {
+            const params = new URLSearchParams(searchParams.toString());
+            params.set('epoch', data.epochs[0].epoch.toString());
+            router.replace(`/?${params.toString()}`, { scroll: false });
           }
         }
       })
@@ -103,16 +60,15 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (selectedEpoch) {
-      setLoading(true);
-      fetch(`/api/proposals/${selectedEpoch}`)
-        .then(res => res.json())
-        .then(data => {
-          setProposals(data.proposals || []);
-          setLoading(false);
-        })
-        .catch(console.error);
-    }
+    if (!selectedEpoch) return;
+    setLoading(true);
+    fetch(`/api/proposals/${selectedEpoch}`)
+      .then(res => res.json())
+      .then(data => {
+        setProposals(data.proposals || []);
+        setLoading(false);
+      })
+      .catch(console.error);
   }, [selectedEpoch]);
 
   const handleSearch = useCallback(async (query: string, author: string, publisher: string, status: number | '') => {
@@ -127,18 +83,10 @@ export default function Home() {
 
     try {
       const params = new URLSearchParams();
-      if (query.trim()) {
-        params.set('q', query);
-      }
-      if (author.trim()) {
-        params.set('author', author);
-      }
-      if (publisher.trim()) {
-        params.set('publisher', publisher);
-      }
-      if (status !== '') {
-        params.set('status', status.toString());
-      }
+      if (query.trim()) params.set('q', query);
+      if (author.trim()) params.set('author', author);
+      if (publisher.trim()) params.set('publisher', publisher);
+      if (status !== '') params.set('status', status.toString());
 
       const res = await fetch(`/api/search?${params}`);
       const data = await res.json();
@@ -154,34 +102,8 @@ export default function Home() {
     const debounceTimer = setTimeout(() => {
       handleSearch(searchQuery, authorQuery, publisherQuery, statusFilter);
     }, 300);
-
     return () => clearTimeout(debounceTimer);
   }, [searchQuery, authorQuery, publisherQuery, statusFilter, handleSearch]);
-
-  useEffect(() => {
-    fetch('/api/epoches')
-      .then(res => res.json())
-      .then(data => {
-        if (data.epochs && data.epochs.length > 0) {
-          setEpochs(data.epochs);
-          setSelectedEpoch(data.epochs[0].epoch);
-        }
-      })
-      .catch(console.error);
-  }, []);
-
-  useEffect(() => {
-    if (!selectedEpoch || isSearching) return;
-
-    setLoading(true);
-    fetch(`/api/proposals/${selectedEpoch}`)
-      .then(res => res.json())
-      .then(data => {
-        setProposals(data.proposals || []);
-        setLoading(false);
-      })
-      .catch(console.error);
-  }, [selectedEpoch, isSearching]);
 
   const getStatusLabel = (status: number) => {
     const labels: Record<number, string> = {
@@ -199,10 +121,10 @@ export default function Home() {
       <header className="border backdrop-blur-sm sticky top-0 z-10" style={{ backgroundColor: '#151e27', borderColor: '#202e3c' }}>
         <div className="max-w-6xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+            <a href="/" className="flex items-center gap-3">
               <img src="/Qubic-Logo-White.svg" alt="Qubic" className="h-10" style={{ width: 'auto' }} />
               <span className="text-3xl font-light font-governance" style={{ color: '#23ffff' }}>governance</span>
-            </div>
+            </a>
             <p className="text-sm" style={{ color: '#94a3b8' }}>Qubic Proposal Translations</p>
           </div>
         </div>
@@ -217,11 +139,7 @@ export default function Home() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-32 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2"
-              style={{ 
-                backgroundColor: '#1a2332', 
-                borderColor: '#2d3748',
-                color: '#e2e8f0'
-              }}
+              style={{ backgroundColor: '#1a2332', borderColor: '#2d3748', color: '#e2e8f0' }}
             />
             <input
               type="text"
@@ -229,11 +147,7 @@ export default function Home() {
               value={authorQuery}
               onChange={(e) => setAuthorQuery(e.target.value)}
               className="w-28 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2"
-              style={{ 
-                backgroundColor: '#1a2332', 
-                borderColor: '#2d3748',
-                color: '#e2e8f0'
-              }}
+              style={{ backgroundColor: '#1a2332', borderColor: '#2d3748', color: '#e2e8f0' }}
             />
             <input
               type="text"
@@ -241,21 +155,13 @@ export default function Home() {
               value={publisherQuery}
               onChange={(e) => setPublisherQuery(e.target.value)}
               className="w-48 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2"
-              style={{ 
-                backgroundColor: '#1a2332', 
-                borderColor: '#2d3748',
-                color: '#e2e8f0'
-              }}
+              style={{ backgroundColor: '#1a2332', borderColor: '#2d3748', color: '#e2e8f0' }}
             />
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value === '' ? '' : parseInt(e.target.value, 10))}
               className="px-3 py-2 rounded-lg border focus:outline-none"
-              style={{ 
-                backgroundColor: '#1a2332', 
-                borderColor: '#2d3748',
-                color: '#e2e8f0'
-              }}
+              style={{ backgroundColor: '#1a2332', borderColor: '#2d3748', color: '#e2e8f0' }}
             >
               <option value="">All Status</option>
               <option value="2">Active</option>
@@ -276,7 +182,7 @@ export default function Home() {
                 setStatusFilter('');
                 setSearchResults([]);
               }}
-              className="text-sm hover:underline"
+              className="text-sm hover:underline mt-2"
               style={{ color: '#23ffff' }}
             >
               ← Back to epoch view
@@ -291,12 +197,12 @@ export default function Home() {
             </div>
           ) : searchResults.length === 0 ? (
             <div className="text-center py-20" style={{ color: '#94a3b8' }}>
-              No proposals found for "{searchQuery}"
+              No proposals found
             </div>
           ) : (
             <div>
               <p className="mb-4 text-sm" style={{ color: '#94a3b8' }}>
-                Found {searchResults.length} proposal(s) for "{searchQuery}"
+                Found {searchResults.length} proposal(s)
               </p>
               <div className="grid gap-4">
                 {searchResults.map((result) => {
@@ -318,10 +224,7 @@ export default function Home() {
                       key={`${result.epoch}-${result.id}`}
                       href={`/proposal/${result.epoch}/${slug}`}
                       className="block rounded-xl p-5 transition-all group"
-                      style={{ 
-                        backgroundColor: '#151e27', 
-                        border: '1px solid #202e3c' 
-                      }}
+                      style={{ backgroundColor: '#151e27', border: '1px solid #202e3c' }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.backgroundColor = '#202e3c';
                         e.currentTarget.style.borderColor = '#23ffff';
@@ -351,27 +254,19 @@ export default function Home() {
                         <div className="flex items-center gap-6">
                           <div className="text-center" style={{ minWidth: '60px' }}>
                             <span className="text-xs block" style={{ color: '#94a3b8' }}>Yes</span>
-                            <p className="text-sm font-medium" style={{ color: '#22c55e' }}>
-                              {result.yesVotes.toLocaleString()}
-                            </p>
+                            <p className="text-sm font-medium" style={{ color: '#22c55e' }}>{result.yesVotes.toLocaleString()}</p>
                           </div>
                           <div className="text-center" style={{ minWidth: '60px' }}>
                             <span className="text-xs block" style={{ color: '#94a3b8' }}>No</span>
-                            <p className="text-sm font-medium" style={{ color: '#ef4444' }}>
-                              {result.noVotes.toLocaleString()}
-                            </p>
+                            <p className="text-sm font-medium" style={{ color: '#ef4444' }}>{result.noVotes.toLocaleString()}</p>
                           </div>
                           <div className="text-center" style={{ minWidth: '60px' }}>
                             <span className="text-xs block" style={{ color: '#94a3b8' }}>Approval</span>
-                            <p className="text-sm font-medium" style={{ color: '#ffffff' }}>
-                              {approvalRate.toFixed(1)}%
-                            </p>
+                            <p className="text-sm font-medium" style={{ color: '#ffffff' }}>{approvalRate.toFixed(1)}%</p>
                           </div>
                           <div className="text-center" style={{ minWidth: '60px' }}>
                             <span className="text-xs block" style={{ color: '#94a3b8' }}>Total</span>
-                            <p className="text-sm font-medium" style={{ color: '#94a3b8' }}>
-                              {totalVotes.toLocaleString()}
-                            </p>
+                            <p className="text-sm font-medium" style={{ color: '#94a3b8' }}>{totalVotes.toLocaleString()}</p>
                           </div>
                         </div>
                       </div>
@@ -410,5 +305,17 @@ export default function Home() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#101820' }}>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: '#23ffff' }}></div>
+      </div>
+    }>
+      <HomeContent />
+    </Suspense>
   );
 }
