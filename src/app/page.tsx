@@ -234,8 +234,9 @@ export default function Home() {
                   let statusBg = '#64748b';
                   let statusColor = '#ffffff';
                   if (result.status === 3) { statusBg = '#22c55e'; statusColor = '#ffffff'; }
-                  else if (result.status === 6 || result.status === 4) { statusBg = '#ef4444'; statusColor = '#ffffff'; }
-                  else if (result.status === 2) { statusBg = '#f59e0b'; statusColor = '#000000'; }
+                  else if (result.status === 6) { statusBg = '#ef4444'; statusColor = '#ffffff'; }
+                  else if (result.status === 4) { statusBg = '#f59e0b'; statusColor = '#000000'; }
+                  else if (result.status === 2) { statusBg = '#23ffff'; statusColor = '#000000'; }
                   
                   const slug = createProposalSlug(result.title, result.id);
                   

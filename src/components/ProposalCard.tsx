@@ -9,10 +9,10 @@ interface ProposalCardProps {
 }
 
 const statusColors: Record<string, string> = {
-  Active: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
+  Active: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30',
   Approved: 'bg-green-500/20 text-green-400 border-green-500/30',
   Rejected: 'bg-red-500/20 text-red-400 border-red-500/30',
-  'Quorum not reached': 'bg-yellow-600/20 text-yellow-500 border-yellow-600/30'
+  'Quorum not reached': 'bg-amber-500/20 text-amber-400 border-amber-500/30'
 };
 
 export default function ProposalCard({ proposal }: ProposalCardProps) {
