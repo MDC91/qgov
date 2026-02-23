@@ -157,7 +157,7 @@ export default function ProposalDetail({ epoch, id, initialProposal }: ProposalD
                 li: ({node, ...props}) => <li style={{color: '#e2e8f0', marginBottom: '0.25em'}} {...props} />,
                 code: ({node, ...props}) => <code style={{backgroundColor: '#0f172a', color: '#23ffff', padding: '0.2em 0.4em', borderRadius: '0.25em', fontSize: '0.9em', fontFamily: 'monospace'}} {...props} />,
                 pre: ({node, ...props}) => <pre style={{backgroundColor: '#0f172a', color: '#e2e8f0', padding: '1em', borderRadius: '0.5em', overflow: 'auto', marginBottom: '1em', fontFamily: 'monospace'}} {...props} />,
-                a: ({node, ...props}) => <a style={{color: '#23ffff', textDecoration: 'underline'}} {...props} />,
+                a: ({node, ...props}) => <a target="_blank" rel="noopener noreferrer" style={{color: '#23ffff', textDecoration: 'underline'}} {...props} />,
                 table: ({node, ...props}) => <table style={{borderCollapse: 'collapse', width: '100%', marginBottom: '1em', overflowX: 'auto', display: 'table'}} {...props} />,
                 thead: ({node, ...props}) => <thead style={{backgroundColor: '#1e293b'}} {...props} />,
                 tbody: ({node, ...props}) => <tbody {...props} />,
