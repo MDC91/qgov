@@ -31,34 +31,44 @@ export default function Home() {
   const [isSearching, setIsSearching] = useState(false);
   const [statusFilter, setStatusFilter] = useState<number | ''>('');
 
+  // Load from sessionStorage on mount
   useEffect(() => {
     const savedState = sessionStorage.getItem('qgov_state');
-    let loadedEpoch: number | null = null;
-    let loadedSearch = '';
-    
     if (savedState) {
       try {
         const state = JSON.parse(savedState);
-        if (state.selectedEpoch) loadedEpoch = state.selectedEpoch;
-        if (state.searchQuery) {
-          loadedSearch = state.searchQuery;
-          setSearchQuery(state.searchQuery);
+        if (state.selectedEpoch !== undefined) {
+          // We'll set this after epochs are loaded
+          sessionStorage.setItem('qgov_pending_epoch', state.selectedEpoch.toString());
+        }
+        if (state.searchQuery) setSearchQuery(state.searchQuery);
+        if (state.authorQuery) setAuthorQuery(state.authorQuery);
+        if (state.publisherQuery) setPublisherQuery(state.publisherQuery);
+        if (state.statusFilter) setStatusFilter(state.statusFilter);
+        if (state.searchQuery || state.authorQuery || state.publisherQuery || state.statusFilter) {
           setIsSearching(true);
         }
-        if (state.statusFilter) setStatusFilter(state.statusFilter);
       } catch (e) {
         console.error('Failed to parse saved state', e);
       }
     }
-    
+  }, []);
+
+  // Load epochs and set pending epoch
+  useEffect(() => {
     fetch('/api/epoches')
       .then(res => res.json())
       .then(data => {
         if (data.epochs && data.epochs.length > 0) {
           setEpochs(data.epochs);
-          if (loadedEpoch) {
-            setSelectedEpoch(loadedEpoch);
-          } else if (!loadedSearch) {
+          const pendingEpoch = sessionStorage.getItem('qgov_pending_epoch');
+          if (pendingEpoch) {
+            const epoch = parseInt(pendingEpoch, 10);
+            if (data.epochs.some((e: any) => e.epoch === epoch)) {
+              setSelectedEpoch(epoch);
+            }
+            sessionStorage.removeItem('qgov_pending_epoch');
+          } else {
             setSelectedEpoch(data.epochs[0].epoch);
           }
         }
@@ -66,16 +76,17 @@ export default function Home() {
       .catch(console.error);
   }, []);
 
+  // Save to sessionStorage when state changes
   useEffect(() => {
-    const state: any = {};
-    if (selectedEpoch) state.selectedEpoch = selectedEpoch;
-    if (searchQuery) state.searchQuery = searchQuery;
-    if (statusFilter) state.statusFilter = statusFilter;
-    
-    if (Object.keys(state).length > 0) {
-      sessionStorage.setItem('qgov_state', JSON.stringify(state));
-    }
-  }, [selectedEpoch, searchQuery, statusFilter]);
+    const state: any = {
+      selectedEpoch,
+      searchQuery,
+      authorQuery,
+      publisherQuery,
+      statusFilter
+    };
+    sessionStorage.setItem('qgov_state', JSON.stringify(state));
+  }, [selectedEpoch, searchQuery, authorQuery, publisherQuery, statusFilter]);
 
   useEffect(() => {
     fetch('/api/epoches')
