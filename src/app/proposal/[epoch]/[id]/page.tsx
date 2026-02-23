@@ -1,7 +1,7 @@
 import { Proposal } from '@/types';
 import ProposalDetail from '@/components/ProposalDetail';
 import { getCurrentEpoch, getActiveProposals, getEpochHistory } from '@/lib/qubic-api';
-import { getAllTranslations } from '@/lib/cache';
+import { getAllTranslations, getEpochProposals } from '@/lib/cache';
 import { createProposalSlug } from '@/lib/proposal';
 
 interface PageProps {
@@ -22,7 +22,12 @@ async function getProposal(epoch: number, slug: string): Promise<Proposal | null
     const currentEpoch = await getCurrentEpoch();
     let proposals: any[] = [];
 
-    if (epoch === currentEpoch) {
+    // First check Redis for stored proposals
+    const storedProposals = await getEpochProposals(epoch);
+    
+    if (storedProposals && storedProposals.length > 0) {
+      proposals = storedProposals;
+    } else if (epoch === currentEpoch) {
       proposals = await getActiveProposals();
     } else {
       proposals = await getEpochHistory(epoch);
@@ -38,15 +43,32 @@ async function getProposal(epoch: number, slug: string): Promise<Proposal | null
     const proposalId = matchedProposal.id?.toString() || matchedProposal.url;
     const translations = await getAllTranslations(epoch, proposalId);
 
+    let yesVotes = 0;
+    let noVotes = 0;
+    let totalVotes = 0;
+    
+    // New format (165+)
+    if (matchedProposal.yesVotes !== undefined) {
+      yesVotes = matchedProposal.yesVotes;
+      noVotes = matchedProposal.noVotes;
+      totalVotes = matchedProposal.totalVotes || 0;
+    }
+    // Old format (134-164)
+    else if (matchedProposal.sumOption0 !== undefined || matchedProposal.sumOption1 !== undefined) {
+      yesVotes = parseInt(matchedProposal.sumOption1 || '0', 10);
+      noVotes = parseInt(matchedProposal.sumOption0 || '0', 10);
+      totalVotes = parseInt(matchedProposal.totalVotes || '0', 10);
+    }
+
     return {
       id: proposalId,
       epoch: matchedProposal.epoch || epoch,
       title: matchedProposal.title,
       url: matchedProposal.url,
       status: matchedProposal.status,
-      yesVotes: matchedProposal.options?.[1]?.numberOfVotes || matchedProposal.yes_votes || 0,
-      noVotes: matchedProposal.options?.[0]?.numberOfVotes || matchedProposal.no_votes || 0,
-      totalVotes: matchedProposal.totalVotes || 0,
+      yesVotes,
+      noVotes,
+      totalVotes,
       approvalRate: matchedProposal.approval_rate || 0,
       translations
     };
