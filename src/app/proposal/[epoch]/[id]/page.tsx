@@ -35,7 +35,12 @@ async function getProposal(epoch: number, slug: string): Promise<Proposal | null
 
     const matchedProposal = proposals.find((p: any) => {
       const proposalId = p.id?.toString() || p.url;
-      return titleToSlug(p.title || '') === slug || proposalId === slug;
+      const decodedSlug = decodeURIComponent(slug);
+      return titleToSlug(p.title || '') === slug || 
+             titleToSlug(p.title || '') === decodedSlug ||
+             proposalId === slug || 
+             proposalId === decodedSlug ||
+             encodeURIComponent(proposalId) === slug;
     });
 
     if (!matchedProposal) return null;

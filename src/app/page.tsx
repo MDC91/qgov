@@ -183,36 +183,80 @@ export default function Home() {
                 Found {searchResults.length} proposal(s) for "{searchQuery}"
               </p>
               <div className="grid gap-4">
-                {searchResults.map((result) => (
-                  <a
-                    key={`${result.epoch}-${result.id}`}
-                    href={`/proposal/${result.epoch}/${encodeURIComponent(result.id)}`}
-                    className="block p-4 rounded-lg border transition-colors hover:border-opacity-80"
-                    style={{ 
-                      backgroundColor: '#1a2332', 
-                      borderColor: '#2d3748' 
-                    }}
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium px-2 py-1 rounded" style={{ backgroundColor: '#23ffff', color: '#0f172a' }}>
-                        Epoch {result.epoch}
-                      </span>
-                      <span className="text-sm px-2 py-1 rounded" style={{ 
-                        backgroundColor: result.status === 3 ? '#22c55e' : result.status === 6 ? '#ef4444' : '#64748b',
-                        color: '#ffffff'
-                      }}>
-                        {getStatusLabel(result.status)}
-                      </span>
-                    </div>
-                    <h3 className="text-lg font-medium mb-1" style={{ color: '#e2e8f0' }}>{result.title}</h3>
-                    <p className="text-sm truncate mb-2" style={{ color: '#94a3b8' }}>{result.url}</p>
-                    <div className="flex gap-4 text-sm" style={{ color: '#94a3b8' }}>
-                      <span>Yes: {result.yesVotes}</span>
-                      <span>No: {result.noVotes}</span>
-                      <span>Total: {result.totalVotes}</span>
-                    </div>
-                  </a>
-                ))}
+                {searchResults.map((result) => {
+                  const totalVotes = result.totalVotes || (result.yesVotes + result.noVotes);
+                  const approvalRate = totalVotes > 0 ? (result.yesVotes / totalVotes * 100) : 0;
+                  const statusLabel = getStatusLabel(result.status);
+                  const statusClass = result.status === 3 ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                                      result.status === 6 ? 'bg-red-500/20 text-red-400 border-red-500/30' :
+                                      result.status === 2 ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' :
+                                      'bg-slate-500/20 text-slate-400 border-slate-500/30';
+                  
+                  return (
+                    <a
+                      key={`${result.epoch}-${result.id}`}
+                      href={`/proposal/${result.epoch}/${encodeURIComponent(result.id)}`}
+                      className="block rounded-xl p-5 transition-all group"
+                      style={{ 
+                        backgroundColor: '#151e27', 
+                        border: '1px solid #202e3c' 
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#202e3c';
+                        e.currentTarget.style.borderColor = '#23ffff';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = '#151e27';
+                        e.currentTarget.style.borderColor = '#202e3c';
+                      }}
+                    >
+                      <div className="flex items-center justify-between gap-4 mb-2">
+                        <span className="text-sm font-medium px-2 py-1 rounded" style={{ backgroundColor: '#23ffff', color: '#0f172a' }}>
+                          Epoch {result.epoch}
+                        </span>
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium border ${statusClass}`}>
+                          {statusLabel}
+                        </span>
+                      </div>
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-lg font-semibold truncate transition-colors hover:text-cyan-400" style={{ color: '#ffffff' }}>
+                            {result.title}
+                          </h3>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between mt-4 pt-4" style={{ borderColor: '#202e3c', borderTopWidth: '1px', borderStyle: 'solid' }}>
+                        <div className="flex items-center gap-6">
+                          <div className="text-center" style={{ minWidth: '60px' }}>
+                            <span className="text-xs block" style={{ color: '#94a3b8' }}>Yes</span>
+                            <p className="text-sm font-medium" style={{ color: '#22c55e' }}>
+                              {result.yesVotes.toLocaleString()}
+                            </p>
+                          </div>
+                          <div className="text-center" style={{ minWidth: '60px' }}>
+                            <span className="text-xs block" style={{ color: '#94a3b8' }}>No</span>
+                            <p className="text-sm font-medium" style={{ color: '#ef4444' }}>
+                              {result.noVotes.toLocaleString()}
+                            </p>
+                          </div>
+                          <div className="text-center" style={{ minWidth: '60px' }}>
+                            <span className="text-xs block" style={{ color: '#94a3b8' }}>Approval</span>
+                            <p className="text-sm font-medium" style={{ color: '#ffffff' }}>
+                              {approvalRate.toFixed(1)}%
+                            </p>
+                          </div>
+                          <div className="text-center" style={{ minWidth: '60px' }}>
+                            <span className="text-xs block" style={{ color: '#94a3b8' }}>Total</span>
+                            <p className="text-sm font-medium" style={{ color: '#94a3b8' }}>
+                              {totalVotes.toLocaleString()}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </a>
+                  );
+                })}
               </div>
             </div>
           )
