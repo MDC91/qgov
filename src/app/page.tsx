@@ -96,7 +96,7 @@ export default function Home() {
   const getStatusLabel = (status: number) => {
     const labels: Record<number, string> = {
       2: 'Active',
-      3: 'Accepted',
+      3: 'Approved',
       4: 'Rejected',
       5: 'Expired',
       6: 'Rejected'
@@ -189,7 +189,7 @@ export default function Home() {
                   const approvalRate = totalVotes > 0 ? (result.yesVotes / totalVotes * 100) : 0;
                   const statusLabel = getStatusLabel(result.status);
                   const statusClass = result.status === 3 ? 'bg-green-500/20 text-green-400 border-green-500/30' :
-                                      result.status === 6 ? 'bg-red-500/20 text-red-400 border-red-500/30' :
+                                      result.status === 6 || result.status === 4 ? 'bg-red-500/20 text-red-400 border-red-500/30' :
                                       result.status === 2 ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' :
                                       'bg-slate-500/20 text-slate-400 border-slate-500/30';
                   const slug = createProposalSlug(result.title, result.id);
