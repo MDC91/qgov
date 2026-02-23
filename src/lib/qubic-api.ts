@@ -131,7 +131,7 @@ export async function getEpochHistory(epoch: number): Promise<any[]> {
         items = data;
       }
 
-      return items.filter((item: any) => [3, 4, 6].includes(item.status));
+      return items.filter((item: any) => [3, 4, 5, 6].includes(item.status));
     }
   } catch (error) {
     console.error(`Epoch history error for epoch ${epoch}:`, error);
