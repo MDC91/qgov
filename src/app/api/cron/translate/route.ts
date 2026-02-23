@@ -74,16 +74,22 @@ export async function GET(request: Request) {
       }
     }
 
-    // Historical epochs: only fetch once if not stored yet
+    const forceRefresh = url.searchParams.get('refresh') === 'true';
+
+    // Historical epochs: fetch and store
     for (let epoch = currentEpoch - 1; epoch >= 1; epoch--) {
       const existing = await getEpochProposals(epoch);
       
-      if (!existing || existing.length === 0) {
+      // Fetch if no existing data OR if force refresh is enabled
+      if (!existing || existing.length === 0 || forceRefresh) {
         const historicalProposals = await getEpochHistory(epoch);
         
         if (historicalProposals.length > 0) {
           await setEpochProposals(epoch, historicalProposals);
           results.push({ epoch, proposalsStored: historicalProposals.length, status: 'historical_fetched' });
+        } else if (forceRefresh && existing.length > 0) {
+          // Keep existing if no new data found but refresh was requested
+          results.push({ epoch, proposalsStored: existing.length, status: 'historical_unchanged' });
         }
       }
     }
