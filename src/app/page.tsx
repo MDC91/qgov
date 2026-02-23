@@ -262,13 +262,12 @@ export default function Home() {
                   const approvalRate = totalVotes > 0 ? (result.yesVotes / totalVotes * 100) : 0;
                   const statusLabel = getStatusLabel(result.status);
                   
-                  let statusBg = '#64748b';
-                  let statusColor = '#ffffff';
-                  if (result.status === 3) { statusBg = '#22c55e'; statusColor = '#ffffff'; }
-                  else if (result.status === 6) { statusBg = '#ef4444'; statusColor = '#ffffff'; }
-                  else if (result.status === 4) { statusBg = '#f59e0b'; statusColor = '#000000'; }
-                  else if (result.status === 2) { statusBg = '#23ffff'; statusColor = '#000000'; }
-                  else if (result.status === 5) { statusBg = '#7f1d1d'; statusColor = '#ffffff'; }
+                  let statusClass = 'bg-slate-500/20 text-slate-400 border-slate-500/30';
+                  if (result.status === 3) statusClass = 'bg-green-500/20 text-green-400 border-green-500/30';
+                  else if (result.status === 6) statusClass = 'bg-red-500/20 text-red-400 border-red-500/30';
+                  else if (result.status === 4) statusClass = 'bg-amber-500/20 text-amber-400 border-amber-500/30';
+                  else if (result.status === 2) statusClass = 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30';
+                  else if (result.status === 5) statusClass = 'bg-red-900/80 text-white border-red-900';
                   
                   const slug = createProposalSlug(result.title, result.id);
                   
@@ -294,7 +293,7 @@ export default function Home() {
                         <span className="text-sm font-medium px-2 py-1 rounded" style={{ backgroundColor: '#23ffff', color: '#0f172a' }}>
                           Epoch {result.epoch}
                         </span>
-                        <span className="px-3 py-1 rounded-full text-xs font-medium border" style={{ backgroundColor: statusBg, color: statusColor, borderColor: statusBg }}>
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium border ${statusClass}`}>
                           {statusLabel}
                         </span>
                       </div>
