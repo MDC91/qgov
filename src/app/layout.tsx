@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   title: "Qgov",
   description: "Qubic Governance - Proposal Viewer with Multilingual Translations",
   icons: {
-    icon: "/favicon.svg",
+    icon: "/brand/LOGO/LOGO W-Background/BrandMark/Brandmark With Background (1).png",
   },
 };
 
