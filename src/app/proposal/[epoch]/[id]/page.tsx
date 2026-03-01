@@ -1,7 +1,7 @@
 import { Proposal } from '@/types';
 import ProposalDetail from '@/components/ProposalDetail';
-import { getCurrentEpoch, getActiveProposals, getEpochHistory } from '@/lib/qubic-api';
-import { getAllTranslations, getEpochProposals } from '@/lib/cache';
+import { getCurrentEpoch } from '@/lib/qubic-api';
+import { getProposalById, getAllTranslations } from '@/lib/database';
 import { createProposalSlug } from '@/lib/proposal';
 
 interface PageProps {
@@ -17,66 +17,36 @@ function titleToSlug(title: string): string {
     .substring(0, 50);
 }
 
-async function getProposal(epoch: number, slug: string): Promise<Proposal | null> {
+async function getProposal(epoch: number, slugOrId: string): Promise<Proposal | null> {
   try {
-    const currentEpoch = await getCurrentEpoch();
-    let proposals: any[] = [];
-
-    // First check Redis for stored proposals
-    const storedProposals = await getEpochProposals(epoch);
+    const decodedSlug = decodeURIComponent(slugOrId);
     
-    if (storedProposals && storedProposals.length > 0) {
-      proposals = storedProposals;
-    } else if (epoch === currentEpoch) {
-      proposals = await getActiveProposals();
-    } else {
-      proposals = await getEpochHistory(epoch);
-    }
+    const proposal = getProposalById(decodedSlug);
 
-    const matchedProposal = proposals.find((p: any) => {
-      const proposalId = p.id?.toString() || p.url;
-      const decodedSlug = decodeURIComponent(slug);
-      return titleToSlug(p.title || '') === slug || 
-             titleToSlug(p.title || '') === decodedSlug ||
-             proposalId === slug || 
-             proposalId === decodedSlug ||
-             encodeURIComponent(proposalId) === slug;
-    });
+    if (!proposal) return null;
 
-    if (!matchedProposal) return null;
+    const translations = getAllTranslations(proposal.id);
 
-    const proposalId = matchedProposal.id?.toString() || matchedProposal.url;
-    const translations = await getAllTranslations(epoch, proposalId);
-
-    let yesVotes = 0;
-    let noVotes = 0;
-    let totalVotes = 0;
-    
-    // New format (165+)
-    if (matchedProposal.yesVotes !== undefined) {
-      yesVotes = matchedProposal.yesVotes;
-      noVotes = matchedProposal.noVotes;
-      totalVotes = matchedProposal.totalVotes || 0;
-    }
-    // Old format (134-164)
-    else if (matchedProposal.sumOption0 !== undefined || matchedProposal.sumOption1 !== undefined) {
-      yesVotes = parseInt(matchedProposal.sumOption1 || '0', 10);
-      noVotes = parseInt(matchedProposal.sumOption0 || '0', 10);
-      totalVotes = parseInt(matchedProposal.totalVotes || '0', 10);
+    const translationsObj: Record<string, any> = {};
+    for (const t of translations) {
+      translationsObj[t.lang_code] = {
+        text: t.text,
+        updatedAt: new Date(t.updated_at).getTime()
+      };
     }
 
     return {
-      id: proposalId,
-      epoch: matchedProposal.epoch || epoch,
-      title: matchedProposal.title,
-      url: matchedProposal.url,
-      status: matchedProposal.status,
-      yesVotes,
-      noVotes,
-      totalVotes,
-      approvalRate: matchedProposal.approval_rate || 0,
-      proposerIdentity: matchedProposal.proposerIdentity || null,
-      translations
+      id: proposal.id,
+      epoch: proposal.epoch,
+      title: proposal.title || 'Untitled',
+      url: proposal.url || '',
+      status: proposal.status || 2,
+      yesVotes: proposal.yes_votes,
+      noVotes: proposal.no_votes,
+      totalVotes: proposal.total_votes,
+      approvalRate: proposal.total_votes > 0 ? (proposal.yes_votes / proposal.total_votes) * 100 : 0,
+      proposerIdentity: proposal.proposer_identity,
+      translations: translationsObj
     };
   } catch (error) {
     console.error('Error fetching proposal:', error);
@@ -85,10 +55,10 @@ async function getProposal(epoch: number, slug: string): Promise<Proposal | null
 }
 
 export default async function Page({ params }: PageProps) {
-  const { epoch: epochStr, id: slug } = await params;
+  const { epoch: epochStr, id: slugOrId } = await params;
   const epoch = parseInt(epochStr, 10);
 
-  const proposal = await getProposal(epoch, slug);
+  const proposal = await getProposal(epoch, slugOrId);
 
   if (!proposal) {
     return (
