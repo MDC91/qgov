@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getAllStoredEpochs, getProposalsByEpoch, setTranslation } from '@/lib/database';
+import { getAllEpochs, getProposalsByEpoch, setTranslation } from '@/lib/database';
 import { extractTitleAndContentFromMarkdown } from '@/lib/proposal';
 
 const CRON_SECRET = process.env.CRON_SECRET;
@@ -14,7 +14,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const epochs = getAllStoredEpochs();
+    const epochs = getAllEpochs();
     const results: any[] = [];
     
     for (const epoch of epochs) {

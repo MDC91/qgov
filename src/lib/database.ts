@@ -17,11 +17,6 @@ function initSchema() {
   const database = getDb();
 
   database.exec(`
-    CREATE TABLE IF NOT EXISTS epochs (
-      epoch INTEGER PRIMARY KEY,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    );
-
     CREATE TABLE IF NOT EXISTS proposals (
       id TEXT PRIMARY KEY,
       epoch INTEGER NOT NULL,
@@ -232,34 +227,6 @@ export function getLatestEpoch(): number {
   const database = getDb();
   const row = database.prepare(`SELECT MAX(epoch) as maxEpoch FROM proposals`).get() as { maxEpoch: number | null };
   return row?.maxEpoch || 0;
-}
-
-export function saveEpoch(epoch: number): void {
-  const database = getDb();
-  database.prepare(`
-    INSERT OR IGNORE INTO epochs (epoch, created_at)
-    VALUES (?, CURRENT_TIMESTAMP)
-  `).run(epoch);
-}
-
-export function getAllStoredEpochs(): number[] {
-  const database = getDb();
-  
-  // Get epochs from proposals
-  const proposalEpochs = database.prepare(`
-    SELECT DISTINCT epoch FROM proposals ORDER BY epoch DESC
-  `).all() as { epoch: number }[];
-  
-  // Get explicitly stored epochs
-  const storedEpochs = database.prepare(`
-    SELECT epoch FROM epochs ORDER BY epoch DESC
-  `).all() as { epoch: number }[];
-  
-  const epochSet = new Set<number>();
-  for (const e of proposalEpochs) epochSet.add(e.epoch);
-  for (const e of storedEpochs) epochSet.add(e.epoch);
-  
-  return Array.from(epochSet).sort((a, b) => b - a);
 }
 
 export interface SearchResult {
