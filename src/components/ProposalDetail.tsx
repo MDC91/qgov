@@ -53,6 +53,8 @@ export default function ProposalDetail({ epoch, id, initialProposal }: ProposalD
   const approvalRate = totalVotes > 0 ? (yesVotes / totalVotes * 100) : 0;
   const rejectionRate = totalVotes > 0 ? (noVotes / totalVotes * 100) : 0;
   
+  const isRtlLang = ['ar', 'he', 'fa', 'ur'].includes(selectedLang);
+  
   const displayRate = status === 'Approved' ? approvalRate : status === 'Rejected' ? rejectionRate : 0;
   const rateLabel = status === 'Approved' ? 'Approval Rate' : status === 'Rejected' ? 'Rejection Rate' : 'Approval Rate';
 
@@ -198,7 +200,7 @@ export default function ProposalDetail({ epoch, id, initialProposal }: ProposalD
         />
       </div>
 
-      <div className="rounded-xl p-6 min-h-[300px]" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c' }}>
+      <div className="rounded-xl p-6 min-h-[300px]" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c' }} dir={isRtlLang ? 'rtl' : 'ltr'}>
         {translation ? (
           <div className="prose prose-invert max-w-none">
             <ReactMarkdown 
