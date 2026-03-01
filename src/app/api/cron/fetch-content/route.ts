@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getAllStoredEpochs, getEpochProposals, setTranslation } from '@/lib/cache';
+import { getAllEpochs, getProposalsByEpoch, setTranslation } from '@/lib/database';
 import { extractTitleAndContentFromMarkdown } from '@/lib/proposal';
 
 const CRON_SECRET = process.env.CRON_SECRET;
@@ -14,25 +14,25 @@ export async function POST(request: Request) {
   }
 
   try {
-    const epochs = await getAllStoredEpochs();
+    const epochs = getAllEpochs();
     const results: any[] = [];
     
     for (const epoch of epochs) {
-      const proposals = await getEpochProposals(epoch);
+      const proposals = getProposalsByEpoch(epoch);
       
       for (const proposal of proposals) {
-        const proposalId = proposal.id?.toString() || proposal.url;
+        const proposalId = proposal.id;
         
         if (proposal.url && proposal.url.includes('github.com')) {
           const { content } = await extractTitleAndContentFromMarkdown(proposal.url);
           
           if (content.en) {
-            await setTranslation(epoch, proposalId, 'en', content.en);
+            setTranslation(proposalId, 'en', content.en);
             results.push({ epoch, id: proposalId, lang: 'en', stored: true });
           }
           
           if (content.zh) {
-            await setTranslation(epoch, proposalId, 'zh', content.zh);
+            setTranslation(proposalId, 'zh', content.zh);
             results.push({ epoch, id: proposalId, lang: 'zh', stored: true });
           }
         }

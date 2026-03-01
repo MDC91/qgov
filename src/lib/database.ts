@@ -228,3 +228,65 @@ export function getLatestEpoch(): number {
   const row = database.prepare(`SELECT MAX(epoch) as maxEpoch FROM proposals`).get() as { maxEpoch: number | null };
   return row?.maxEpoch || 0;
 }
+
+export interface SearchResult {
+  epoch: number;
+  id: string;
+  title: string;
+  url: string;
+  status: number;
+  yesVotes: number;
+  noVotes: number;
+  totalVotes: number;
+  proposerIdentity: string | null;
+}
+
+export function searchAllProposals(query: string, author: string = '', publisher: string = '', status?: number): SearchResult[] {
+  const database = getDb();
+  const results: SearchResult[] = [];
+  
+  const queryLower = query.toLowerCase();
+  const authorLower = author.toLowerCase();
+  const publisherLower = publisher.toLowerCase();
+
+  const proposals = database.prepare(`
+    SELECT * FROM proposals WHERE epoch >= 134 ORDER BY epoch DESC
+  `).all() as ProposalRow[];
+
+  for (const p of proposals) {
+    const title = p.title || '';
+    const url = p.url || '';
+    
+    let authorFromUrl = '';
+    if (url.includes('github.com')) {
+      const parts = url.replace('https://', '').replace('http://', '').split('/');
+      if (parts.length >= 2) {
+        authorFromUrl = parts[1];
+      }
+    }
+    
+    const proposerIdentity = p.proposer_identity || '';
+    
+    const matchesQuery = !queryLower || title.toLowerCase().includes(queryLower) || url.toLowerCase().includes(queryLower);
+    const matchesAuthor = !authorLower || authorFromUrl.toLowerCase().includes(authorLower);
+    const matchesPublisher = !publisherLower || proposerIdentity.toLowerCase().includes(publisherLower);
+    
+    if (matchesQuery && matchesAuthor && matchesPublisher) {
+      if (status === undefined || p.status === status) {
+        results.push({
+          epoch: p.epoch,
+          id: p.id,
+          title: title || 'Untitled',
+          url: url || '',
+          status: p.status || 0,
+          yesVotes: p.yes_votes,
+          noVotes: p.no_votes,
+          totalVotes: p.total_votes,
+          proposerIdentity: proposerIdentity
+        });
+      }
+    }
+  }
+  
+  return results;
+}

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { searchAllProposals } from '@/lib/cache';
+import { searchAllProposals } from '@/lib/database';
 
 export async function GET(request: Request) {
   try {
@@ -14,7 +14,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'At least one search parameter is required' }, { status: 400 });
     }
 
-    const results = await searchAllProposals(query, author, publisher, status);
+    const results = searchAllProposals(query, author, publisher, status);
 
     return NextResponse.json({ 
       query,
