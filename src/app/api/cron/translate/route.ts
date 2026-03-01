@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { translateProposal } from '@/lib/deepseek';
-import { getProposalsByEpoch, getTranslation, setTranslation, getAllEpochs } from '@/lib/database';
+import { getProposalsByEpoch, getProposalById, getTranslation, setTranslation, getAllEpochs } from '@/lib/database';
 import { LANGUAGES } from '@/types';
 
 const CRON_SECRET = process.env.CRON_SECRET;
@@ -21,52 +21,68 @@ export async function GET(request: Request) {
     const apiKey = process.env.DEEPSEEK_API_KEY;
     const results: any[] = [];
 
-    const epochs = getAllEpochs();
+    const targetEpoch = url.searchParams.get('epoch');
+    const targetProposalId = url.searchParams.get('proposalId');
 
-    for (const epoch of epochs) {
-      const proposals = getProposalsByEpoch(epoch);
+    let proposalsToProcess: { epoch: number; proposal: any }[] = [];
+
+    if (targetEpoch && targetProposalId) {
+      const proposal = getProposalById(targetProposalId);
+      if (proposal && proposal.epoch === parseInt(targetEpoch, 10)) {
+        proposalsToProcess.push({ epoch: parseInt(targetEpoch, 10), proposal });
+      } else {
+        return NextResponse.json({ error: 'Proposal not found' }, { status: 404 });
+      }
+    } else {
+      const epochs = getAllEpochs();
+      for (const epoch of epochs) {
+        const proposals = getProposalsByEpoch(epoch);
+        for (const proposal of proposals) {
+          proposalsToProcess.push({ epoch, proposal });
+        }
+      }
+    }
+
+    for (const { epoch, proposal } of proposalsToProcess) {
+      const proposalId = proposal.id;
+      const title = proposal.title || 'Qubic Proposal';
       
-      for (const proposal of proposals) {
-        const proposalId = proposal.id;
-        const title = proposal.title || 'Qubic Proposal';
+      for (const lang of LANGUAGES) {
+        const existing = getTranslation(proposalId, lang.code);
         
-        for (const lang of LANGUAGES) {
-          const existing = getTranslation(proposalId, lang.code);
-          
-          if (!existing || !existing.text) {
-            let proposalText = '';
-            try {
-              if (proposal.url) {
-                const rawUrl = proposal.url.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
-                const response = await fetch(rawUrl);
-                proposalText = await response.text();
-              }
-            } catch (error) {
-              console.error(`Failed to fetch proposal text for ${proposalId}:`, error);
-              continue;
+        if (!existing || !existing.text) {
+          let proposalText = '';
+          try {
+            if (proposal.url) {
+              const rawUrl = proposal.url.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
+              const response = await fetch(rawUrl);
+              proposalText = await response.text();
             }
+          } catch (error) {
+            console.error(`Failed to fetch proposal text for ${proposalId}:`, error);
+            continue;
+          }
 
-            if (proposalText) {
-              let translation: string | null = null;
+          if (proposalText) {
+            let translation: string | null = null;
 
-              if (lang.code === 'en') {
-                translation = proposalText;
-                setTranslation(proposalId, lang.code, translation);
-                results.push({ epoch, proposalId, lang: lang.code, status: 'original' });
-              } else {
-                if (!apiKey) {
-                  console.error('DeepSeek API key not configured');
-                  continue;
-                }
-                translation = await translateProposal(apiKey!, proposalText, lang.code, title);
-
-                if (translation) {
-                  setTranslation(proposalId, lang.code, translation);
-                  results.push({ epoch, proposalId, lang: lang.code, status: 'translated' });
-                }
-
-                await new Promise(resolve => setTimeout(resolve, 500));
+            if (lang.code === 'en') {
+              translation = proposalText;
+              setTranslation(proposalId, lang.code, translation);
+              results.push({ epoch, proposalId, lang: lang.code, status: 'original' });
+            } else {
+              if (!apiKey) {
+                console.error('DeepSeek API key not configured');
+                continue;
               }
+              translation = await translateProposal(apiKey!, proposalText, lang.code, title);
+
+              if (translation) {
+                setTranslation(proposalId, lang.code, translation);
+                results.push({ epoch, proposalId, lang: lang.code, status: 'translated' });
+              }
+
+              await new Promise(resolve => setTimeout(resolve, 500));
             }
           }
         }
