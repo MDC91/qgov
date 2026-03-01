@@ -1,8 +1,7 @@
 import { Proposal } from '@/types';
 import ProposalDetail from '@/components/ProposalDetail';
 import { getCurrentEpoch } from '@/lib/qubic-api';
-import { getProposalById, getAllTranslations } from '@/lib/database';
-import { createProposalSlug } from '@/lib/proposal';
+import { getProposalsByEpoch, getProposalById, getAllTranslations } from '@/lib/database';
 
 interface PageProps {
   params: Promise<{ epoch: string; id: string }>;
@@ -21,7 +20,17 @@ async function getProposal(epoch: number, slugOrId: string): Promise<Proposal | 
   try {
     const decodedSlug = decodeURIComponent(slugOrId);
     
-    const proposal = getProposalById(decodedSlug);
+    // First try to find by ID directly
+    let proposal = getProposalById(decodedSlug);
+    
+    // If not found, search through all proposals for this epoch
+    if (!proposal) {
+      const proposals = getProposalsByEpoch(epoch);
+      proposal = proposals.find(p => {
+        const slug = titleToSlug(p.title || '');
+        return slug === decodedSlug || p.id === decodedSlug;
+      });
+    }
 
     if (!proposal) return null;
 
