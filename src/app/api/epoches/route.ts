@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getCurrentEpoch } from '@/lib/qubic-api';
-import { getAllEpochs, getProposalsByEpoch } from '@/lib/database';
+import { getAllStoredEpochs, getProposalsByEpoch } from '@/lib/database';
 
 const EARLIEST_EPOCH = 134;
 
@@ -11,15 +11,13 @@ export async function GET() {
 
     epochs.push({ epoch: currentEpoch, proposalCount: 0, hasActive: false });
 
-    const storedEpochs = getAllEpochs();
+    const storedEpochs = getAllStoredEpochs();
     const storedEpochSet = new Set(storedEpochs);
     
     for (let e = currentEpoch - 1; e >= EARLIEST_EPOCH; e--) {
       if (storedEpochSet.has(e)) {
         const proposals = getProposalsByEpoch(e);
-        if (proposals && proposals.length > 0) {
-          epochs.push({ epoch: e, proposalCount: proposals.length, hasActive: false });
-        }
+        epochs.push({ epoch: e, proposalCount: proposals.length, hasActive: false });
       }
     }
 

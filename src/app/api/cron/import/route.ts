@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getCurrentEpoch } from '@/lib/qubic-api';
-import { saveProposals, getLatestEpoch } from '@/lib/database';
+import { saveProposals, saveEpoch, getLatestEpoch } from '@/lib/database';
 
 const CRON_SECRET = process.env.CRON_SECRET;
 
@@ -129,7 +129,9 @@ export async function GET(request: Request) {
         const saved = saveProposals(proposals);
         results.push({ epoch, proposalsStored: saved, status: 'saved' });
       } else {
-        results.push({ epoch, proposalsStored: 0, status: 'no_data' });
+        // Save epoch even if no proposals
+        saveEpoch(epoch);
+        results.push({ epoch, proposalsStored: 0, status: 'no_proposals' });
       }
 
       await new Promise(resolve => setTimeout(resolve, 500));

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { translateProposal } from '@/lib/deepseek';
-import { getProposalsByEpoch, getProposalById, getTranslation, setTranslation, getAllEpochs } from '@/lib/database';
+import { getProposalsByEpoch, getProposalById, getTranslation, setTranslation, getAllStoredEpochs } from '@/lib/database';
 import { LANGUAGES } from '@/types';
 
 const CRON_SECRET = process.env.CRON_SECRET;
@@ -34,7 +34,7 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: 'Proposal not found' }, { status: 404 });
       }
     } else {
-      const epochs = getAllEpochs();
+      const epochs = getAllStoredEpochs();
       for (const epoch of epochs) {
         const proposals = getProposalsByEpoch(epoch);
         for (const proposal of proposals) {
