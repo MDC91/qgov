@@ -105,6 +105,9 @@ export async function GET(request: Request) {
           });
 
           if (response.status === 404) {
+            // Save epoch even if no data (404 means no proposals)
+            saveEpoch(epoch);
+            results.push({ epoch, proposalsStored: 0, status: 'no_data' });
             continue;
           }
 
@@ -125,13 +128,13 @@ export async function GET(request: Request) {
         }
       }
 
-      if (proposals.length > 0) {
-        const saved = saveProposals(proposals);
-        results.push({ epoch, proposalsStored: saved, status: 'saved' });
-      } else {
-        // Save epoch even if no proposals
+      // Also save epoch if API returned data but no proposals with valid status
+      if (proposals.length === 0) {
         saveEpoch(epoch);
         results.push({ epoch, proposalsStored: 0, status: 'no_proposals' });
+      } else {
+        const saved = saveProposals(proposals);
+        results.push({ epoch, proposalsStored: saved, status: 'saved' });
       }
 
       await new Promise(resolve => setTimeout(resolve, 500));
