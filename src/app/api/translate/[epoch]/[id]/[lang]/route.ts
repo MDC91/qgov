@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { translateProposal, summarizeProposal } from '@/lib/deepseek';
-import { getTranslation, setTranslation, getAllTranslations } from '@/lib/cache';
+import { getTranslation, setTranslation, getAllTranslations as getAllTranslationsFromDb, getProposalById } from '@/lib/database';
 import { LANGUAGES } from '@/types';
 
 export async function GET(
@@ -8,24 +8,23 @@ export async function GET(
   { params }: { params: Promise<{ epoch: string; id: string; lang: string }> }
 ) {
   try {
-    const { epoch: epochStr, id, lang } = await params;
-    const epoch = parseInt(epochStr, 10);
+    const { id, lang } = await params;
 
     if (!LANGUAGES.some(l => l.code === lang)) {
       return NextResponse.json({ error: 'Invalid language' }, { status: 400 });
     }
 
-    const cachedTranslation = getTranslation(epoch, id, lang);
-    if (cachedTranslation) {
+    const translation = getTranslation(id, lang);
+    if (translation && translation.text) {
       return NextResponse.json({ 
-        translation: cachedTranslation,
+        translation: translation.text,
         cached: true
       });
     }
 
     return NextResponse.json({ 
       error: 'Translation not found',
-      available: getAllTranslations(epoch, id)
+      available: getAllTranslationsFromDb(id).map(t => t.lang_code)
     }, { status: 404 });
   } catch (error) {
     console.error('Error fetching translation:', error);
@@ -38,8 +37,7 @@ export async function POST(
   { params }: { params: Promise<{ epoch: string; id: string; lang: string }> }
 ) {
   try {
-    const { epoch: epochStr, id, lang } = await params;
-    const epoch = parseInt(epochStr, 10);
+    const { id, lang } = await params;
     const { url, title, force } = await request.json();
 
     const apiKey = process.env.DEEPSEEK_API_KEY;
@@ -52,10 +50,10 @@ export async function POST(
     }
 
     if (!force) {
-      const cachedTranslation = getTranslation(epoch, id, lang);
-      if (cachedTranslation) {
+      const translation = getTranslation(id, lang);
+      if (translation && translation.text) {
         return NextResponse.json({ 
-          translation: cachedTranslation,
+          translation: translation.text,
           cached: true
         });
       }
@@ -86,7 +84,7 @@ export async function POST(
       return NextResponse.json({ error: 'Translation failed' }, { status: 500 });
     }
 
-    setTranslation(epoch, id, lang, translation);
+    setTranslation(id, lang, translation);
 
     return NextResponse.json({ 
       translation,

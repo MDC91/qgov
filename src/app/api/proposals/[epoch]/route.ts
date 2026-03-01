@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server';
-import { getCurrentEpoch, getActiveProposals, getEpochHistory } from '@/lib/qubic-api';
-import { getAllTranslations, getEpochProposals, setEpochProposals } from '@/lib/cache';
+import { getCurrentEpoch } from '@/lib/qubic-api';
+import { 
+  getProposalsByEpoch, 
+  getProposalsByEpoch as getStoredProposals,
+  getTranslation, 
+  getAllTranslations,
+  getBallotsByProposalId
+} from '@/lib/database';
 import { extractTitleFromUrl, extractTitleFromMarkdown } from '@/lib/proposal';
 
 export async function GET(
@@ -12,72 +18,59 @@ export async function GET(
     const epoch = parseInt(epochStr, 10);
     const currentEpoch = await getCurrentEpoch();
 
-    let proposals: any[] = [];
+    let proposals = getStoredProposals(epoch);
 
-    // First check if we have stored proposals in Redis
-    const storedProposals = await getEpochProposals(epoch);
-    
-    if (storedProposals && storedProposals.length > 0) {
-      // Use stored proposals for historical data
-      proposals = storedProposals;
-    } else {
-      // Fetch fresh from API
-      if (epoch === currentEpoch) {
-        proposals = await getActiveProposals();
-      } else {
-        proposals = await getEpochHistory(epoch);
-      }
-      
-      // Store for future use (especially historical)
-      if (proposals.length > 0 && epoch < currentEpoch) {
-        await setEpochProposals(epoch, proposals);
-      }
+    if (!proposals || proposals.length === 0) {
+      return NextResponse.json({ proposals: [], message: 'No proposals found for this epoch' });
     }
 
-    const proposalsWithTranslations = await Promise.all(proposals.map(async (p: any) => {
-      const proposalId = p.id?.toString() || p.url;
-      const translations = await getAllTranslations(epoch, proposalId);
-      
-      let yesVotes = 0;
-      let noVotes = 0;
-      let totalVotes = 0;
-      
-      // New format (165+): has yesVotes/noVotes directly
-      if (p.yesVotes !== undefined) {
-        yesVotes = p.yesVotes;
-        noVotes = p.noVotes;
-        totalVotes = p.totalVotes || 0;
-      } 
-      // Old format (134-164): has sumOption0/sumOption1
-      else if (p.sumOption0 !== undefined || p.sumOption1 !== undefined) {
-        yesVotes = parseInt(p.sumOption1 || '0', 10);
-        noVotes = parseInt(p.sumOption0 || '0', 10);
-        totalVotes = parseInt(p.totalVotes || '0', 10);
+    const proposalsWithData = await Promise.all(proposals.map(async (p: any) => {
+      const translations = getAllTranslations(p.id);
+      const ballots = getBallotsByProposalId(p.id);
+
+      const translationsObj: Record<string, any> = {};
+      for (const t of translations) {
+        translationsObj[t.lang_code] = {
+          text: t.text,
+          updatedAt: new Date(t.updated_at).getTime()
+        };
       }
-      
-      // Get title - prefer existing, then markdown, then URL
+
       let title = p.title;
-      if (!title || title.includes('.md') || title.includes(' at ')) {
-        const markdownTitle = await extractTitleFromMarkdown(p.url);
-        title = markdownTitle || extractTitleFromUrl(p.url) || 'Untitled Proposal';
+      if (!title || !p.title || p.title.includes('.md') || (p.title && p.title.includes(' at '))) {
+        try {
+          const markdownTitle = await extractTitleFromMarkdown(p.url);
+          title = markdownTitle || extractTitleFromUrl(p.url) || 'Untitled Proposal';
+        } catch {
+          title = extractTitleFromUrl(p.url) || 'Untitled Proposal';
+        }
       }
-      
+
       return {
-        id: proposalId,
-        epoch: p.epoch || epoch,
+        id: p.id,
+        epoch: p.epoch,
         title,
         url: p.url,
         status: p.status,
-        yesVotes,
-        noVotes,
-        totalVotes,
-        approvalRate: p.approval_rate || 0,
-        proposerIdentity: p.proposerIdentity || null,
-        translations
+        yesVotes: p.yes_votes,
+        noVotes: p.no_votes,
+        totalVotes: p.total_votes,
+        approvalRate: p.total_votes > 0 ? (p.yes_votes / p.total_votes) * 100 : 0,
+        proposerIdentity: p.proposer_identity,
+        contractName: p.contract_name,
+        contractIndex: p.contract_index,
+        proposalIndex: p.proposal_index,
+        numberOfOptions: p.number_of_options,
+        proposalType: p.proposal_type,
+        published: p.published,
+        publishedTick: p.published_tick,
+        latestVoteTick: p.latest_vote_tick,
+        translations: translationsObj,
+        ballots: ballots
       };
     }));
 
-    return NextResponse.json({ proposals: proposalsWithTranslations });
+    return NextResponse.json({ proposals: proposalsWithData });
   } catch (error) {
     console.error('Error fetching proposals:', error);
     return NextResponse.json({ error: 'Failed to fetch proposals' }, { status: 500 });
