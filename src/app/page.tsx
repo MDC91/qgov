@@ -138,7 +138,7 @@ function HomeContent() {
               placeholder="Search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-32 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2"
+              className="flex-1 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2"
               style={{ backgroundColor: '#1a2332', borderColor: '#2d3748', color: '#e2e8f0' }}
             />
             <input
@@ -151,7 +151,7 @@ function HomeContent() {
             />
             <input
               type="text"
-              placeholder="Publisher..."
+              placeholder="Publisher (Public ID)..."
               value={publisherQuery}
               onChange={(e) => setPublisherQuery(e.target.value)}
               className="w-48 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2"
@@ -161,7 +161,7 @@ function HomeContent() {
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value === '' ? '' : parseInt(e.target.value, 10))}
               className="px-3 py-2 rounded-lg border focus:outline-none"
-              style={{ backgroundColor: '#1a2332', borderColor: '#2d3748', color: '#e2e8f0' }}
+              style={{ backgroundColor: '#1a2332', borderColor: '#2d3748', color: '#e2e8f0', paddingRight: '2rem' }}
             >
               <option value="">All Status</option>
               <option value="2">Active</option>
