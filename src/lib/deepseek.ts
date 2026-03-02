@@ -36,6 +36,10 @@ function detectLanguage(text: string): string {
 }
 
 function filterTextByLanguage(text: string, targetLang: string): string {
+  if (targetLang === 'en') {
+    return text;
+  }
+
   const lines = text.split('\n');
   const filtered: string[] = [];
   
@@ -61,7 +65,22 @@ function preprocessText(text: string): string {
   return text
     .replace(/\[!IMPORTANT\]/gi, '**⚠️ IMPORTANT:**')
     .replace(/\[!NOTE\]/gi, '**📝 NOTE:**')
-    .replace(/\[!WARNING\]/gi, '**⚠️ WARNING:**');
+    .replace(/\[!WARNING\]/gi, '**⚠️ WARNING:**')
+    .replace(/<details>/gi, '\n<!-- details start -->\n')
+    .replace(/<\/details>/gi, '\n<!-- details end -->\n')
+    .replace(/<summary>/gi, '**')
+    .replace(/<\/summary>/gi, ':**')
+    .replace(/  \n/g, '  \n')
+    .trim();
+}
+
+function postprocessText(text: string): string {
+  return text
+    .replace(/```(\w+)?\n([\s\S]*?)```/g, '```$1\n$2```')
+    .replace(/^```\n?/, '```')
+    .replace(/```$/m, '```')
+    .replace(/\n\n+/g, '\n\n')
+    .replace(/([^\n]) \n/g, '$1  \n');
 }
 
 export async function translateProposal(
@@ -96,8 +115,10 @@ Rules:
 2. Provide a COMPLETE, faithful translation - do NOT summarize
 3. Preserve ALL technical details, code snippets, specifications, tables, and formatting
 4. Keep the original markdown structure
-5. ONLY output the translated proposal text - do NOT include any instructions, requirements, or prompts in your response
-6. Do not add any commentary or explanations`
+5. Keep EXACTLY two spaces at the end of lines that have a line break in the original (this is critical for markdown rendering)
+6. Keep <details> and <summary> tags as plain text (do not convert to collapsible sections)
+7. ONLY output the translated proposal text - do NOT include any instructions, requirements, or prompts in your response
+8. Do not add any commentary or explanations`
         },
         {
           role: 'user',
@@ -111,10 +132,7 @@ Rules:
     let translated = response.choices[0]?.message?.content || null;
     
     if (translated) {
-      translated = translated
-        .replace(/```(\w+)?\n([\s\S]*?)```/g, '```$1\n$2```')
-        .replace(/^```\n?/, '```')
-        .replace(/```$/m, '```');
+      translated = postprocessText(translated);
     }
 
     return translated;
