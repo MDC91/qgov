@@ -76,7 +76,7 @@ export async function GET(request: Request) {
 
       if (response.ok) {
         const data = await response.json();
-        proposals = data.filter((item: any) => item.status === 2);
+        proposals = data.filter((item: any) => item.status === 2 || item.status === 5);
       }
     } catch (error) {
       console.error(`Error fetching live proposals:`, error);

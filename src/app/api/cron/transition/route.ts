@@ -138,7 +138,7 @@ export async function GET(request: Request) {
 
         if (liveResponse.ok) {
           const data = await liveResponse.json();
-          const activeProposals = data.filter((item: any) => item.status === 2);
+          const activeProposals = data.filter((item: any) => item.status === 2 || item.status === 5);
           
           if (activeProposals.length > 0) {
             const saved = saveProposals(activeProposals);
