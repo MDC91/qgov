@@ -138,7 +138,7 @@ function HomeContent() {
               placeholder="Search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2"
+              className="w-48 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2"
               style={{ backgroundColor: '#1a2332', borderColor: '#2d3748', color: '#e2e8f0' }}
             />
             <input
@@ -154,7 +154,7 @@ function HomeContent() {
               placeholder="Publisher (Public ID)..."
               value={publisherQuery}
               onChange={(e) => setPublisherQuery(e.target.value)}
-              className="w-48 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2"
+              className="flex-1 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2"
               style={{ backgroundColor: '#1a2332', borderColor: '#2d3748', color: '#e2e8f0' }}
             />
             <select
