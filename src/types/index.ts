@@ -15,6 +15,15 @@ export interface Proposal {
   approvalRate: number;
   proposerIdentity: string | null;
   translations: Record<string, ProposalTranslation>;
+  contractName?: string;
+  contractIndex?: number;
+  proposalIndex?: number;
+  numberOfOptions?: number;
+  proposalType?: string;
+  published?: string;
+  publishedTick?: number;
+  latestVoteTick?: number;
+  ballots?: any[];
 }
 
 export interface Epoch {

@@ -36,6 +36,12 @@ const statusColors: Record<string, string> = {
   Cancelled: 'bg-red-900/80 text-white border-red-900'
 };
 
+const contractBadgeStyle = {
+  backgroundColor: '#1a2a3a',
+  border: '1px solid #23ffff',
+  color: '#23ffff'
+};
+
 export default function ProposalDetail({ epoch, id, initialProposal }: ProposalDetailProps) {
   const [selectedLang, setSelectedLang] = useState('en');
   const [translation, setTranslation] = useState<string | null>(null);
@@ -101,7 +107,17 @@ export default function ProposalDetail({ epoch, id, initialProposal }: ProposalD
     <div className="max-w-4xl mx-auto">
       <div className="rounded-xl p-6 mb-6" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c' }}>
         <div className="flex items-start justify-between gap-4 mb-4">
-          <h1 className="text-2xl font-bold" style={{ color: '#ffffff' }}>{initialProposal.title}</h1>
+          <div>
+            <h1 className="text-2xl font-bold" style={{ color: '#ffffff' }}>{initialProposal.title}</h1>
+            {initialProposal.contractName && (
+              <span 
+                className="inline-block mt-2 px-2 py-0.5 rounded text-xs font-medium"
+                style={contractBadgeStyle}
+              >
+                {initialProposal.contractName}
+              </span>
+            )}
+          </div>
           <span className={`px-3 py-1 rounded-full text-sm font-medium border ${statusClass}`}>
             {status}
           </span>
