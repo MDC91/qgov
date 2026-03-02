@@ -6,6 +6,8 @@ import { LANGUAGES } from '@/types';
 
 const CRON_SECRET = process.env.CRON_SECRET;
 
+let isTranslating = false;
+
 export const maxDuration = 300;
 export const runtime = 'nodejs';
 
@@ -17,6 +19,15 @@ export async function GET(request: Request) {
   if (CRON_SECRET && authHeader !== `Bearer ${CRON_SECRET}` && querySecret !== CRON_SECRET) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+
+  if (isTranslating) {
+    return NextResponse.json({ 
+      status: 'skipped',
+      reason: 'Translation already in progress'
+    });
+  }
+
+  isTranslating = true;
 
   try {
     const apiKey = process.env.DEEPSEEK_API_KEY;
@@ -105,5 +116,7 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error('Translation cron error:', error);
     return NextResponse.json({ error: 'Translation cron failed' }, { status: 500 });
+  } finally {
+    isTranslating = false;
   }
 }
