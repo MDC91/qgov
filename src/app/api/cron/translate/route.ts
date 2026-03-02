@@ -36,6 +36,7 @@ export async function GET(request: Request) {
     const targetEpoch = url.searchParams.get('epoch');
     const targetProposalId = url.searchParams.get('proposalId');
     const currentEpochOnly = url.searchParams.get('current') === 'true';
+    const refresh = url.searchParams.get('refresh') === 'true';
 
     let proposalsToProcess: { epoch: number; proposal: any }[] = [];
 
@@ -69,7 +70,7 @@ export async function GET(request: Request) {
       for (const lang of LANGUAGES) {
         const existing = getTranslation(proposalId, lang.code);
         
-        if (!existing || !existing.text) {
+        if (refresh || !existing || !existing.text) {
           let proposalText = '';
           try {
             if (proposal.url) {
