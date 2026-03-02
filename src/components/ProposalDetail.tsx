@@ -175,28 +175,28 @@ export default function ProposalDetail({ epoch, id, initialProposal }: ProposalD
         )}
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 md:gap-6 mt-4 md:mt-6" style={{ borderColor: '#202e3c', borderTopWidth: '1px', borderStyle: 'solid', paddingTop: '24px' }}>
-          <div className="text-center" style={{ minWidth: '60px' }}>
-            <span className="text-xs block" style={{ color: '#94a3b8' }}>Yes</span>
-            <p className="text-base md:text-lg font-semibold" style={{ color: '#22c55e' }}>
+        <div className="flex items-center gap-6 mt-6" style={{ borderColor: '#202e3c', borderTopWidth: '1px', borderStyle: 'solid', paddingTop: '24px' }}>
+          <div className="text-center" style={{ minWidth: '80px' }}>
+            <span className="text-xs block" style={{ color: '#94a3b8' }}>Yes Votes</span>
+            <p className="text-lg font-semibold" style={{ color: '#22c55e' }}>
               {yesVotes.toLocaleString()}
             </p>
           </div>
-          <div className="text-center" style={{ minWidth: '60px' }}>
-            <span className="text-xs block" style={{ color: '#94a3b8' }}>No</span>
-            <p className="text-base md:text-lg font-semibold" style={{ color: '#ef4444' }}>
+          <div className="text-center" style={{ minWidth: '80px' }}>
+            <span className="text-xs block" style={{ color: '#94a3b8' }}>No Votes</span>
+            <p className="text-lg font-semibold" style={{ color: '#ef4444' }}>
               {noVotes.toLocaleString()}
             </p>
           </div>
-          <div className="text-center" style={{ minWidth: '60px' }}>
-            <span className="text-xs block" style={{ color: '#94a3b8' }}>Total</span>
-            <p className="text-base md:text-lg font-semibold" style={{ color: '#ffffff' }}>
+          <div className="text-center" style={{ minWidth: '80px' }}>
+            <span className="text-xs block" style={{ color: '#94a3b8' }}>Total Votes</span>
+            <p className="text-lg font-semibold" style={{ color: '#ffffff' }}>
               {totalVotes.toLocaleString()}
             </p>
           </div>
-          <div className="text-center" style={{ minWidth: '60px' }}>
+          <div className="text-center" style={{ minWidth: '80px' }}>
             <span className="text-xs block" style={{ color: '#94a3b8' }}>{rateLabel}</span>
-            <p className="text-base md:text-lg font-semibold" style={{ color: '#ffffff' }}>
+            <p className="text-lg font-semibold" style={{ color: '#ffffff' }}>
               {displayRate.toFixed(1)}%
             </p>
           </div>
