@@ -89,6 +89,14 @@ export async function GET(request: Request) {
 
     if (proposals.length > 0) {
       const saved = saveProposals(proposals);
+      
+      if (saved > 0 && process.env.CRON_SECRET) {
+        try {
+          const translateUrl = `http://localhost:3000/api/cron/translate?current=true&secret=${process.env.CRON_SECRET}`;
+          fetch(translateUrl, { signal: AbortSignal.timeout(300000) }).catch(() => {});
+        } catch {}
+      }
+      
       return NextResponse.json({ 
         success: true, 
         currentEpoch,

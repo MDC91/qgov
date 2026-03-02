@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { translateProposal } from '@/lib/deepseek';
 import { getProposalsByEpoch, getProposalById, getTranslation, setTranslation, getAllEpochs } from '@/lib/database';
+import { getCurrentEpoch } from '@/lib/qubic-api';
 import { LANGUAGES } from '@/types';
 
 const CRON_SECRET = process.env.CRON_SECRET;
@@ -23,6 +24,7 @@ export async function GET(request: Request) {
 
     const targetEpoch = url.searchParams.get('epoch');
     const targetProposalId = url.searchParams.get('proposalId');
+    const currentEpochOnly = url.searchParams.get('current') === 'true';
 
     let proposalsToProcess: { epoch: number; proposal: any }[] = [];
 
@@ -32,6 +34,12 @@ export async function GET(request: Request) {
         proposalsToProcess.push({ epoch: parseInt(targetEpoch, 10), proposal });
       } else {
         return NextResponse.json({ error: 'Proposal not found' }, { status: 404 });
+      }
+    } else if (currentEpochOnly) {
+      const currentEpoch = await getCurrentEpoch();
+      const proposals = getProposalsByEpoch(currentEpoch);
+      for (const proposal of proposals) {
+        proposalsToProcess.push({ epoch: currentEpoch, proposal });
       }
     } else {
       const epochs = getAllEpochs();
