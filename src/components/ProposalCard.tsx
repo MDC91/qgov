@@ -16,11 +16,7 @@ const statusColors: Record<string, string> = {
   Cancelled: 'bg-red-900/80 text-white border-red-900'
 };
 
-const contractBadgeStyle = {
-  backgroundColor: '#1a2a3a',
-  border: '1px solid #23ffff',
-  color: '#23ffff'
-};
+const contractBadgeStyle = 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30';
 
 export default function ProposalCard({ proposal }: ProposalCardProps) {
   const status = PROPOSAL_STATUS[proposal.status as keyof typeof PROPOSAL_STATUS] || 'unknown';
@@ -61,8 +57,7 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
           </h3>
           {proposal.contractName && (
             <span 
-              className="inline-block mt-2 px-2 py-0.5 rounded text-xs font-medium"
-              style={contractBadgeStyle}
+              className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium border ${contractBadgeStyle}`}
             >
               {proposal.contractName}
             </span>
