@@ -93,22 +93,22 @@ export default async function Page({ params }: PageProps) {
   return (
     <div className="min-h-screen text-white" style={{ backgroundColor: '#101820' }}>
       <header className="border backdrop-blur-sm sticky top-0 z-10" style={{ backgroundColor: '#151e27', borderColor: '#202e3c' }}>
-        <div className="max-w-6xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <a href="/" className="flex items-center gap-3">
-              <img src="/Qubic-Logo-White.svg" alt="Qubic" className="h-10" style={{ width: 'auto' }} />
-              <span className="text-3xl font-light font-governance" style={{ color: '#23ffff' }}>governance</span>
+        <div className="max-w-6xl mx-auto px-2 md:px-4 py-3 md:py-4">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-4">
+            <a href="/" className="flex items-center gap-2 md:gap-3">
+              <img src="/Qubic-Logo-White.svg" alt="Qubic" className="h-8 md:h-10" style={{ width: 'auto' }} />
+              <span className="text-2xl md:text-3xl font-light font-governance" style={{ color: '#23ffff' }}>governance</span>
             </a>
-            <div className="flex items-center gap-4">
-              <span className="text-sm" style={{ color: '#94a3b8' }}>Epoch {epoch}</span>
-              <span className="text-sm" style={{ color: '#23ffff' }}>|</span>
-              <p className="text-sm truncate max-w-md" style={{ color: '#ffffff' }}>{proposal?.title}</p>
+            <div className="flex items-center gap-2 md:gap-4 overflow-hidden">
+              <span className="text-sm whitespace-nowrap" style={{ color: '#94a3b8' }}>Epoch {epoch}</span>
+              <span className="text-sm hidden md:inline" style={{ color: '#23ffff' }}>|</span>
+              <p className="text-sm truncate" style={{ color: '#ffffff' }}>{proposal?.title}</p>
             </div>
           </div>
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-8">
+      <main className="max-w-6xl mx-auto px-2 md:px-4 py-4 md:py-8">
         <ProposalDetail epoch={epoch} id={proposal.id} initialProposal={proposal} />
       </main>
     </div>
