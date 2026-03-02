@@ -107,7 +107,7 @@ export default function ProposalDetail({ epoch, id, initialProposal }: ProposalD
             <h1 className="text-2xl font-bold" style={{ color: '#ffffff' }}>{initialProposal.title}</h1>
             {initialProposal.contractName && (
               <span 
-                className={`block mt-1 px-3 py-1 rounded-full text-xs font-medium border ${contractBadgeStyle}`}
+                className={`inline-block mt-1 px-3 py-1 rounded-full text-xs font-medium border ${contractBadgeStyle}`}
               >
                 {initialProposal.contractName}
               </span>
