@@ -65,6 +65,15 @@ function initSchema() {
     );
 
     CREATE INDEX IF NOT EXISTS idx_translations_proposal ON translations(proposal_id);
+
+    CREATE TABLE IF NOT EXISTS computors (
+      epoch INTEGER NOT NULL,
+      computor_id TEXT NOT NULL,
+      index_position INTEGER NOT NULL,
+      PRIMARY KEY (epoch, computor_id)
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_computors_epoch ON computors(epoch);
   `);
 }
 
@@ -289,4 +298,48 @@ export function searchAllProposals(query: string, author: string = '', publisher
   }
   
   return results;
+}
+
+export interface ComputorRow {
+  epoch: number;
+  computor_id: string;
+  index_position: number;
+}
+
+export function saveComputors(epoch: number, computors: string[]): number {
+  const database = getDb();
+  
+  const insertComputor = database.prepare(`
+    INSERT OR REPLACE INTO computors (epoch, computor_id, index_position)
+    VALUES (?, ?, ?)
+  `);
+
+  const deleteEpoch = database.prepare(`DELETE FROM computors WHERE epoch = ?`);
+
+  let savedCount = 0;
+
+  const transaction = database.transaction(() => {
+    deleteEpoch.run(epoch);
+    
+    for (let i = 0; i < computors.length; i++) {
+      insertComputor.run(epoch, computors[i], i);
+      savedCount++;
+    }
+  });
+
+  transaction();
+  return savedCount;
+}
+
+export function getComputorsByEpoch(epoch: number): ComputorRow[] {
+  const database = getDb();
+  return database.prepare(`
+    SELECT * FROM computors WHERE epoch = ? ORDER BY index_position ASC
+  `).all(epoch) as ComputorRow[];
+}
+
+export function getLatestComputorEpoch(): number {
+  const database = getDb();
+  const row = database.prepare(`SELECT MAX(epoch) as maxEpoch FROM computors`).get() as { maxEpoch: number | null };
+  return row?.maxEpoch || 0;
 }
