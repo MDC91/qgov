@@ -55,6 +55,14 @@ async function getProposal(epoch: number, slugOrId: string): Promise<Proposal | 
       totalVotes: proposal.total_votes,
       approvalRate: proposal.total_votes > 0 ? (proposal.yes_votes / proposal.total_votes) * 100 : 0,
       proposerIdentity: proposal.proposer_identity,
+      contractName: proposal.contract_name || undefined,
+      contractIndex: proposal.contract_index || undefined,
+      proposalIndex: proposal.proposal_index || undefined,
+      numberOfOptions: proposal.number_of_options || undefined,
+      proposalType: proposal.proposal_type || undefined,
+      published: proposal.published || undefined,
+      publishedTick: proposal.published_tick || undefined,
+      latestVoteTick: proposal.latest_vote_tick || undefined,
       translations: translationsObj
     };
   } catch (error) {
