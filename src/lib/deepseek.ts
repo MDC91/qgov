@@ -36,10 +36,6 @@ function detectLanguage(text: string): string {
 }
 
 function filterTextByLanguage(text: string, targetLang: string): string {
-  if (targetLang === 'en') {
-    return text;
-  }
-
   const lines = text.split('\n');
   const filtered: string[] = [];
   
@@ -66,11 +62,8 @@ function preprocessText(text: string): string {
     .replace(/\[!IMPORTANT\]/gi, '**⚠️ IMPORTANT:**')
     .replace(/\[!NOTE\]/gi, '**📝 NOTE:**')
     .replace(/\[!WARNING\]/gi, '**⚠️ WARNING:**')
-    .replace(/<details>/gi, '\n<!-- details start -->\n')
-    .replace(/<\/details>/gi, '\n<!-- details end -->\n')
-    .replace(/<summary>/gi, '**')
-    .replace(/<\/summary>/gi, ':**')
-    .replace(/  \n/g, '  \n')
+    .replace(/<details>[\s\S]*?<\/details>/gi, '')
+    .replace(/<summary>[\s\S]*?<\/summary>/gi, '')
     .trim();
 }
 
@@ -116,8 +109,8 @@ Rules:
 3. Preserve ALL technical details, code snippets, specifications, tables, and formatting
 4. Keep the original markdown structure
 5. Keep EXACTLY two spaces at the end of lines that have a line break in the original (this is critical for markdown rendering)
-6. Keep <details> and <summary> tags as plain text (do not convert to collapsible sections)
-7. ONLY output the translated proposal text - do NOT include any instructions, requirements, or prompts in your response
+6. For links like [link text](url), keep the "link text" in English - only translate the rest
+7. ONLY output the translated proposal TEXT (not the title) - do NOT include any instructions, requirements, or prompts in your response
 8. Do not add any commentary or explanations`
         },
         {
