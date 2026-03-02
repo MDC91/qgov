@@ -36,44 +36,52 @@ function detectLanguage(text: string): string {
 }
 
 function filterTextByLanguage(text: string, targetLang: string): string {
+  const chineseChars = /[\u4e00-\u9fff]/;
+  const arabicChars = /[\u0600-\u06ff]/;
+  const japaneseChars = /[\u3040-\u309f\u30a0-\u30ff]/;
+  const koreanChars = /[\uac00-\ud7af]/;
+  
   const lines = text.split('\n');
   const filtered: string[] = [];
   
-  const mainLang = detectLanguage(text);
-  const keepLangs = [mainLang, 'en', targetLang];
-
   for (const line of lines) {
-    if (!line.trim() || line.length < 20) {
-      filtered.push(line);
-      continue;
+    const lineLower = line.toLowerCase();
+    
+    if (chineseChars.test(line) || arabicChars.test(line) || japaneseChars.test(line) || koreanChars.test(line)) {
+      if (targetLang !== 'en' && !lineLower.includes('chinese') && !lineLower.includes('中文')) {
+        continue;
+      }
     }
-
-    const lineLang = detectLanguage(line);
-    if (keepLangs.includes(lineLang) || lineLang === 'unknown') {
-      filtered.push(line);
-    }
+    
+    filtered.push(line);
   }
 
   return filtered.join('\n');
 }
 
 function preprocessText(text: string): string {
-  return text
+  text = text
     .replace(/\[!IMPORTANT\]/gi, '**⚠️ IMPORTANT:**')
     .replace(/\[!NOTE\]/gi, '**📝 NOTE:**')
-    .replace(/\[!WARNING\]/gi, '**⚠️ WARNING:**')
-    .replace(/<details>[\s\S]*?<\/details>/gi, '')
-    .replace(/<summary>[\s\S]*?<\/summary>/gi, '')
-    .trim();
+    .replace(/\[!WARNING\]/gi, '**⚠️ WARNING:**');
+  
+  return text.trim();
 }
 
 function postprocessText(text: string): string {
-  return text
+  text = text
     .replace(/```(\w+)?\n([\s\S]*?)```/g, '```$1\n$2```')
     .replace(/^```\n?/, '```')
     .replace(/```$/m, '```')
     .replace(/\n\n+/g, '\n\n')
     .replace(/([^\n]) \n/g, '$1  \n');
+  
+  text = text.replace(/<details>/gi, '\n<details>');
+  text = text.replace(/<\/details>/gi, '</details>\n');
+  text = text.replace(/<summary>/gi, '<summary>');
+  text = text.replace(/<\/summary>/gi, '</summary>');
+  
+  return text;
 }
 
 export async function translateProposal(

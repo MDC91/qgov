@@ -216,6 +216,8 @@ export default function ProposalDetail({ epoch, id, initialProposal }: ProposalD
           <div className="prose prose-invert max-w-none">
             <ReactMarkdown 
               remarkPlugins={[remarkGfm]}
+              allowedElements={['details', 'summary', 'br', 'h1', 'h2', 'h3', 'p', 'ul', 'ol', 'li', 'code', 'pre', 'a', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'blockquote', 'hr']}
+              unwrapDisallowed
               components={{
                 br: ({node, ...props}) => <br {...props} />,
                 h1: ({node, ...props}) => <h1 style={{color: '#ffffff', fontSize: '1.5em', fontWeight: 'bold', marginBottom: '0.5em', marginTop: '1em'}} {...props} />,
