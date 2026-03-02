@@ -105,18 +105,19 @@ export default function ProposalDetail({ epoch, id, initialProposal }: ProposalD
         <div className="flex items-start justify-between gap-4 mb-4">
           <div>
             <h1 className="text-2xl font-bold" style={{ color: '#ffffff' }}>{initialProposal.title}</h1>
-            {initialProposal.contractName && (
-              <span 
-                className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium border ${contractBadgeStyle}`}
-              >
-                {initialProposal.contractName}
-              </span>
-            )}
           </div>
           <span className={`px-3 py-1 rounded-full text-sm font-medium border ${statusClass}`}>
             {status}
           </span>
         </div>
+
+        {initialProposal.contractName && (
+          <span 
+            className={`inline-block mb-4 px-3 py-1 rounded-full text-xs font-medium border ${contractBadgeStyle}`}
+          >
+            {initialProposal.contractName}
+          </span>
+        )}
 
         <div className="flex flex-wrap gap-3">
           <a 
