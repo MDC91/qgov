@@ -257,7 +257,7 @@ export default function ProposalDetail({ epoch, id, initialProposal }: ProposalD
               Translation not yet available for {LANGUAGES.find(l => l.code === selectedLang)?.name}
             </p>
             <p style={{ color: '#64748b', fontSize: '0.875rem' }}>
-              Translations are generated daily at 12:00 UTC
+              Translations will be available soon
             </p>
           </div>
         )}
