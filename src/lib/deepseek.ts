@@ -19,6 +19,51 @@ const LANGUAGE_NAMES: Record<string, string> = {
   vi: 'Vietnamese'
 };
 
+function detectLanguage(text: string): string {
+  const chineseChars = /[\u4e00-\u9fff]/;
+  const arabicChars = /[\u0600-\u06ff]/;
+  const japaneseChars = /[\u3040-\u309f\u30a0-\u30ff]/;
+  const koreanChars = /[\uac00-\ud7af]/;
+  const russianChars = /[\u0400-\u04ff]/;
+
+  if (chineseChars.test(text)) return 'zh';
+  if (arabicChars.test(text)) return 'ar';
+  if (japaneseChars.test(text)) return 'ja';
+  if (koreanChars.test(text)) return 'ko';
+  if (russianChars.test(text)) return 'ru';
+  if (/[a-zA-Z]{5,}/.test(text)) return 'en';
+  return 'unknown';
+}
+
+function filterTextByLanguage(text: string, targetLang: string): string {
+  const lines = text.split('\n');
+  const filtered: string[] = [];
+  
+  const mainLang = detectLanguage(text);
+  const keepLangs = [mainLang, 'en', targetLang];
+
+  for (const line of lines) {
+    if (!line.trim() || line.length < 20) {
+      filtered.push(line);
+      continue;
+    }
+
+    const lineLang = detectLanguage(line);
+    if (keepLangs.includes(lineLang) || lineLang === 'unknown') {
+      filtered.push(line);
+    }
+  }
+
+  return filtered.join('\n');
+}
+
+function preprocessText(text: string): string {
+  return text
+    .replace(/\[!IMPORTANT\]/gi, '**⚠️ IMPORTANT:**')
+    .replace(/\[!NOTE\]/gi, '**📝 NOTE:**')
+    .replace(/\[!WARNING\]/gi, '**⚠️ WARNING:**');
+}
+
 export async function translateProposal(
   apiKey: string,
   text: string,
@@ -31,6 +76,8 @@ export async function translateProposal(
   }
 
   const langName = LANGUAGE_NAMES[language] || language;
+  const filteredText = filterTextByLanguage(text, language);
+  const preprocessedText = preprocessText(filteredText);
 
   const client = new OpenAI({
     apiKey,
@@ -45,22 +92,32 @@ export async function translateProposal(
           role: 'system',
           content: `You are an expert translator. Translate the following text into ${langName}. 
 Rules:
-1. Provide a COMPLETE, faithful translation - do NOT summarize
-2. Preserve ALL technical details, code snippets, specifications, tables, and formatting
-3. Keep the original markdown structure
-4. ONLY output the translated proposal text - do NOT include any instructions, requirements, or prompts in your response
-5. Do not add any commentary or explanations`
+1. IGNORE all content that is NOT in English or ${langName} (skip Chinese, Arabic, Korean, Japanese, Russian, etc.)
+2. Provide a COMPLETE, faithful translation - do NOT summarize
+3. Preserve ALL technical details, code snippets, specifications, tables, and formatting
+4. Keep the original markdown structure
+5. ONLY output the translated proposal text - do NOT include any instructions, requirements, or prompts in your response
+6. Do not add any commentary or explanations`
         },
         {
           role: 'user',
-          content: `Translate this proposal into ${langName}:\n\n${text}`
+          content: `Translate this proposal into ${langName}. Ignore any non-English or non-${langName} content:\n\n${preprocessedText}`
         }
       ],
       temperature: 0.3,
       max_tokens: 8000
     });
 
-    return response.choices[0]?.message?.content || null;
+    let translated = response.choices[0]?.message?.content || null;
+    
+    if (translated) {
+      translated = translated
+        .replace(/```(\w+)?\n([\s\S]*?)```/g, '```$1\n$2```')
+        .replace(/^```\n?/, '```')
+        .replace(/```$/m, '```');
+    }
+
+    return translated;
   } catch (error: any) {
     console.error('DeepSeek translation error:', error.message);
     return null;

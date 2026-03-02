@@ -225,6 +225,12 @@ export default function ProposalDetail({ epoch, id, initialProposal }: ProposalD
                 td: ({node, ...props}) => <td style={{border: '1px solid #202e3c', padding: '12px', color: '#e2e8f0'}} {...props} />,
                 blockquote: ({node, ...props}) => <blockquote style={{borderLeft: '4px solid #23ffff', paddingLeft: '1em', color: '#94a3b8', marginBottom: '0.75em', fontStyle: 'italic'}} {...props} />,
                 hr: ({node, ...props}) => <hr style={{borderColor: '#202e3c', margin: '1.5em 0'}} {...props} />,
+                details: ({node, ...props}) => (
+                  <details style={{backgroundColor: '#1e293b', borderRadius: '0.5em', marginBottom: '0.75em', overflow: 'hidden'}} {...props} />
+                ),
+                summary: ({node, ...props}) => (
+                  <summary style={{backgroundColor: '#2d3a4a', color: '#e2e8f0', padding: '0.75em 1em', cursor: 'pointer', fontWeight: '500', listStyle: 'none'}} {...props} />
+                ),
               }}
             >
               {translation.replace(/<br\s*\/?>/gi, '\n\n')}
