@@ -102,18 +102,23 @@ export default function ProposalDetail({ epoch, id, initialProposal }: ProposalD
   return (
     <div className="max-w-4xl mx-auto">
       <div className="rounded-xl p-6 mb-6" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c' }}>
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold" style={{ color: '#ffffff' }}>{initialProposal.title}</h1>
+        <div className="flex items-start justify-between gap-4 proposal-detail-header">
+          <div className="proposal-detail-title-block">
+            <h1 className="text-2xl font-bold proposal-detail-title" style={{ color: '#ffffff' }}>{initialProposal.title}</h1>
             {initialProposal.contractName && (
-              <span 
-                className={`inline-block mt-1 px-3 py-1 rounded-full text-xs font-medium border ${contractBadgeStyle}`}
-              >
-                {initialProposal.contractName}
-              </span>
+              <div className="mt-1 proposal-detail-badge-row">
+                <span 
+                  className={`inline-block px-3 py-1 rounded-full text-xs font-medium border ${contractBadgeStyle}`}
+                >
+                  {initialProposal.contractName}
+                </span>
+                <span className={`px-3 py-1 rounded-full text-sm font-medium border md:hidden ${statusClass}`}>
+                  {status}
+                </span>
+              </div>
             )}
           </div>
-          <span className={`px-3 py-1 rounded-full text-sm font-medium border ${statusClass}`}>
+          <span className={`px-3 py-1 rounded-full text-sm font-medium border proposal-detail-status-desktop ${initialProposal.contractName ? 'hidden md:inline' : ''} ${statusClass}`}>
             {status}
           </span>
         </div>
@@ -175,26 +180,26 @@ export default function ProposalDetail({ epoch, id, initialProposal }: ProposalD
         )}
         </div>
 
-        <div className="flex items-center gap-6 mt-6" style={{ borderColor: '#202e3c', borderTopWidth: '1px', borderStyle: 'solid', paddingTop: '24px' }}>
-          <div className="text-center" style={{ minWidth: '80px' }}>
+        <div className="flex items-center gap-6 mt-6 proposal-detail-votes" style={{ borderColor: '#202e3c', borderTopWidth: '1px', borderStyle: 'solid', paddingTop: '24px' }}>
+          <div className="text-center proposal-detail-vote-item" style={{ minWidth: '80px' }}>
             <span className="text-xs block" style={{ color: '#94a3b8' }}>Yes Votes</span>
             <p className="text-lg font-semibold" style={{ color: '#22c55e' }}>
               {yesVotes.toLocaleString()}
             </p>
           </div>
-          <div className="text-center" style={{ minWidth: '80px' }}>
+          <div className="text-center proposal-detail-vote-item" style={{ minWidth: '80px' }}>
             <span className="text-xs block" style={{ color: '#94a3b8' }}>No Votes</span>
             <p className="text-lg font-semibold" style={{ color: '#ef4444' }}>
               {noVotes.toLocaleString()}
             </p>
           </div>
-          <div className="text-center" style={{ minWidth: '80px' }}>
+          <div className="text-center proposal-detail-vote-item" style={{ minWidth: '80px' }}>
             <span className="text-xs block" style={{ color: '#94a3b8' }}>Total Votes</span>
             <p className="text-lg font-semibold" style={{ color: '#ffffff' }}>
               {totalVotes.toLocaleString()}
             </p>
           </div>
-          <div className="text-center" style={{ minWidth: '80px' }}>
+          <div className="text-center proposal-detail-vote-item" style={{ minWidth: '80px' }}>
             <span className="text-xs block" style={{ color: '#94a3b8' }}>{rateLabel}</span>
             <p className="text-lg font-semibold" style={{ color: '#ffffff' }}>
               {displayRate.toFixed(1)}%

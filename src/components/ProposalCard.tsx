@@ -36,7 +36,7 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
   return (
     <Link
       href={`/proposal/${proposal.epoch}/${slug}`}
-      className="block rounded-xl p-5 transition-all group"
+      className="block rounded-xl p-5 transition-all group proposal-card-shell"
       style={{ 
         backgroundColor: '#151e27', 
         border: '1px solid #202e3c' 
@@ -50,26 +50,31 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
         e.currentTarget.style.borderColor = '#202e3c';
       }}
     >
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex items-start justify-between gap-4 proposal-card-header">
         <div className="flex-1 min-w-0">
-          <h3 className="text-lg font-semibold truncate transition-colors hover:text-cyan-400" style={{ color: '#ffffff' }}>
+          <h3 className="text-lg font-semibold truncate transition-colors hover:text-cyan-400 proposal-card-title" style={{ color: '#ffffff' }}>
             {proposal.title}
           </h3>
           {proposal.contractName && (
-            <span 
-              className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium border ${contractBadgeStyle}`}
-            >
-              {proposal.contractName}
-            </span>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <span 
+                className={`inline-block px-3 py-1 rounded-full text-xs font-medium border ${contractBadgeStyle}`}
+              >
+                {proposal.contractName}
+              </span>
+              <span className={`px-3 py-1 rounded-full text-xs font-medium border md:hidden ${statusClass}`}>
+                {status}
+              </span>
+            </div>
           )}
         </div>
-        <span className={`px-3 py-1 rounded-full text-xs font-medium border ${statusClass}`}>
+        <span className={`px-3 py-1 rounded-full text-xs font-medium border proposal-card-status-desktop ${proposal.contractName ? 'hidden md:inline' : ''} ${statusClass}`}>
           {status}
         </span>
       </div>
 
-      <div className="flex items-center justify-between mt-4 pt-4" style={{ borderColor: '#202e3c', borderTopWidth: '1px', borderStyle: 'solid' }}>
-        <div className="flex items-center gap-6">
+      <div className="flex items-center justify-between mt-4 pt-4 proposal-card-stats" style={{ borderColor: '#202e3c', borderTopWidth: '1px', borderStyle: 'solid' }}>
+        <div className="flex items-center gap-6 proposal-card-stats-grid">
           <div className="text-center" style={{ minWidth: '60px' }}>
             <span className="text-xs block" style={{ color: '#94a3b8' }}>Yes</span>
             <p className="text-sm font-medium" style={{ color: '#22c55e' }}>
@@ -89,7 +94,7 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
             </p>
           </div>
         </div>
-        <div className="text-xs" style={{ color: '#94a3b8' }}>
+        <div className="text-xs proposal-card-translation-count" style={{ color: '#94a3b8' }}>
           {translationCount > 0 && (
             <span style={{ color: '#23ffff' }}>{translationCount} translations</span>
           )}

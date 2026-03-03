@@ -17,9 +17,9 @@ export default function LanguageTabs({ selectedLang, availableLangs, onSelect }:
   }
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-1 language-tabs">
       {rows.map((row, rowIndex) => (
-        <div key={rowIndex} className="flex gap-1">
+        <div key={rowIndex} className="flex gap-1 language-tabs-row">
           {row.map((lang) => {
             const isAvailable = availableLangs.includes(lang.code);
             const isSelected = selectedLang === lang.code;
@@ -29,7 +29,7 @@ export default function LanguageTabs({ selectedLang, availableLangs, onSelect }:
                 key={lang.code}
                 onClick={() => onSelect(lang.code)}
                 disabled={!isAvailable}
-                className="flex-1 px-2 py-2 rounded-lg text-sm font-medium transition-all"
+                className="flex-1 px-2 py-2 rounded-lg text-sm font-medium transition-all language-tab-button"
                 style={{
                   backgroundColor: isSelected ? '#23ffff' : (isAvailable ? '#202e3c' : '#151e27'),
                   color: isSelected ? '#101820' : (isAvailable ? '#ffffff' : '#94a3b8'),
@@ -38,7 +38,8 @@ export default function LanguageTabs({ selectedLang, availableLangs, onSelect }:
                 }}
               >
                 <span className="mr-1">{lang.flag}</span>
-                {lang.name}
+                <span className="language-tab-label">{lang.name}</span>
+                <span className="language-tab-code">{lang.code.toUpperCase()}</span>
               </button>
             );
           })}

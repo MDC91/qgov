@@ -94,15 +94,15 @@ export default async function Page({ params }: PageProps) {
     <div className="min-h-screen text-white" style={{ backgroundColor: '#101820' }}>
       <header className="border backdrop-blur-sm sticky top-0 z-10" style={{ backgroundColor: '#151e27', borderColor: '#202e3c' }}>
         <div className="max-w-6xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <a href="/" className="flex items-center gap-3">
+          <div className="flex items-center justify-between proposal-page-header-row">
+            <a href="/" className="flex items-center gap-3 proposal-page-brand">
               <img src="/Qubic-Logo-White.svg" alt="Qubic" className="h-10" style={{ width: 'auto' }} />
               <span className="text-3xl font-light font-governance" style={{ color: '#23ffff' }}>governance</span>
             </a>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 proposal-page-header-meta">
               <span className="text-sm" style={{ color: '#94a3b8' }}>Epoch {epoch}</span>
-              <span className="text-sm" style={{ color: '#23ffff' }}>|</span>
-              <p className="text-sm truncate max-w-md" style={{ color: '#ffffff' }}>{proposal?.title}</p>
+              <span className="text-sm proposal-page-header-separator" style={{ color: '#23ffff' }}>|</span>
+              <p className="text-sm truncate max-w-md proposal-page-header-title" style={{ color: '#ffffff' }}>{proposal?.title}</p>
             </div>
           </div>
         </div>
