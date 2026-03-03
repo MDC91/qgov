@@ -64,6 +64,19 @@ export function filterEnglishMarkdownBody(body: string): string {
     .trim();
 }
 
+export function ensureMarkdownTitle(title: string, markdown: string): string {
+  const safeTitle = (title || 'Qubic Proposal').trim();
+  const cleanedBody = normalizeMarkdown(markdown || '')
+    .replace(/^\s*#\s+.*\n+/, '')
+    .trim();
+
+  if (!cleanedBody) {
+    return `# ${safeTitle}`;
+  }
+
+  return `# ${safeTitle}\n\n${cleanedBody}`;
+}
+
 export async function extractTitleAndContentFromMarkdown(url: string): Promise<{ title: string | null; content: { en: string | null; zh: string | null } }> {
   if (!url || !url.includes('github.com')) {
     return { title: null, content: { en: null, zh: null } };

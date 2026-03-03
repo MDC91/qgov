@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { translateProposal } from '@/lib/deepseek';
 import { getTranslation, setTranslation, getAllTranslations as getAllTranslationsFromDb } from '@/lib/database';
-import { splitMarkdownTitleAndBody, filterEnglishMarkdownBody } from '@/lib/proposal';
+import { splitMarkdownTitleAndBody, filterEnglishMarkdownBody, ensureMarkdownTitle } from '@/lib/proposal';
 import { LANGUAGES } from '@/types';
 
 export async function GET(
@@ -76,15 +76,17 @@ export async function POST(
 
     const { title: markdownTitle, body } = splitMarkdownTitleAndBody(rawMarkdown);
     const englishBody = filterEnglishMarkdownBody(body);
+    const displayTitle = title || markdownTitle || 'Qubic Proposal';
 
     if (!englishBody) {
       return NextResponse.json({ error: 'Failed to extract English proposal content' }, { status: 500 });
     }
 
     if (lang === 'en') {
-      setTranslation(id, 'en', englishBody);
+      const englishWithTitle = ensureMarkdownTitle(displayTitle, englishBody);
+      setTranslation(id, 'en', englishWithTitle);
       return NextResponse.json({
-        translation: englishBody,
+        translation: englishWithTitle,
         cached: false
       });
     }
@@ -100,10 +102,12 @@ export async function POST(
       return NextResponse.json({ error: 'Translation failed' }, { status: 500 });
     }
 
-    setTranslation(id, lang, translation);
+    const translationWithTitle = ensureMarkdownTitle(displayTitle, translation);
+
+    setTranslation(id, lang, translationWithTitle);
 
     return NextResponse.json({ 
-      translation,
+      translation: translationWithTitle,
       cached: false
     });
   } catch (error) {

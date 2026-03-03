@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { translateProposal } from '@/lib/deepseek';
 import { getProposalsByEpoch, getProposalById, getTranslation, setTranslation, getAllEpochs } from '@/lib/database';
 import { getCurrentEpoch } from '@/lib/qubic-api';
-import { splitMarkdownTitleAndBody, filterEnglishMarkdownBody } from '@/lib/proposal';
+import { splitMarkdownTitleAndBody, filterEnglishMarkdownBody, ensureMarkdownTitle } from '@/lib/proposal';
 import { LANGUAGES } from '@/types';
 
 const CRON_SECRET = process.env.CRON_SECRET;
@@ -108,7 +108,7 @@ export async function GET(request: Request) {
           let translation: string | null = null;
 
           if (lang.code === 'en') {
-            translation = englishBody;
+            translation = ensureMarkdownTitle(sourceTitle, englishBody);
             setTranslation(proposalId, lang.code, translation);
             results.push({ epoch, proposalId, lang: lang.code, status: 'original' });
           } else {
@@ -119,6 +119,7 @@ export async function GET(request: Request) {
             translation = await translateProposal(apiKey!, englishBody, lang.code, sourceTitle);
 
             if (translation) {
+              translation = ensureMarkdownTitle(sourceTitle, translation);
               setTranslation(proposalId, lang.code, translation);
               results.push({ epoch, proposalId, lang: lang.code, status: 'translated' });
             }

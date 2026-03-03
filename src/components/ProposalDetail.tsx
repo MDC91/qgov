@@ -35,6 +35,19 @@ function normalizeAdmonitions(markdown: string): string {
     .join('\n');
 }
 
+function ensureFixedProposalTitle(markdown: string, title: string): string {
+  const safeTitle = (title || 'Qubic Proposal').trim();
+  const bodyWithoutTopHeading = (markdown || '')
+    .replace(/^\s*#\s+.*\n+/, '')
+    .trim();
+
+  if (!bodyWithoutTopHeading) {
+    return `# ${safeTitle}`;
+  }
+
+  return `# ${safeTitle}\n\n${bodyWithoutTopHeading}`;
+}
+
 type ResponsiveMarkdownTableProps = ComponentProps<'table'>;
 
 function ResponsiveMarkdownTable({ children, ...props }: ResponsiveMarkdownTableProps) {
@@ -201,10 +214,12 @@ export default function ProposalDetail({ epoch, id, initialProposal }: ProposalD
   const renderedTranslation = useMemo(() => {
     if (!translation) return '';
 
-    return normalizeAdmonitions(
+    const normalizedMarkdown = normalizeAdmonitions(
       translation.replace(/<br\s*\/?>/gi, '\n\n')
     );
-  }, [translation]);
+
+    return ensureFixedProposalTitle(normalizedMarkdown, initialProposal.title);
+  }, [translation, initialProposal.title]);
 
   useEffect(() => {
     const cachedTranslation = initialProposal.translations?.[selectedLang]?.text;

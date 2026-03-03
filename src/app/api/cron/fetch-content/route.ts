@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getAllEpochs, getProposalsByEpoch, setTranslation } from '@/lib/database';
-import { extractTitleAndContentFromMarkdown } from '@/lib/proposal';
+import { extractTitleAndContentFromMarkdown, ensureMarkdownTitle } from '@/lib/proposal';
 
 const CRON_SECRET = process.env.CRON_SECRET;
 
@@ -24,10 +24,11 @@ export async function POST(request: Request) {
         const proposalId = proposal.id;
         
         if (proposal.url && proposal.url.includes('github.com')) {
-          const { content } = await extractTitleAndContentFromMarkdown(proposal.url);
+          const { title, content } = await extractTitleAndContentFromMarkdown(proposal.url);
           
           if (content.en) {
-            setTranslation(proposalId, 'en', content.en);
+            const displayTitle = title || proposal.title || 'Qubic Proposal';
+            setTranslation(proposalId, 'en', ensureMarkdownTitle(displayTitle, content.en));
             results.push({ epoch, id: proposalId, lang: 'en', stored: true });
           }
         }
