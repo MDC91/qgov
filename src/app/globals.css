@@ -101,17 +101,17 @@ body {
   }
 
   .home-search-query {
-    flex: 1 1 58%;
+    flex: 0 1 calc(56% - 0.25rem);
     width: auto !important;
   }
 
   .home-search-author {
-    flex: 1 1 40%;
+    flex: 0 1 calc(44% - 0.25rem);
     width: auto !important;
   }
 
   .home-search-publisher {
-    flex: 1 1 calc(100% - 7.5rem);
+    flex: 0 1 calc(100% - 7rem - 0.5rem);
     width: auto !important;
   }
 
