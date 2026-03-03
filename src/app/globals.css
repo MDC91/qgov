@@ -119,6 +119,26 @@ body {
   margin-bottom: 0;
 }
 
+.proposal-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 1rem;
+  border: 1px solid #202e3c;
+  border-radius: 0.55rem;
+  background: #151e27;
+}
+
+.proposal-markdown-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0;
+}
+
+.proposal-table-cell {
+  vertical-align: top;
+}
+
 .proposal-markdown-content h1,
 .proposal-markdown-content h2,
 .proposal-markdown-content h3 {
@@ -382,11 +402,29 @@ body {
   .proposal-markdown-content,
   .proposal-markdown-content p,
   .proposal-markdown-content li,
-  .proposal-markdown-content td,
   .proposal-markdown-content a,
   .proposal-markdown-content span {
     overflow-wrap: anywhere;
     word-break: break-word;
+  }
+
+  .proposal-table-wrap {
+    margin-left: -0.25rem;
+    margin-right: -0.25rem;
+    width: calc(100% + 0.5rem);
+  }
+
+  .proposal-markdown-table {
+    min-width: 560px;
+    width: max-content;
+  }
+
+  .proposal-table-cell,
+  .proposal-table-cell * {
+    white-space: normal;
+    word-break: keep-all;
+    overflow-wrap: normal;
+    hyphens: none;
   }
 
   .proposal-markdown-content code {

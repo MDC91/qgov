@@ -294,12 +294,16 @@ export default function ProposalDetail({ epoch, id, initialProposal }: ProposalD
 
                   return <a href={href} target="_blank" rel="noopener noreferrer" style={{color: '#23ffff', textDecoration: 'underline'}} {...props} />;
                 },
-                table: ({node, ...props}) => <table style={{borderCollapse: 'collapse', width: '100%', marginBottom: '1em', overflowX: 'auto', display: 'table'}} {...props} />,
+                table: ({node, ...props}) => (
+                  <div className="proposal-table-wrap">
+                    <table className="proposal-markdown-table" style={{borderCollapse: 'collapse'}} {...props} />
+                  </div>
+                ),
                 thead: ({node, ...props}) => <thead style={{backgroundColor: '#1e293b'}} {...props} />,
                 tbody: ({node, ...props}) => <tbody {...props} />,
                 tr: ({node, ...props}) => <tr style={{borderBottom: '1px solid #202e3c'}} {...props} />,
-                th: ({node, ...props}) => <th style={{border: '1px solid #202e3c', padding: '12px', backgroundColor: '#1e293b', color: '#ffffff', textAlign: 'left', fontWeight: 'bold'}} {...props} />,
-                td: ({node, ...props}) => <td style={{border: '1px solid #202e3c', padding: '12px', color: '#e2e8f0'}} {...props} />,
+                th: ({node, ...props}) => <th className="proposal-table-cell proposal-table-head" style={{border: '1px solid #202e3c', padding: '12px', backgroundColor: '#1e293b', color: '#ffffff', textAlign: 'left', fontWeight: 'bold'}} {...props} />,
+                td: ({node, ...props}) => <td className="proposal-table-cell" style={{border: '1px solid #202e3c', padding: '12px', color: '#e2e8f0'}} {...props} />,
                 blockquote: ({node, ...props}) => <blockquote style={{borderLeft: '4px solid #23ffff', paddingLeft: '1em', color: '#94a3b8', marginBottom: '0.75em', fontStyle: 'italic'}} {...props} />,
                 hr: ({node, ...props}) => <hr style={{borderColor: '#202e3c', margin: '1.5em 0'}} {...props} />,
                 details: ({node, className, ...props}) => (
