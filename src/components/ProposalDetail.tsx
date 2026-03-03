@@ -1,12 +1,39 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import rehypeSlug from 'rehype-slug';
 import { Proposal, LANGUAGES, PROPOSAL_STATUS } from '@/types';
 import LanguageTabs from './LanguageTabs';
+
+const ADMONITION_LABELS: Record<string, string> = {
+  IMPORTANT: '⚠️ IMPORTANT',
+  WARNING: '⚠️ WARNING',
+  NOTE: '📝 NOTE',
+  TIP: '💡 TIP',
+  CAUTION: '⛔ CAUTION'
+};
+
+function normalizeAdmonitions(markdown: string): string {
+  return markdown
+    .split('\n')
+    .map((line) => {
+      const match = line.match(/^(\s*>?\s*)\[!(IMPORTANT|WARNING|NOTE|TIP|CAUTION)\]\s*(.*)$/i);
+
+      if (!match) {
+        return line;
+      }
+
+      const [, prefix, rawType, trailing] = match;
+      const type = rawType.toUpperCase();
+      const label = ADMONITION_LABELS[type] || type;
+
+      return `${prefix}**${label}**${trailing ? ` ${trailing}` : ''}`;
+    })
+    .join('\n');
+}
 
 function extractGitHubAuthor(url: string): { author: string; profileUrl: string } | null {
   if (!url || !url.includes('github.com')) return null;
@@ -75,6 +102,14 @@ export default function ProposalDetail({ epoch, id, initialProposal }: ProposalD
       : status === 'Active'
         ? (isApprovalLeading ? 'Approval Rate' : 'Rejection Rate')
         : 'Approval Rate';
+
+  const renderedTranslation = useMemo(() => {
+    if (!translation) return '';
+
+    return normalizeAdmonitions(
+      translation.replace(/<br\s*\/?>/gi, '\n\n')
+    );
+  }, [translation]);
 
   useEffect(() => {
     const cachedTranslation = initialProposal.translations?.[selectedLang]?.text;
@@ -267,15 +302,18 @@ export default function ProposalDetail({ epoch, id, initialProposal }: ProposalD
                 td: ({node, ...props}) => <td style={{border: '1px solid #202e3c', padding: '12px', color: '#e2e8f0'}} {...props} />,
                 blockquote: ({node, ...props}) => <blockquote style={{borderLeft: '4px solid #23ffff', paddingLeft: '1em', color: '#94a3b8', marginBottom: '0.75em', fontStyle: 'italic'}} {...props} />,
                 hr: ({node, ...props}) => <hr style={{borderColor: '#202e3c', margin: '1.5em 0'}} {...props} />,
-                details: ({node, ...props}) => (
-                  <details style={{backgroundColor: '#1e293b', borderRadius: '0.5em', marginBottom: '0.75em', overflow: 'hidden'}} {...props} />
+                details: ({node, className, ...props}) => (
+                  <details className={['proposal-details-block', className].filter(Boolean).join(' ')} {...props} />
                 ),
-                summary: ({node, ...props}) => (
-                  <summary style={{backgroundColor: '#2d3a4a', color: '#e2e8f0', padding: '0.75em 1em', cursor: 'pointer', fontWeight: '500', listStyle: 'none'}} {...props} />
+                summary: ({node, className, children, ...props}) => (
+                  <summary className={['proposal-details-summary', className].filter(Boolean).join(' ')} {...props}>
+                    <span className="proposal-details-caret" aria-hidden>▸</span>
+                    <span className="proposal-details-label">{children}</span>
+                  </summary>
                 ),
               }}
             >
-              {translation.replace(/<br\s*\/?>/gi, '\n\n')}
+              {renderedTranslation}
             </ReactMarkdown>
           </div>
         ) : loading ? (

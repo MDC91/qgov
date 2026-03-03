@@ -69,6 +69,56 @@ body {
   border: 1px solid var(--border);
 }
 
+.proposal-details-block {
+  background: #1e293b;
+  border: 1px solid #2d3a4a;
+  border-radius: 0.6rem;
+  margin-bottom: 0.9rem;
+  overflow: hidden;
+}
+
+.proposal-details-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  font-weight: 600;
+  color: #e2e8f0;
+  background: #2d3a4a;
+  list-style: none;
+}
+
+.proposal-details-summary::-webkit-details-marker {
+  display: none;
+}
+
+.proposal-details-summary::marker {
+  content: '';
+}
+
+.proposal-details-caret {
+  font-size: 0.8rem;
+  line-height: 1;
+  transition: transform 0.2s ease;
+}
+
+.proposal-details-block[open] > .proposal-details-summary .proposal-details-caret {
+  transform: rotate(90deg);
+}
+
+.proposal-details-label {
+  flex: 1;
+}
+
+.proposal-details-block > :not(summary) {
+  padding: 0.9rem 1rem 1rem;
+}
+
+.proposal-details-block > :not(summary):last-child {
+  margin-bottom: 0;
+}
+
 .proposal-markdown-content h1,
 .proposal-markdown-content h2,
 .proposal-markdown-content h3 {
