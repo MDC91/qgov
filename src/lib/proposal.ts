@@ -9,56 +9,59 @@ export function extractProposalId(url: string, fallbackUrl: string): string {
   }
 }
 
-function hasChinese(text: string): boolean {
-  const chineseRegex = /[\u4e00-\u9fff]/;
-  return chineseRegex.test(text);
+const EAST_ASIAN_SCRIPT_REGEX = /[\u4e00-\u9fff\u3400-\u4dbf\u3040-\u30ff\uac00-\ud7af]/;
+
+function normalizeMarkdown(markdown: string): string {
+  return markdown.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
 }
 
-function hasEnglish(text: string): boolean {
-  const englishRegex = /[a-zA-Z]{10,}/;
-  return englishRegex.test(text);
-}
+export function stripFrontmatter(markdown: string): string {
+  const normalized = normalizeMarkdown(markdown);
+  const lines = normalized.split('\n');
 
-interface ParsedContent {
-  en: string | null;
-  zh: string | null;
-}
+  if (lines[0]?.trim() !== '---') {
+    return normalized;
+  }
 
-function parseBilingualContent(content: string): ParsedContent {
-  const lines = content.split('\n');
-  
-  const englishLines: string[] = [];
-  const chineseLines: string[] = [];
-  let currentLang: 'en' | 'zh' | null = null;
-  
-  for (const line of lines) {
-    if (hasChinese(line)) {
-      if (currentLang !== 'zh') {
-        currentLang = 'zh';
-      }
-      chineseLines.push(line);
-    } else if (hasEnglish(line)) {
-      if (currentLang !== 'en') {
-        currentLang = 'en';
-      }
-      englishLines.push(line);
-    } else {
-      if (currentLang === 'zh') {
-        chineseLines.push(line);
-      } else {
-        englishLines.push(line);
-      }
+  for (let i = 1; i < lines.length; i++) {
+    if (lines[i].trim() === '---') {
+      return lines.slice(i + 1).join('\n');
     }
   }
-  
-  const en = englishLines.length > 5 ? englishLines.join('\n') : null;
-  const zh = chineseLines.length > 5 ? chineseLines.join('\n') : null;
-  
-  if (!en && !zh) {
-    return { en: content, zh: null };
+
+  return normalized;
+}
+
+export function splitMarkdownTitleAndBody(markdown: string): { title: string | null; body: string } {
+  const withoutFrontmatter = stripFrontmatter(markdown);
+  const lines = withoutFrontmatter.split('\n');
+
+  let title: string | null = null;
+  let titleLineIndex = -1;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (/^#\s+/.test(line)) {
+      title = line.replace(/^#\s+/, '').trim();
+      titleLineIndex = i;
+      break;
+    }
   }
-  
-  return { en, zh };
+
+  const bodyLines = titleLineIndex >= 0 ? lines.slice(titleLineIndex + 1) : lines;
+  const body = bodyLines.join('\n').replace(/^\s+/, '').trim();
+
+  return { title, body };
+}
+
+export function filterEnglishMarkdownBody(body: string): string {
+  const lines = normalizeMarkdown(body).split('\n');
+  const filteredLines = lines.filter((line) => !EAST_ASIAN_SCRIPT_REGEX.test(line));
+
+  return filteredLines
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
 }
 
 export async function extractTitleAndContentFromMarkdown(url: string): Promise<{ title: string | null; content: { en: string | null; zh: string | null } }> {
@@ -74,33 +77,17 @@ export async function extractTitleAndContentFromMarkdown(url: string): Promise<{
     const response = await fetch(rawUrl, { next: { revalidate: 3600 } });
     if (!response.ok) return { title: null, content: { en: null, zh: null } };
     
-    const content = await response.text();
-    
-    const lines = content.split('\n');
-    let title: string | null = null;
-    const contentLines: string[] = [];
-    let inFrontmatter = false;
-    
-    for (const line of lines) {
-      if (line.trim() === '---') {
-        inFrontmatter = !inFrontmatter;
-        continue;
+    const markdown = await response.text();
+    const { title, body } = splitMarkdownTitleAndBody(markdown);
+    const englishBody = filterEnglishMarkdownBody(body);
+
+    return {
+      title,
+      content: {
+        en: englishBody || null,
+        zh: null
       }
-      if (inFrontmatter) continue;
-      
-      if (!title && line.trim().startsWith('# ')) {
-        title = line.trim().substring(2).trim();
-      } else if (line.trim().startsWith('# ')) {
-        contentLines.push(line);
-      } else if (title) {
-        contentLines.push(line);
-      }
-    }
-    
-    const bodyContent = contentLines.join('\n');
-    const parsed = parseBilingualContent(bodyContent);
-    
-    return { title, content: parsed };
+    };
   } catch {
     return { title: null, content: { en: null, zh: null } };
   }

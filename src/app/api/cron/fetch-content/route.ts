@@ -30,11 +30,6 @@ export async function POST(request: Request) {
             setTranslation(proposalId, 'en', content.en);
             results.push({ epoch, id: proposalId, lang: 'en', stored: true });
           }
-          
-          if (content.zh) {
-            setTranslation(proposalId, 'zh', content.zh);
-            results.push({ epoch, id: proposalId, lang: 'zh', stored: true });
-          }
         }
       }
     }

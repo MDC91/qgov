@@ -69,6 +69,12 @@ body {
   border: 1px solid var(--border);
 }
 
+.proposal-markdown-content h1,
+.proposal-markdown-content h2,
+.proposal-markdown-content h3 {
+  scroll-margin-top: 7rem;
+}
+
 .language-tab-code {
   display: none;
 }
@@ -321,6 +327,26 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  .proposal-markdown-content,
+  .proposal-markdown-content p,
+  .proposal-markdown-content li,
+  .proposal-markdown-content td,
+  .proposal-markdown-content a,
+  .proposal-markdown-content span {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .proposal-markdown-content code {
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .proposal-markdown-content pre {
+    white-space: pre-wrap;
+    overflow-x: auto;
   }
 
   .language-tabs-row {

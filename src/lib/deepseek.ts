@@ -19,40 +19,17 @@ const LANGUAGE_NAMES: Record<string, string> = {
   vi: 'Vietnamese'
 };
 
-function detectLanguage(text: string): string {
-  const chineseChars = /[\u4e00-\u9fff]/;
-  const arabicChars = /[\u0600-\u06ff]/;
-  const japaneseChars = /[\u3040-\u309f\u30a0-\u30ff]/;
-  const koreanChars = /[\uac00-\ud7af]/;
-  const russianChars = /[\u0400-\u04ff]/;
-
-  if (chineseChars.test(text)) return 'zh';
-  if (arabicChars.test(text)) return 'ar';
-  if (japaneseChars.test(text)) return 'ja';
-  if (koreanChars.test(text)) return 'ko';
-  if (russianChars.test(text)) return 'ru';
-  if (/[a-zA-Z]{5,}/.test(text)) return 'en';
-  return 'unknown';
-}
-
-function filterTextByLanguage(text: string, targetLang: string): string {
-  const chineseChars = /[\u4e00-\u9fff]/;
-  const arabicChars = /[\u0600-\u06ff]/;
-  const japaneseChars = /[\u3040-\u309f\u30a0-\u30ff]/;
-  const koreanChars = /[\uac00-\ud7af]/;
+function filterTextByLanguage(text: string, _targetLang: string): string {
+  const mixedForeignScripts = /[\u4e00-\u9fff\u3400-\u4dbf\u0600-\u06ff\u3040-\u30ff\uac00-\ud7af\u0400-\u04ff]/;
   
   const lines = text.split('\n');
   const filtered: string[] = [];
   
   for (const line of lines) {
-    const lineLower = line.toLowerCase();
-    
-    if (chineseChars.test(line) || arabicChars.test(line) || japaneseChars.test(line) || koreanChars.test(line)) {
-      if (targetLang !== 'en' && !lineLower.includes('chinese') && !lineLower.includes('中文')) {
-        continue;
-      }
+    if (mixedForeignScripts.test(line)) {
+      continue;
     }
-    
+
     filtered.push(line);
   }
 
@@ -75,6 +52,8 @@ function postprocessText(text: string): string {
     .replace(/```$/m, '```')
     .replace(/\n\n+/g, '\n\n')
     .replace(/([^\n]) \n/g, '$1  \n');
+
+  text = text.replace(/^\s*#\s+.*\n+/, '');
   
   text = text.replace(/<details>/gi, '\n<details>');
   text = text.replace(/<\/details>/gi, '</details>\n');
@@ -118,8 +97,9 @@ Rules:
 4. Keep the original markdown structure
 5. Keep EXACTLY two spaces at the end of lines that have a line break in the original (this is critical for markdown rendering)
 6. For links like [link text](url), keep the "link text" in English - only translate the rest
-7. ONLY output the translated proposal TEXT (not the title) - do NOT include any instructions, requirements, or prompts in your response
-8. Do not add any commentary or explanations`
+7. Do NOT output the proposal title and do NOT add a top-level '# ' heading
+8. Translate every section from start to end; do not skip options/checklists/tables/TOC entries
+9. ONLY output the translated proposal TEXT - do NOT include any instructions, requirements, prompts, or commentary`
         },
         {
           role: 'user',

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
-import { translateProposal, summarizeProposal } from '@/lib/deepseek';
-import { getTranslation, setTranslation, getAllTranslations as getAllTranslationsFromDb, getProposalById } from '@/lib/database';
+import { translateProposal } from '@/lib/deepseek';
+import { getTranslation, setTranslation, getAllTranslations as getAllTranslationsFromDb } from '@/lib/database';
+import { splitMarkdownTitleAndBody, filterEnglishMarkdownBody } from '@/lib/proposal';
 import { LANGUAGES } from '@/types';
 
 export async function GET(
@@ -63,21 +64,36 @@ export async function POST(
       return NextResponse.json({ error: 'Proposal URL required' }, { status: 400 });
     }
 
-    let proposalText = '';
+    let rawMarkdown = '';
     try {
       const rawUrl = url.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
       const response = await fetch(rawUrl);
-      proposalText = await response.text();
+      rawMarkdown = await response.text();
     } catch (error) {
       console.error('Error fetching proposal text:', error);
       return NextResponse.json({ error: 'Failed to fetch proposal content' }, { status: 500 });
     }
 
+    const { title: markdownTitle, body } = splitMarkdownTitleAndBody(rawMarkdown);
+    const englishBody = filterEnglishMarkdownBody(body);
+
+    if (!englishBody) {
+      return NextResponse.json({ error: 'Failed to extract English proposal content' }, { status: 500 });
+    }
+
+    if (lang === 'en') {
+      setTranslation(id, 'en', englishBody);
+      return NextResponse.json({
+        translation: englishBody,
+        cached: false
+      });
+    }
+
     const translation = await translateProposal(
       apiKey,
-      proposalText,
+      englishBody,
       lang,
-      title || 'Qubic Proposal'
+      title || markdownTitle || 'Qubic Proposal'
     );
 
     if (!translation) {

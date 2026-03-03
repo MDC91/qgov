@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
+import rehypeSlug from 'rehype-slug';
 import { Proposal, LANGUAGES, PROPOSAL_STATUS } from '@/types';
 import LanguageTabs from './LanguageTabs';
 
@@ -232,10 +234,12 @@ export default function ProposalDetail({ epoch, id, initialProposal }: ProposalD
 
       <div className="rounded-xl p-6 min-h-[300px]" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c' }} dir={isRtlLang ? 'rtl' : 'ltr'}>
         {translation ? (
-          <div className="prose prose-invert max-w-none">
+          <div className="prose prose-invert max-w-none proposal-markdown-content">
             <ReactMarkdown 
               remarkPlugins={[remarkGfm]}
-              allowedElements={['details', 'summary', 'br', 'h1', 'h2', 'h3', 'p', 'ul', 'ol', 'li', 'code', 'pre', 'a', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'blockquote', 'hr']}
+              rehypePlugins={[rehypeRaw, rehypeSlug]}
+              skipHtml={false}
+              allowedElements={['details', 'summary', 'br', 'h1', 'h2', 'h3', 'p', 'ul', 'ol', 'li', 'code', 'pre', 'a', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'blockquote', 'hr', 'input']}
               unwrapDisallowed
               components={{
                 br: ({node, ...props}) => <br {...props} />,
@@ -248,7 +252,13 @@ export default function ProposalDetail({ epoch, id, initialProposal }: ProposalD
                 li: ({node, ...props}) => <li style={{color: '#e2e8f0', marginBottom: '0.25em'}} {...props} />,
                 code: ({node, ...props}) => <code style={{backgroundColor: '#0f172a', color: '#23ffff', padding: '0.2em 0.4em', borderRadius: '0.25em', fontSize: '0.9em', fontFamily: 'monospace'}} {...props} />,
                 pre: ({node, ...props}) => <pre style={{backgroundColor: '#0f172a', color: '#e2e8f0', padding: '1em', borderRadius: '0.5em', overflow: 'auto', marginBottom: '1em', fontFamily: 'monospace'}} {...props} />,
-                a: ({node, ...props}) => <a target="_blank" rel="noopener noreferrer" style={{color: '#23ffff', textDecoration: 'underline'}} {...props} />,
+                a: ({node, href, ...props}) => {
+                  if (href?.startsWith('#')) {
+                    return <a href={href} style={{color: '#23ffff', textDecoration: 'underline'}} {...props} />;
+                  }
+
+                  return <a href={href} target="_blank" rel="noopener noreferrer" style={{color: '#23ffff', textDecoration: 'underline'}} {...props} />;
+                },
                 table: ({node, ...props}) => <table style={{borderCollapse: 'collapse', width: '100%', marginBottom: '1em', overflowX: 'auto', display: 'table'}} {...props} />,
                 thead: ({node, ...props}) => <thead style={{backgroundColor: '#1e293b'}} {...props} />,
                 tbody: ({node, ...props}) => <tbody {...props} />,

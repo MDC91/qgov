@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { translateProposal } from '@/lib/deepseek';
 import { getProposalsByEpoch, getProposalById, getTranslation, setTranslation, getAllEpochs } from '@/lib/database';
 import { getCurrentEpoch } from '@/lib/qubic-api';
+import { splitMarkdownTitleAndBody, filterEnglishMarkdownBody } from '@/lib/proposal';
 import { LANGUAGES } from '@/types';
 
 const CRON_SECRET = process.env.CRON_SECRET;
@@ -66,44 +67,63 @@ export async function GET(request: Request) {
     for (const { epoch, proposal } of proposalsToProcess) {
       const proposalId = proposal.id;
       const title = proposal.title || 'Qubic Proposal';
+      let sourceTitle = title;
+      let cachedEnglishBody: string | null | undefined;
+
+      const loadEnglishBody = async (): Promise<string | null> => {
+        if (cachedEnglishBody !== undefined) {
+          return cachedEnglishBody;
+        }
+
+        if (!proposal.url) {
+          cachedEnglishBody = null;
+          return cachedEnglishBody;
+        }
+
+        try {
+          const rawUrl = proposal.url.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
+          const response = await fetch(rawUrl);
+          const rawMarkdown = await response.text();
+          const { title: markdownTitle, body } = splitMarkdownTitleAndBody(rawMarkdown);
+
+          sourceTitle = markdownTitle || title;
+          cachedEnglishBody = filterEnglishMarkdownBody(body) || null;
+          return cachedEnglishBody;
+        } catch (error) {
+          console.error(`Failed to fetch proposal text for ${proposalId}:`, error);
+          cachedEnglishBody = null;
+          return cachedEnglishBody;
+        }
+      };
       
       for (const lang of LANGUAGES) {
         const existing = getTranslation(proposalId, lang.code);
         
         if (refresh || !existing || !existing.text) {
-          let proposalText = '';
-          try {
-            if (proposal.url) {
-              const rawUrl = proposal.url.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
-              const response = await fetch(rawUrl);
-              proposalText = await response.text();
-            }
-          } catch (error) {
-            console.error(`Failed to fetch proposal text for ${proposalId}:`, error);
+          const englishBody = await loadEnglishBody();
+          if (!englishBody) {
             continue;
           }
 
-          if (proposalText) {
-            let translation: string | null = null;
+          let translation: string | null = null;
 
-            if (lang.code === 'en') {
-              translation = proposalText;
-              setTranslation(proposalId, lang.code, translation);
-              results.push({ epoch, proposalId, lang: lang.code, status: 'original' });
-            } else {
-              if (!apiKey) {
-                console.error('DeepSeek API key not configured');
-                continue;
-              }
-              translation = await translateProposal(apiKey!, proposalText, lang.code, title);
-
-              if (translation) {
-                setTranslation(proposalId, lang.code, translation);
-                results.push({ epoch, proposalId, lang: lang.code, status: 'translated' });
-              }
-
-              await new Promise(resolve => setTimeout(resolve, 500));
+          if (lang.code === 'en') {
+            translation = englishBody;
+            setTranslation(proposalId, lang.code, translation);
+            results.push({ epoch, proposalId, lang: lang.code, status: 'original' });
+          } else {
+            if (!apiKey) {
+              console.error('DeepSeek API key not configured');
+              continue;
             }
+            translation = await translateProposal(apiKey!, englishBody, lang.code, sourceTitle);
+
+            if (translation) {
+              setTranslation(proposalId, lang.code, translation);
+              results.push({ epoch, proposalId, lang: lang.code, status: 'translated' });
+            }
+
+            await new Promise(resolve => setTimeout(resolve, 500));
           }
         }
       }
