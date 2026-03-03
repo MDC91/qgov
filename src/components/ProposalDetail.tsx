@@ -70,36 +70,11 @@ function ResponsiveMarkdownTable({ children, ...props }: ResponsiveMarkdownTable
       }
     };
 
-    const measureNaturalTableWidth = (): number => {
-      const clone = table.cloneNode(true) as HTMLTableElement;
-      clone.style.position = 'absolute';
-      clone.style.visibility = 'hidden';
-      clone.style.pointerEvents = 'none';
-      clone.style.left = '-9999px';
-      clone.style.top = '0';
-      clone.style.width = 'max-content';
-      clone.style.maxWidth = 'none';
-      clone.style.minWidth = '0';
-
-      wrapper.appendChild(clone);
-      const width = clone.getBoundingClientRect().width;
-      wrapper.removeChild(clone);
-
-      return width;
-    };
-
     const evaluateLayout = () => {
       syncCellLabels();
 
       const isMobile = window.matchMedia('(max-width: 767px)').matches;
-      if (!isMobile) {
-        setIsCardLayout(false);
-        return;
-      }
-
-      const naturalWidth = measureNaturalTableWidth();
-      const shouldUseCardLayout = naturalWidth > wrapper.clientWidth + 8;
-      setIsCardLayout(shouldUseCardLayout);
+      setIsCardLayout(isMobile);
     };
 
     const scheduleEvaluation = () => {
