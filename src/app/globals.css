@@ -139,6 +139,64 @@ body {
   vertical-align: top;
 }
 
+.proposal-table-wrap.proposal-table-card-layout {
+  overflow-x: visible;
+  border: none;
+  background: transparent;
+}
+
+.proposal-table-wrap.proposal-table-card-layout .proposal-markdown-table {
+  width: 100%;
+  min-width: 0;
+}
+
+.proposal-table-wrap.proposal-table-card-layout thead {
+  display: none;
+}
+
+.proposal-table-wrap.proposal-table-card-layout tbody {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.proposal-table-wrap.proposal-table-card-layout tr {
+  display: block;
+  border: 1px solid #202e3c;
+  border-radius: 0.55rem;
+  padding: 0.35rem 0.85rem;
+  background: #151e27;
+}
+
+.proposal-table-wrap.proposal-table-card-layout .proposal-table-cell {
+  display: grid;
+  grid-template-columns: minmax(7rem, 42%) minmax(0, 1fr);
+  align-items: start;
+  column-gap: 0.65rem;
+  border: 0 !important;
+  border-bottom: 1px solid #233244 !important;
+  padding: 0.5rem 0 !important;
+}
+
+.proposal-table-wrap.proposal-table-card-layout .proposal-table-cell:last-child {
+  border-bottom: 0 !important;
+}
+
+.proposal-table-wrap.proposal-table-card-layout .proposal-table-cell::before {
+  content: attr(data-label);
+  color: #94a3b8;
+  font-size: 0.72rem;
+  line-height: 1.25;
+  font-weight: 700;
+}
+
+.proposal-table-wrap.proposal-table-card-layout .proposal-table-cell,
+.proposal-table-wrap.proposal-table-card-layout .proposal-table-cell * {
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  hyphens: none;
+}
+
 .proposal-markdown-content h1,
 .proposal-markdown-content h2,
 .proposal-markdown-content h3 {
@@ -408,19 +466,19 @@ body {
     word-break: break-word;
   }
 
-  .proposal-table-wrap {
+  .proposal-table-wrap:not(.proposal-table-card-layout) {
     margin-left: -0.25rem;
     margin-right: -0.25rem;
     width: calc(100% + 0.5rem);
   }
 
-  .proposal-markdown-table {
+  .proposal-table-wrap:not(.proposal-table-card-layout) .proposal-markdown-table {
     min-width: 560px;
     width: max-content;
   }
 
-  .proposal-table-cell,
-  .proposal-table-cell * {
+  .proposal-table-wrap:not(.proposal-table-card-layout) .proposal-table-cell,
+  .proposal-table-wrap:not(.proposal-table-card-layout) .proposal-table-cell * {
     white-space: normal;
     word-break: keep-all;
     overflow-wrap: normal;

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef, type ComponentProps } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
@@ -33,6 +33,126 @@ function normalizeAdmonitions(markdown: string): string {
       return `${prefix}**${label}**${trailing ? ` ${trailing}` : ''}`;
     })
     .join('\n');
+}
+
+type ResponsiveMarkdownTableProps = ComponentProps<'table'>;
+
+function ResponsiveMarkdownTable({ children, ...props }: ResponsiveMarkdownTableProps) {
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const tableRef = useRef<HTMLTableElement | null>(null);
+  const [isCardLayout, setIsCardLayout] = useState(false);
+
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
+    const table = tableRef.current;
+
+    if (!wrapper || !table) {
+      return;
+    }
+
+    let frame = 0;
+
+    const syncCellLabels = () => {
+      const headerCells = Array.from(table.querySelectorAll('thead th'));
+      if (headerCells.length === 0) {
+        return;
+      }
+
+      const labels = headerCells.map((cell) => (cell.textContent || '').trim());
+      const bodyRows = Array.from(table.querySelectorAll('tbody tr'));
+
+      for (const row of bodyRows) {
+        const cells = Array.from(row.querySelectorAll('td'));
+        cells.forEach((cell, index) => {
+          const label = labels[index] || `Column ${index + 1}`;
+          cell.setAttribute('data-label', label);
+        });
+      }
+    };
+
+    const measureNaturalTableWidth = (): number => {
+      const clone = table.cloneNode(true) as HTMLTableElement;
+      clone.style.position = 'absolute';
+      clone.style.visibility = 'hidden';
+      clone.style.pointerEvents = 'none';
+      clone.style.left = '-9999px';
+      clone.style.top = '0';
+      clone.style.width = 'max-content';
+      clone.style.maxWidth = 'none';
+      clone.style.minWidth = '0';
+
+      wrapper.appendChild(clone);
+      const width = clone.getBoundingClientRect().width;
+      wrapper.removeChild(clone);
+
+      return width;
+    };
+
+    const evaluateLayout = () => {
+      syncCellLabels();
+
+      const isMobile = window.matchMedia('(max-width: 767px)').matches;
+      if (!isMobile) {
+        setIsCardLayout(false);
+        return;
+      }
+
+      const naturalWidth = measureNaturalTableWidth();
+      const shouldUseCardLayout = naturalWidth > wrapper.clientWidth + 8;
+      setIsCardLayout(shouldUseCardLayout);
+    };
+
+    const scheduleEvaluation = () => {
+      if (frame) {
+        cancelAnimationFrame(frame);
+      }
+      frame = requestAnimationFrame(evaluateLayout);
+    };
+
+    scheduleEvaluation();
+
+    const resizeObserver = new ResizeObserver(scheduleEvaluation);
+    resizeObserver.observe(wrapper);
+    resizeObserver.observe(table);
+
+    const mediaQuery = window.matchMedia('(max-width: 767px)');
+    const handleMediaChange = () => scheduleEvaluation();
+
+    if (typeof mediaQuery.addEventListener === 'function') {
+      mediaQuery.addEventListener('change', handleMediaChange);
+    } else {
+      mediaQuery.addListener(handleMediaChange);
+    }
+
+    return () => {
+      if (frame) {
+        cancelAnimationFrame(frame);
+      }
+      resizeObserver.disconnect();
+
+      if (typeof mediaQuery.removeEventListener === 'function') {
+        mediaQuery.removeEventListener('change', handleMediaChange);
+      } else {
+        mediaQuery.removeListener(handleMediaChange);
+      }
+    };
+  }, [children]);
+
+  return (
+    <div
+      ref={wrapperRef}
+      className={`proposal-table-wrap${isCardLayout ? ' proposal-table-card-layout' : ''}`}
+    >
+      <table
+        ref={tableRef}
+        className="proposal-markdown-table"
+        style={{ borderCollapse: 'collapse' }}
+        {...props}
+      >
+        {children}
+      </table>
+    </div>
+  );
 }
 
 function extractGitHubAuthor(url: string): { author: string; profileUrl: string } | null {
@@ -294,11 +414,7 @@ export default function ProposalDetail({ epoch, id, initialProposal }: ProposalD
 
                   return <a href={href} target="_blank" rel="noopener noreferrer" style={{color: '#23ffff', textDecoration: 'underline'}} {...props} />;
                 },
-                table: ({node, ...props}) => (
-                  <div className="proposal-table-wrap">
-                    <table className="proposal-markdown-table" style={{borderCollapse: 'collapse'}} {...props} />
-                  </div>
-                ),
+                table: ({node, ...props}) => <ResponsiveMarkdownTable {...props} />,
                 thead: ({node, ...props}) => <thead style={{backgroundColor: '#1e293b'}} {...props} />,
                 tbody: ({node, ...props}) => <tbody {...props} />,
                 tr: ({node, ...props}) => <tr style={{borderBottom: '1px solid #202e3c'}} {...props} />,
