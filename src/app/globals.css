@@ -121,20 +121,46 @@ body {
   }
 
   .search-result-header {
-    flex-wrap: wrap;
-    justify-content: flex-start;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
     gap: 0.5rem;
   }
 
+  .search-result-status {
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
   .search-result-stats {
-    flex-wrap: wrap;
-    align-items: flex-start;
-    gap: 0.75rem;
+    flex-wrap: nowrap;
+    align-items: flex-end;
+    gap: 0.5rem;
   }
 
   .search-result-stats-grid {
-    flex-wrap: wrap;
-    gap: 0.75rem 1rem;
+    flex-wrap: nowrap;
+    gap: 0.6rem;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .search-result-vote-item {
+    min-width: 0 !important;
+    flex: 1 1 0;
+  }
+
+  .search-result-vote-item .text-xs {
+    font-size: 0.62rem;
+    line-height: 1.1;
+  }
+
+  .search-result-vote-item .text-sm {
+    font-size: 0.86rem;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .search-result-card,
@@ -175,13 +201,29 @@ body {
   }
 
   .proposal-card-vote-item {
-    min-width: 3.2rem !important;
+    min-width: 0 !important;
+    flex: 1 1 0;
+  }
+
+  .proposal-card-vote-label {
+    font-size: 0.62rem;
+    line-height: 1.1;
+  }
+
+  .proposal-card-vote-value {
+    font-size: 0.86rem !important;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .proposal-card-translation-count {
     width: auto;
     margin-left: auto;
     text-align: right;
+    font-size: 0.68rem;
+    line-height: 1.1;
     white-space: nowrap;
     flex-shrink: 0;
   }

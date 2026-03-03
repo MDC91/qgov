@@ -238,7 +238,7 @@ function HomeContent() {
                         <span className="text-sm font-medium px-2 py-1 rounded" style={{ backgroundColor: '#23ffff', color: '#0f172a' }}>
                           Epoch {result.epoch}
                         </span>
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium border ${statusClass}`}>
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium border search-result-status ${statusClass}`}>
                           {statusLabel}
                         </span>
                       </div>
@@ -252,21 +252,21 @@ function HomeContent() {
 
                       <div className="flex items-center justify-between mt-4 pt-4 search-result-stats" style={{ borderColor: '#202e3c', borderTopWidth: '1px', borderStyle: 'solid' }}>
                         <div className="flex items-center gap-6 search-result-stats-grid">
-                          <div className="text-center" style={{ minWidth: '60px' }}>
+                          <div className="text-center search-result-vote-item" style={{ minWidth: '60px' }}>
                             <span className="text-xs block" style={{ color: '#94a3b8' }}>Yes</span>
                             <p className="text-sm font-medium" style={{ color: '#22c55e' }}>{result.yesVotes.toLocaleString()}</p>
                           </div>
-                          <div className="text-center" style={{ minWidth: '60px' }}>
+                          <div className="text-center search-result-vote-item" style={{ minWidth: '60px' }}>
                             <span className="text-xs block" style={{ color: '#94a3b8' }}>No</span>
                             <p className="text-sm font-medium" style={{ color: '#ef4444' }}>{result.noVotes.toLocaleString()}</p>
                           </div>
-                          <div className="text-center" style={{ minWidth: '60px' }}>
-                            <span className="text-xs block" style={{ color: '#94a3b8' }}>Approval</span>
-                            <p className="text-sm font-medium" style={{ color: '#ffffff' }}>{approvalRate.toFixed(1)}%</p>
-                          </div>
-                          <div className="text-center" style={{ minWidth: '60px' }}>
+                          <div className="text-center search-result-vote-item" style={{ minWidth: '60px' }}>
                             <span className="text-xs block" style={{ color: '#94a3b8' }}>Total</span>
                             <p className="text-sm font-medium" style={{ color: '#94a3b8' }}>{totalVotes.toLocaleString()}</p>
+                          </div>
+                          <div className="text-center search-result-vote-item" style={{ minWidth: '60px' }}>
+                            <span className="text-xs block" style={{ color: '#94a3b8' }}>Rate</span>
+                            <p className="text-sm font-medium" style={{ color: '#ffffff' }}>{approvalRate.toFixed(1)}%</p>
                           </div>
                         </div>
                       </div>
