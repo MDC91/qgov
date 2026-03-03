@@ -102,25 +102,20 @@ export default function ProposalDetail({ epoch, id, initialProposal }: ProposalD
   return (
     <div className="max-w-4xl mx-auto">
       <div className="rounded-xl p-6 mb-6" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c' }}>
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-          <div className="flex-1">
-            <span className="text-sm font-medium px-2 py-1 rounded mb-2 inline-block" style={{ backgroundColor: '#23ffff', color: '#0f172a' }}>
-              Epoch {epoch}
-            </span>
+        <div className="flex items-start justify-between gap-4">
+          <div>
             <h1 className="text-2xl font-bold" style={{ color: '#ffffff' }}>{initialProposal.title}</h1>
-            <div className="flex flex-wrap items-center gap-2 mt-2">
-              {initialProposal.contractName && (
-                <span 
-                  className={`px-3 py-1 rounded-full text-xs font-medium border ${contractBadgeStyle}`}
-                >
-                  {initialProposal.contractName}
-                </span>
-              )}
-              <span className={`px-3 py-1 rounded-full text-sm font-medium border ${statusClass}`}>
-                {status}
+            {initialProposal.contractName && (
+              <span 
+                className={`inline-block mt-1 px-3 py-1 rounded-full text-xs font-medium border ${contractBadgeStyle}`}
+              >
+                {initialProposal.contractName}
               </span>
-            </div>
+            )}
           </div>
+          <span className={`px-3 py-1 rounded-full text-sm font-medium border ${statusClass}`}>
+            {status}
+          </span>
         </div>
 
         <div className="flex flex-wrap gap-3 mt-4">
@@ -180,7 +175,7 @@ export default function ProposalDetail({ epoch, id, initialProposal }: ProposalD
         )}
         </div>
 
-        <div className="flex flex-wrap gap-x-6 gap-y-4 mt-6" style={{ borderColor: '#202e3c', borderTopWidth: '1px', borderStyle: 'solid', paddingTop: '24px' }}>
+        <div className="flex items-center gap-6 mt-6" style={{ borderColor: '#202e3c', borderTopWidth: '1px', borderStyle: 'solid', paddingTop: '24px' }}>
           <div className="text-center" style={{ minWidth: '80px' }}>
             <span className="text-xs block" style={{ color: '#94a3b8' }}>Yes Votes</span>
             <p className="text-lg font-semibold" style={{ color: '#22c55e' }}>

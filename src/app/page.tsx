@@ -120,25 +120,25 @@ function HomeContent() {
     <div className="min-h-screen text-white" style={{ backgroundColor: '#101820' }}>
       <header className="border backdrop-blur-sm sticky top-0 z-10" style={{ backgroundColor: '#151e27', borderColor: '#202e3c' }}>
         <div className="max-w-6xl mx-auto px-4 py-4">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+          <div className="flex items-center justify-between">
             <a href="/" className="flex items-center gap-3">
               <img src="/Qubic-Logo-White.svg" alt="Qubic" className="h-10" style={{ width: 'auto' }} />
               <span className="text-3xl font-light font-governance" style={{ color: '#23ffff' }}>governance</span>
             </a>
-            <p className="text-sm md:text-right" style={{ color: '#94a3b8' }}>Qubic Proposal Translations</p>
+            <p className="text-sm" style={{ color: '#94a3b8' }}>Qubic Proposal Translations</p>
           </div>
         </div>
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
         <div className="mb-6">
-          <div className="flex flex-col md:flex-row gap-2 md:gap-3 md:flex-wrap md:items-center">
+          <div className="flex gap-2 flex-wrap items-center">
             <input
               type="text"
               placeholder="Search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full md:w-48 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2"
+              className="w-48 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2"
               style={{ backgroundColor: '#1a2332', borderColor: '#2d3748', color: '#e2e8f0' }}
             />
             <input
@@ -146,7 +146,7 @@ function HomeContent() {
               placeholder="Author..."
               value={authorQuery}
               onChange={(e) => setAuthorQuery(e.target.value)}
-              className="w-full md:w-28 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2"
+              className="w-28 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2"
               style={{ backgroundColor: '#1a2332', borderColor: '#2d3748', color: '#e2e8f0' }}
             />
             <input
@@ -154,13 +154,13 @@ function HomeContent() {
               placeholder="Publisher (Public ID)..."
               value={publisherQuery}
               onChange={(e) => setPublisherQuery(e.target.value)}
-              className="w-full md:flex-1 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2"
+              className="flex-1 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2"
               style={{ backgroundColor: '#1a2332', borderColor: '#2d3748', color: '#e2e8f0' }}
             />
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value === '' ? '' : parseInt(e.target.value, 10))}
-              className="w-full md:w-auto px-3 py-2 rounded-lg border focus:outline-none"
+              className="px-3 py-2 rounded-lg border focus:outline-none"
               style={{ backgroundColor: '#1a2332', borderColor: '#2d3748', color: '#e2e8f0', paddingRight: '2rem' }}
             >
               <option value="">All Status</option>
@@ -234,15 +234,13 @@ function HomeContent() {
                         e.currentTarget.style.borderColor = '#202e3c';
                       }}
                     >
-                      <div className="flex flex-col gap-2 mb-2">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="text-sm font-medium px-2 py-1 rounded" style={{ backgroundColor: '#23ffff', color: '#0f172a' }}>
-                            Epoch {result.epoch}
-                          </span>
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium border ${statusClass}`}>
-                            {statusLabel}
-                          </span>
-                        </div>
+                      <div className="flex items-center justify-between gap-4 mb-2">
+                        <span className="text-sm font-medium px-2 py-1 rounded" style={{ backgroundColor: '#23ffff', color: '#0f172a' }}>
+                          Epoch {result.epoch}
+                        </span>
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium border ${statusClass}`}>
+                          {statusLabel}
+                        </span>
                       </div>
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1 min-w-0">
@@ -252,8 +250,8 @@ function HomeContent() {
                         </div>
                       </div>
 
-                      <div className="flex flex-wrap justify-between gap-4 pt-4" style={{ borderColor: '#202e3c', borderTopWidth: '1px', borderStyle: 'solid' }}>
-                        <div className="flex flex-wrap gap-x-6 gap-y-2">
+                      <div className="flex items-center justify-between mt-4 pt-4" style={{ borderColor: '#202e3c', borderTopWidth: '1px', borderStyle: 'solid' }}>
+                        <div className="flex items-center gap-6">
                           <div className="text-center" style={{ minWidth: '60px' }}>
                             <span className="text-xs block" style={{ color: '#94a3b8' }}>Yes</span>
                             <p className="text-sm font-medium" style={{ color: '#22c55e' }}>{result.yesVotes.toLocaleString()}</p>

@@ -50,47 +50,45 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
         e.currentTarget.style.borderColor = '#202e3c';
       }}
     >
-      <div className="flex flex-col gap-3">
-        <div className="flex flex-wrap items-start gap-2">
-          <h3 className="text-lg font-semibold truncate transition-colors hover:text-cyan-400 flex-1 min-w-0" style={{ color: '#ffffff' }}>
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex-1 min-w-0">
+          <h3 className="text-lg font-semibold truncate transition-colors hover:text-cyan-400" style={{ color: '#ffffff' }}>
             {proposal.title}
           </h3>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            {proposal.contractName && (
-              <span 
-                className={`px-3 py-1 rounded-full text-xs font-medium border ${contractBadgeStyle}`}
-              >
-                {proposal.contractName}
-              </span>
-            )}
-            <span className={`px-3 py-1 rounded-full text-xs font-medium border ${statusClass}`}>
-              {status}
+          {proposal.contractName && (
+            <span 
+              className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium border ${contractBadgeStyle}`}
+            >
+              {proposal.contractName}
             </span>
-          </div>
+          )}
         </div>
+        <span className={`px-3 py-1 rounded-full text-xs font-medium border ${statusClass}`}>
+          {status}
+        </span>
       </div>
 
-        <div className="flex flex-wrap justify-between gap-4 pt-4" style={{ borderColor: '#202e3c', borderTopWidth: '1px', borderStyle: 'solid' }}>
-          <div className="flex flex-wrap gap-x-6 gap-y-2">
-            <div className="text-center" style={{ minWidth: '60px' }}>
-              <span className="text-xs block" style={{ color: '#94a3b8' }}>Yes</span>
-              <p className="text-sm font-medium" style={{ color: '#22c55e' }}>
-                {proposal.yesVotes.toLocaleString()}
-              </p>
-            </div>
-            <div className="text-center" style={{ minWidth: '60px' }}>
-              <span className="text-xs block" style={{ color: '#94a3b8' }}>No</span>
-              <p className="text-sm font-medium" style={{ color: '#ef4444' }}>
-                {proposal.noVotes.toLocaleString()}
-              </p>
-            </div>
-            <div className="text-center" style={{ minWidth: '60px' }}>
-              <span className="text-xs block" style={{ color: '#94a3b8' }}>{rateLabel}</span>
-              <p className="text-sm font-medium" style={{ color: '#ffffff' }}>
-                {displayRate.toFixed(1)}%
-              </p>
-            </div>
+      <div className="flex items-center justify-between mt-4 pt-4" style={{ borderColor: '#202e3c', borderTopWidth: '1px', borderStyle: 'solid' }}>
+        <div className="flex items-center gap-6">
+          <div className="text-center" style={{ minWidth: '60px' }}>
+            <span className="text-xs block" style={{ color: '#94a3b8' }}>Yes</span>
+            <p className="text-sm font-medium" style={{ color: '#22c55e' }}>
+              {proposal.yesVotes.toLocaleString()}
+            </p>
           </div>
+          <div className="text-center" style={{ minWidth: '60px' }}>
+            <span className="text-xs block" style={{ color: '#94a3b8' }}>No</span>
+            <p className="text-sm font-medium" style={{ color: '#ef4444' }}>
+              {proposal.noVotes.toLocaleString()}
+            </p>
+          </div>
+          <div className="text-center" style={{ minWidth: '60px' }}>
+            <span className="text-xs block" style={{ color: '#94a3b8' }}>{rateLabel}</span>
+            <p className="text-sm font-medium" style={{ color: '#ffffff' }}>
+              {displayRate.toFixed(1)}%
+            </p>
+          </div>
+        </div>
         <div className="text-xs" style={{ color: '#94a3b8' }}>
           {translationCount > 0 && (
             <span style={{ color: '#23ffff' }}>{translationCount} translations</span>
