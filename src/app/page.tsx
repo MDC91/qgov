@@ -208,6 +208,22 @@ function HomeContent() {
                 {searchResults.map((result) => {
                   const totalVotes = result.totalVotes || (result.yesVotes + result.noVotes);
                   const approvalRate = totalVotes > 0 ? (result.yesVotes / totalVotes * 100) : 0;
+                  const rejectionRate = totalVotes > 0 ? (result.noVotes / totalVotes * 100) : 0;
+                  const isApprovalLeading = result.yesVotes >= result.noVotes;
+                  const displayRate = result.status === 3
+                    ? approvalRate
+                    : result.status === 6
+                      ? rejectionRate
+                      : result.status === 2
+                        ? (isApprovalLeading ? approvalRate : rejectionRate)
+                        : approvalRate;
+                  const rateLabel = result.status === 3
+                    ? 'Approval Rate'
+                    : result.status === 6
+                      ? 'Rejection Rate'
+                      : result.status === 2
+                        ? (isApprovalLeading ? 'Approval Rate' : 'Rejection Rate')
+                        : 'Approval Rate';
                   const statusLabel = getStatusLabel(result.status);
                   
                   let statusClass = 'bg-slate-500/20 text-slate-400 border-slate-500/30';
@@ -265,8 +281,8 @@ function HomeContent() {
                             <p className="text-sm font-medium" style={{ color: '#94a3b8' }}>{totalVotes.toLocaleString()}</p>
                           </div>
                           <div className="text-center search-result-vote-item" style={{ minWidth: '60px' }}>
-                            <span className="text-xs block" style={{ color: '#94a3b8' }}>Rate</span>
-                            <p className="text-sm font-medium" style={{ color: '#ffffff' }}>{approvalRate.toFixed(1)}%</p>
+                            <span className="text-xs block" style={{ color: '#94a3b8' }}>{rateLabel}</span>
+                            <p className="text-sm font-medium" style={{ color: '#ffffff' }}>{displayRate.toFixed(1)}%</p>
                           </div>
                         </div>
                       </div>

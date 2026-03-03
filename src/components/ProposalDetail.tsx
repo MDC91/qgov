@@ -54,11 +54,25 @@ export default function ProposalDetail({ epoch, id, initialProposal }: ProposalD
   const noVotes = initialProposal.noVotes;
   const approvalRate = totalVotes > 0 ? (yesVotes / totalVotes * 100) : 0;
   const rejectionRate = totalVotes > 0 ? (noVotes / totalVotes * 100) : 0;
+  const isApprovalLeading = yesVotes >= noVotes;
   
   const isRtlLang = ['ar', 'he', 'fa', 'ur'].includes(selectedLang);
   
-  const displayRate = status === 'Approved' ? approvalRate : status === 'Rejected' ? rejectionRate : 0;
-  const rateLabel = status === 'Approved' ? 'Approval Rate' : status === 'Rejected' ? 'Rejection Rate' : 'Approval Rate';
+  const displayRate = status === 'Approved'
+    ? approvalRate
+    : status === 'Rejected'
+      ? rejectionRate
+      : status === 'Active'
+        ? (isApprovalLeading ? approvalRate : rejectionRate)
+        : approvalRate;
+
+  const rateLabel = status === 'Approved'
+    ? 'Approval Rate'
+    : status === 'Rejected'
+      ? 'Rejection Rate'
+      : status === 'Active'
+        ? (isApprovalLeading ? 'Approval Rate' : 'Rejection Rate')
+        : 'Approval Rate';
 
   useEffect(() => {
     const cachedTranslation = initialProposal.translations?.[selectedLang]?.text;

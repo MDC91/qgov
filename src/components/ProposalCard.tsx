@@ -27,9 +27,23 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
   const totalVotes = proposal.totalVotes || (proposal.yesVotes + proposal.noVotes);
   const approvalRate = totalVotes > 0 ? (proposal.yesVotes / totalVotes * 100) : 0;
   const rejectionRate = totalVotes > 0 ? (proposal.noVotes / totalVotes * 100) : 0;
-  
-  const displayRate = status === 'Approved' ? approvalRate : status === 'Rejected' ? rejectionRate : approvalRate;
-  const rateLabel = 'Rate';
+  const isApprovalLeading = proposal.yesVotes >= proposal.noVotes;
+
+  const displayRate = status === 'Approved'
+    ? approvalRate
+    : status === 'Rejected'
+      ? rejectionRate
+      : status === 'Active'
+        ? (isApprovalLeading ? approvalRate : rejectionRate)
+        : approvalRate;
+
+  const rateLabel = status === 'Approved'
+    ? 'Approval Rate'
+    : status === 'Rejected'
+      ? 'Rejection Rate'
+      : status === 'Active'
+        ? (isApprovalLeading ? 'Approval Rate' : 'Rejection Rate')
+        : 'Approval Rate';
 
   const slug = createProposalSlug(proposal.title, proposal.id);
 
