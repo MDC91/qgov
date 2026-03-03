@@ -138,7 +138,7 @@ function HomeContent() {
               placeholder="Search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-48 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 home-search-control"
+              className="w-48 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 home-search-control home-search-query"
               style={{ backgroundColor: '#1a2332', borderColor: '#2d3748', color: '#e2e8f0' }}
             />
             <input
@@ -146,7 +146,7 @@ function HomeContent() {
               placeholder="Author..."
               value={authorQuery}
               onChange={(e) => setAuthorQuery(e.target.value)}
-              className="w-28 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 home-search-control"
+              className="w-28 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 home-search-control home-search-author"
               style={{ backgroundColor: '#1a2332', borderColor: '#2d3748', color: '#e2e8f0' }}
             />
             <input
@@ -154,13 +154,13 @@ function HomeContent() {
               placeholder="Publisher (Public ID)..."
               value={publisherQuery}
               onChange={(e) => setPublisherQuery(e.target.value)}
-              className="flex-1 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 home-search-control"
+              className="flex-1 px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 home-search-control home-search-publisher"
               style={{ backgroundColor: '#1a2332', borderColor: '#2d3748', color: '#e2e8f0' }}
             />
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value === '' ? '' : parseInt(e.target.value, 10))}
-              className="px-3 py-2 rounded-lg border focus:outline-none home-search-control"
+              className="px-3 py-2 rounded-lg border focus:outline-none home-search-control home-search-status"
               style={{ backgroundColor: '#1a2332', borderColor: '#2d3748', color: '#e2e8f0', paddingRight: '2rem' }}
             >
               <option value="">All Status</option>

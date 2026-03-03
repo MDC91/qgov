@@ -90,13 +90,34 @@ body {
   }
 
   .home-search-row {
-    flex-direction: column;
+    flex-wrap: wrap;
     align-items: stretch;
+    gap: 0.5rem;
   }
 
   .home-search-control {
-    width: 100% !important;
     min-height: 2.625rem;
+    min-width: 0;
+  }
+
+  .home-search-query {
+    flex: 1 1 58%;
+    width: auto !important;
+  }
+
+  .home-search-author {
+    flex: 1 1 40%;
+    width: auto !important;
+  }
+
+  .home-search-publisher {
+    flex: 1 1 calc(100% - 7.5rem);
+    width: auto !important;
+  }
+
+  .home-search-status {
+    flex: 0 0 7rem;
+    width: 7rem !important;
   }
 
   .search-result-header {
@@ -130,28 +151,39 @@ body {
   }
 
   .proposal-card-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-
-  .proposal-card-status-desktop {
-    align-self: flex-start;
-  }
-
-  .proposal-card-stats {
-    flex-wrap: wrap;
+    flex-direction: row;
     align-items: flex-start;
     gap: 0.75rem;
   }
 
+  .proposal-card-status-desktop {
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  .proposal-card-stats {
+    flex-wrap: nowrap;
+    align-items: flex-end;
+    gap: 0.5rem;
+  }
+
   .proposal-card-stats-grid {
-    flex-wrap: wrap;
-    gap: 0.75rem 1rem;
+    flex-wrap: nowrap;
+    gap: 0.6rem;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .proposal-card-vote-item {
+    min-width: 3.2rem !important;
   }
 
   .proposal-card-translation-count {
-    width: 100%;
+    width: auto;
+    margin-left: auto;
+    text-align: right;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
   .proposal-page-header-row {
@@ -185,13 +217,14 @@ body {
   }
 
   .proposal-detail-header {
-    flex-direction: column;
+    flex-direction: row;
     align-items: flex-start;
     gap: 0.75rem;
   }
 
   .proposal-detail-title-block {
-    width: 100%;
+    width: auto;
+    flex: 1 1 auto;
     min-width: 0;
   }
 
@@ -202,9 +235,22 @@ body {
 
   .proposal-detail-badge-row {
     display: flex;
-    flex-wrap: wrap;
+    width: 100%;
+    flex-wrap: nowrap;
     align-items: center;
     gap: 0.5rem;
+  }
+
+  .proposal-detail-contract-badge {
+    max-width: calc(100% - 8rem);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .proposal-detail-status-mobile {
+    margin-left: auto;
+    flex-shrink: 0;
   }
 
   .proposal-detail-status-desktop {
@@ -212,14 +258,27 @@ body {
   }
 
   .proposal-detail-votes {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: space-between;
-    gap: 0.75rem 1rem;
+    gap: 0.5rem;
   }
 
   .proposal-detail-vote-item {
-    min-width: calc(50% - 0.5rem) !important;
-    flex: 1 1 calc(50% - 0.5rem);
+    min-width: 0 !important;
+    flex: 1 1 0;
+  }
+
+  .proposal-detail-vote-label {
+    font-size: 0.62rem;
+    line-height: 1.1;
+  }
+
+  .proposal-detail-vote-value {
+    font-size: 1rem !important;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .language-tabs-row {

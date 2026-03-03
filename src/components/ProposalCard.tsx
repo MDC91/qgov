@@ -56,38 +56,35 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
             {proposal.title}
           </h3>
           {proposal.contractName && (
-            <div className="mt-2 flex flex-wrap items-center gap-2">
+            <div className="mt-2 flex flex-wrap items-center gap-2 proposal-card-badge-row">
               <span 
                 className={`inline-block px-3 py-1 rounded-full text-xs font-medium border ${contractBadgeStyle}`}
               >
                 {proposal.contractName}
               </span>
-              <span className={`px-3 py-1 rounded-full text-xs font-medium border md:hidden ${statusClass}`}>
-                {status}
-              </span>
             </div>
           )}
         </div>
-        <span className={`px-3 py-1 rounded-full text-xs font-medium border proposal-card-status-desktop ${proposal.contractName ? 'hidden md:inline' : ''} ${statusClass}`}>
+        <span className={`px-3 py-1 rounded-full text-xs font-medium border proposal-card-status-desktop ${statusClass}`}>
           {status}
         </span>
       </div>
 
       <div className="flex items-center justify-between mt-4 pt-4 proposal-card-stats" style={{ borderColor: '#202e3c', borderTopWidth: '1px', borderStyle: 'solid' }}>
         <div className="flex items-center gap-6 proposal-card-stats-grid">
-          <div className="text-center" style={{ minWidth: '60px' }}>
+          <div className="text-center proposal-card-vote-item" style={{ minWidth: '60px' }}>
             <span className="text-xs block" style={{ color: '#94a3b8' }}>Yes</span>
             <p className="text-sm font-medium" style={{ color: '#22c55e' }}>
               {proposal.yesVotes.toLocaleString()}
             </p>
           </div>
-          <div className="text-center" style={{ minWidth: '60px' }}>
+          <div className="text-center proposal-card-vote-item" style={{ minWidth: '60px' }}>
             <span className="text-xs block" style={{ color: '#94a3b8' }}>No</span>
             <p className="text-sm font-medium" style={{ color: '#ef4444' }}>
               {proposal.noVotes.toLocaleString()}
             </p>
           </div>
-          <div className="text-center" style={{ minWidth: '60px' }}>
+          <div className="text-center proposal-card-vote-item" style={{ minWidth: '60px' }}>
             <span className="text-xs block" style={{ color: '#94a3b8' }}>{rateLabel}</span>
             <p className="text-sm font-medium" style={{ color: '#ffffff' }}>
               {displayRate.toFixed(1)}%

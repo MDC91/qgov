@@ -108,11 +108,11 @@ export default function ProposalDetail({ epoch, id, initialProposal }: ProposalD
             {initialProposal.contractName && (
               <div className="mt-1 proposal-detail-badge-row">
                 <span 
-                  className={`inline-block px-3 py-1 rounded-full text-xs font-medium border ${contractBadgeStyle}`}
+                  className={`inline-block px-3 py-1 rounded-full text-xs font-medium border proposal-detail-contract-badge ${contractBadgeStyle}`}
                 >
                   {initialProposal.contractName}
                 </span>
-                <span className={`px-3 py-1 rounded-full text-sm font-medium border md:hidden ${statusClass}`}>
+                <span className={`px-3 py-1 rounded-full text-sm font-medium border md:hidden proposal-detail-status-mobile ${statusClass}`}>
                   {status}
                 </span>
               </div>
@@ -182,26 +182,26 @@ export default function ProposalDetail({ epoch, id, initialProposal }: ProposalD
 
         <div className="flex items-center gap-6 mt-6 proposal-detail-votes" style={{ borderColor: '#202e3c', borderTopWidth: '1px', borderStyle: 'solid', paddingTop: '24px' }}>
           <div className="text-center proposal-detail-vote-item" style={{ minWidth: '80px' }}>
-            <span className="text-xs block" style={{ color: '#94a3b8' }}>Yes Votes</span>
-            <p className="text-lg font-semibold" style={{ color: '#22c55e' }}>
+            <span className="text-xs block proposal-detail-vote-label" style={{ color: '#94a3b8' }}>Yes Votes</span>
+            <p className="text-lg font-semibold proposal-detail-vote-value" style={{ color: '#22c55e' }}>
               {yesVotes.toLocaleString()}
             </p>
           </div>
           <div className="text-center proposal-detail-vote-item" style={{ minWidth: '80px' }}>
-            <span className="text-xs block" style={{ color: '#94a3b8' }}>No Votes</span>
-            <p className="text-lg font-semibold" style={{ color: '#ef4444' }}>
+            <span className="text-xs block proposal-detail-vote-label" style={{ color: '#94a3b8' }}>No Votes</span>
+            <p className="text-lg font-semibold proposal-detail-vote-value" style={{ color: '#ef4444' }}>
               {noVotes.toLocaleString()}
             </p>
           </div>
           <div className="text-center proposal-detail-vote-item" style={{ minWidth: '80px' }}>
-            <span className="text-xs block" style={{ color: '#94a3b8' }}>Total Votes</span>
-            <p className="text-lg font-semibold" style={{ color: '#ffffff' }}>
+            <span className="text-xs block proposal-detail-vote-label" style={{ color: '#94a3b8' }}>Total Votes</span>
+            <p className="text-lg font-semibold proposal-detail-vote-value" style={{ color: '#ffffff' }}>
               {totalVotes.toLocaleString()}
             </p>
           </div>
           <div className="text-center proposal-detail-vote-item" style={{ minWidth: '80px' }}>
-            <span className="text-xs block" style={{ color: '#94a3b8' }}>{rateLabel}</span>
-            <p className="text-lg font-semibold" style={{ color: '#ffffff' }}>
+            <span className="text-xs block proposal-detail-vote-label" style={{ color: '#94a3b8' }}>{rateLabel}</span>
+            <p className="text-lg font-semibold proposal-detail-vote-value" style={{ color: '#ffffff' }}>
               {displayRate.toFixed(1)}%
             </p>
           </div>
