@@ -247,7 +247,7 @@ body {
   }
 
   .proposal-page-header-separator {
-    display: none;
+    display: inline;
   }
 
   .proposal-page-header-title {
