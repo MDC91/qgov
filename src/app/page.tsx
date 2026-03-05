@@ -24,7 +24,8 @@ export default function Home() {
         if (data.epochs && data.epochs.length > 0) {
           const epoch = data.epochs[0].epoch;
           setCurrentEpoch(epoch);
-          setPlenumEpoch(epoch);
+          // Keep plenumEpoch at 202 for testing
+          // setPlenumEpoch(epoch);
           
           fetch(`/api/proposals/${epoch}`)
             .then(res => res.json())

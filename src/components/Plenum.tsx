@@ -45,7 +45,7 @@ export default function Plenum({ epoch }: PlenumProps) {
   if (!data || !data.computors || data.computors.length === 0) {
     return (
       <div className="text-center py-8" style={{ color: '#94a3b8' }}>
-        No computors data available for epoch {epoch}
+        No voting data available for epoch {epoch}
       </div>
     );
   }
