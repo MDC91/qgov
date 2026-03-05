@@ -57,13 +57,13 @@ export default function Plenum({ epoch }: PlenumProps) {
   const quorum = 451;
   const quorumProgress = Math.min((ballots.length / quorum) * 100, 100);
 
-  const containerWidth = 600;
-  const containerHeight = 300;
+  const containerWidth = 700;
+  const containerHeight = 380;
   const centerX = containerWidth / 2;
   const startY = 50;
-  const maxRadius = 250;
-  const rowHeight = 12;
-  const seatSize = 8;
+  const maxRadius = 300;
+  const rowHeight = 14;
+  const seatSize = 9;
   
   const renderHemisphere = (): ReactNode[] => {
     const elements: ReactNode[] = [];
@@ -104,7 +104,7 @@ export default function Plenum({ epoch }: PlenumProps) {
 
         const angle = Math.PI * (seat / (actualSeatsInRow - 1 || 1));
         const x = centerX + radius * Math.cos(angle);
-        const y = startY + radius * Math.sin(angle);
+        const y = startY - radius * Math.sin(angle);
 
         elements.push(
           <div
