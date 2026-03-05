@@ -40,7 +40,7 @@ function HomeContent() {
   const setSelectedEpoch = useCallback((epoch: number) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set('epoch', epoch.toString());
-    router.push(`/?${params.toString()}`, { scroll: false });
+    router.push(`/proposals?${params.toString()}`, { scroll: false });
   }, [searchParams, router]);
 
   useEffect(() => {

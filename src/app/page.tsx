@@ -71,22 +71,24 @@ export default function Home() {
 
           <div className="flex-1 min-w-[250px]">
             <div className="rounded-xl p-6" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c' }}>
-              <h2 className="text-xl font-semibold mb-4" style={{ color: '#23ffff' }}>Proposals</h2>
+              <h2 className="text-xl font-semibold mb-4 text-center" style={{ color: '#23ffff' }}>Proposals</h2>
               
               <div className="flex gap-2 mb-4">
                 <span 
-                  className="px-3 py-1 rounded text-sm font-medium"
+                  className="flex-1 px-4 py-2 rounded text-base font-medium text-center"
                   style={{ backgroundColor: '#1a2332', color: '#ffffff', border: '1px solid #2d3748' }}
                 >
                   Active
                 </span>
-                <a
-                  href={`/proposals?epoch=${currentEpoch}`}
-                  className="px-3 py-1 rounded text-sm font-medium transition-opacity hover:opacity-80"
-                  style={{ backgroundColor: '#23ffff', color: '#0f172a', border: '1px solid #23ffff' }}
-                >
-                  History
-                </a>
+                {currentEpoch > 0 && (
+                  <a
+                    href={`/proposals?epoch=${currentEpoch}`}
+                    className="flex-1 px-4 py-2 rounded text-base font-medium text-center transition-opacity hover:opacity-80"
+                    style={{ backgroundColor: '#23ffff', color: '#0f172a', border: '1px solid #23ffff' }}
+                  >
+                    History
+                  </a>
+                )}
               </div>
 
               {loading ? (
