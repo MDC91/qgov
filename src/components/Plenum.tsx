@@ -51,64 +51,43 @@ export default function Plenum({ epoch }: PlenumProps) {
   }
 
   const { computors, ballots, proposal, quorumReached } = data;
-  const totalComputors = computors.length;
   const votedComputorIds = new Set(ballots.map(b => b.computorId));
   const yesVotes = ballots.filter(b => b.vote === 1).length;
   const noVotes = ballots.filter(b => b.vote === 0).length;
   const quorum = 451;
   const quorumProgress = Math.min((ballots.length / quorum) * 100, 100);
 
-  const rows = 26;
-  const seatsPerRow = [6, 10, 14, 18, 22, 24, 26, 28, 30, 32, 34, 36, 38, 38, 38, 36, 34, 32, 30, 28, 26, 24, 22, 18, 14, 10];
+  const numRows = 20;
+  const centerX = 50;
   
-  const totalSeats = seatsPerRow.reduce((a, b) => a + b, 0);
-
-  let seatIndex = 0;
-  const seatRows: { left: number; right: number }[] = [];
-  
-  for (let i = 0; i < rows; i++) {
-    const seatsInRow = seatsPerRow[i] || 26;
-    const centerOffset = Math.floor((26 - seatsInRow) / 2);
-    
-    const leftSeats: number[] = [];
-    const rightSeats: number[] = [];
-    
-    for (let j = 0; j < seatsInRow; j++) {
-      const globalIndex = seatIndex + j;
-      const computorId = computors[globalIndex];
-      const hasVoted = votedComputorIds.has(computorId);
-      const votedYes = ballots.find(b => b.computorId === computorId)?.vote === 1;
-      const votedNo = ballots.find(b => b.computorId === computorId)?.vote === 0;
-      
-      if (j < Math.ceil(seatsInRow / 2)) {
-        leftSeats.push(votedYes ? 1 : votedNo ? 0 : -1);
-      } else {
-        rightSeats.push(votedYes ? 1 : votedNo ? 0 : -1);
-      }
-    }
-    
-    seatIndex += seatsInRow;
-  }
-
-  const renderSeats = () => {
+  const renderHemisphere = (): ReactNode[] => {
     const elements: ReactNode[] = [];
-    const maxWidth = 600;
-    const rowHeight = 16;
-    const seatSize = 10;
-    
-    for (let row = 0; row < Math.min(rows, 26); row++) {
-      const seatsInRow = seatsPerRow[row] || 26;
-      const rowWidth = seatsInRow * (seatSize + 2);
-      const offsetX = (maxWidth - rowWidth) / 2;
-      const y = row * rowHeight + 20;
+    const maxRadius = 42;
+    const minRadius = 5;
+    const radiusStep = (maxRadius - minRadius) / numRows;
+    const seatSize = 3.5;
+    const totalSeats = computors.length;
+    let seatIndex = 0;
+
+    for (let row = 0; row < numRows; row++) {
+      const radius = maxRadius - (row * radiusStep);
+      const circumference = 2 * Math.PI * radius;
+      const seatsInRow = Math.max(6, Math.floor(circumference / (seatSize + 1)));
+      const actualSeatsInRow = Math.min(seatsInRow, totalSeats - seatIndex);
       
-      for (let col = 0; col < seatsInRow; col++) {
-        const globalIndex = seatsPerRow.slice(0, row).reduce((a, b) => a + b, 0) + col;
-        const computorId = computors[globalIndex];
+      if (actualSeatsInRow <= 0 || seatIndex >= totalSeats) break;
+
+      const angleStep = Math.PI / (actualSeatsInRow + 1);
+      const startAngle = Math.PI / 2 + angleStep;
+
+      for (let seat = 0; seat < actualSeatsInRow; seat++) {
+        if (seatIndex >= totalSeats) break;
+
+        const computorId = computors[seatIndex];
         const hasVoted = votedComputorIds.has(computorId);
         const votedYes = ballots.find(b => b.computorId === computorId)?.vote === 1;
         const votedNo = ballots.find(b => b.computorId === computorId)?.vote === 0;
-        
+
         let bgColor = '#1a2332';
         let borderColor = '#2d3748';
         
@@ -121,24 +100,29 @@ export default function Plenum({ epoch }: PlenumProps) {
             borderColor = '#ef4444';
           }
         }
-        
-        const x = offsetX + col * (seatSize + 2);
-        
+
+        const angle = startAngle + (seat * angleStep);
+        const x = centerX + radius * Math.cos(angle);
+        const y = 95 - radius * Math.sin(angle) * 0.5;
+
         elements.push(
           <div
-            key={`${row}-${col}`}
+            key={`seat-${seatIndex}`}
             className="absolute rounded-full transition-all"
             style={{
-              left: x,
-              top: y,
-              width: seatSize,
-              height: seatSize,
+              left: `${x}%`,
+              top: `${y}%`,
+              width: `${seatSize}%`,
+              height: `${seatSize * 2}%`,
               backgroundColor: bgColor,
               border: `1px solid ${borderColor}`,
+              transform: 'translate(-50%, -50%)',
             }}
-            title={computorId ? `Computor: ${computorId.slice(0, 8)}...` : ''}
+            title={computorId ? `Computor: ${computorId.slice(0, 12)}...` : ''}
           />
         );
+        
+        seatIndex++;
       }
     }
     
@@ -147,7 +131,7 @@ export default function Plenum({ epoch }: PlenumProps) {
 
   return (
     <div className="w-full">
-      <div className="mb-6">
+      <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-medium" style={{ color: '#94a3b8' }}>
             Quorum Progress
@@ -171,27 +155,27 @@ export default function Plenum({ epoch }: PlenumProps) {
       </div>
 
       {proposal && (
-        <h3 className="text-xl font-semibold text-center mb-4" style={{ color: '#ffffff' }}>
+        <h3 className="text-lg font-semibold text-center mb-4" style={{ color: '#ffffff' }}>
           {proposal.title || 'Untitled Proposal'}
         </h3>
       )}
 
-      <div className="relative" style={{ height: 450, width: '100%', maxWidth: 700, margin: '0 auto' }}>
-        {renderSeats()}
+      <div className="relative" style={{ height: 320, width: '100%' }}>
+        {renderHemisphere()}
       </div>
 
-      <div className="flex justify-center gap-8 mt-6">
+      <div className="flex justify-center gap-6 mt-4">
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded-full" style={{ backgroundColor: '#22c55e', border: '1px solid #22c55e' }}></div>
-          <span className="text-sm" style={{ color: '#94a3b8' }}>Yes: {yesVotes}</span>
+          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#22c55e', border: '1px solid #22c55e' }}></div>
+          <span className="text-xs" style={{ color: '#94a3b8' }}>Yes: {yesVotes}</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded-full" style={{ backgroundColor: '#ef4444', border: '1px solid #ef4444' }}></div>
-          <span className="text-sm" style={{ color: '#94a3b8' }}>No: {noVotes}</span>
+          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#ef4444', border: '1px solid #ef4444' }}></div>
+          <span className="text-xs" style={{ color: '#94a3b8' }}>No: {noVotes}</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded-full" style={{ backgroundColor: '#1a2332', border: '1px solid #2d3748' }}></div>
-          <span className="text-sm" style={{ color: '#94a3b8' }}>Not Voted: {totalComputors - ballots.length}</span>
+          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#1a2332', border: '1px solid #2d3748' }}></div>
+          <span className="text-xs" style={{ color: '#94a3b8' }}>Not Voted: {computors.length - ballots.length}</span>
         </div>
       </div>
     </div>
