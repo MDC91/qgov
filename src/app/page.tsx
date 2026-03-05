@@ -40,7 +40,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen text-white" style={{ backgroundColor: '#101820' }}>
-      <header className="border backdrop-blur-sm sticky top-0 z-10" style={{ backgroundColor: '#151e27', borderColor: '#202e3c' }}>
+      <header className="border backdrop-blur-sm sticky top-0 z-10 w-full" style={{ backgroundColor: '#151e27', borderColor: '#202e3c' }}>
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-3">
@@ -52,7 +52,7 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className="w-full mx-auto px-4 py-8">
         <div className="flex flex-wrap gap-8">
           <div className="flex-1 min-w-[250px]">
             <div className="rounded-xl p-6" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c' }}>
