@@ -62,23 +62,24 @@ export default function Plenum({ epoch }: PlenumProps) {
   
   const renderHemisphere = (): ReactNode[] => {
     const elements: ReactNode[] = [];
-    const maxRadius = 42;
-    const minRadius = 5;
-    const radiusStep = (maxRadius - minRadius) / numRows;
-    const seatSize = 3.5;
     const totalSeats = computors.length;
+    const baseRadius = 40;
+    const rowHeight = 3.5;
+    const seatSize = 3;
     let seatIndex = 0;
 
     for (let row = 0; row < numRows; row++) {
-      const radius = maxRadius - (row * radiusStep);
-      const circumference = 2 * Math.PI * radius;
-      const seatsInRow = Math.max(6, Math.floor(circumference / (seatSize + 1)));
+      if (seatIndex >= totalSeats) break;
+      
+      const radius = baseRadius - (row * rowHeight);
+      const circumference = Math.PI * radius;
+      const seatsInRow = Math.max(4, Math.floor(circumference / (seatSize + 1)));
       const actualSeatsInRow = Math.min(seatsInRow, totalSeats - seatIndex);
       
-      if (actualSeatsInRow <= 0 || seatIndex >= totalSeats) break;
+      if (actualSeatsInRow <= 0) break;
 
       const angleStep = Math.PI / (actualSeatsInRow + 1);
-      const startAngle = Math.PI / 2 + angleStep;
+      const startAngle = angleStep;
 
       for (let seat = 0; seat < actualSeatsInRow; seat++) {
         if (seatIndex >= totalSeats) break;
@@ -103,7 +104,7 @@ export default function Plenum({ epoch }: PlenumProps) {
 
         const angle = startAngle + (seat * angleStep);
         const x = centerX + radius * Math.cos(angle);
-        const y = 95 - radius * Math.sin(angle) * 0.5;
+        const y = 10 + (row * rowHeight) + (radius * Math.sin(angle) * 0.25);
 
         elements.push(
           <div
@@ -113,7 +114,7 @@ export default function Plenum({ epoch }: PlenumProps) {
               left: `${x}%`,
               top: `${y}%`,
               width: `${seatSize}%`,
-              height: `${seatSize * 2}%`,
+              height: `${seatSize * 1.5}%`,
               backgroundColor: bgColor,
               border: `1px solid ${borderColor}`,
               transform: 'translate(-50%, -50%)',
@@ -131,26 +132,28 @@ export default function Plenum({ epoch }: PlenumProps) {
 
   return (
     <div className="w-full">
-      <div className="mb-4">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium" style={{ color: '#94a3b8' }}>
-            Quorum Progress
-          </span>
-          <span className="text-sm font-medium" style={{ color: quorumReached ? '#22c55e' : '#f59e0b' }}>
-            {ballots.length} / {quorum}
-          </span>
-        </div>
-        <div 
-          className="h-3 rounded-full overflow-hidden"
-          style={{ backgroundColor: '#1a2332' }}
-        >
+      <div className="flex items-start gap-4 mb-4">
+        <div className="w-32">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-medium" style={{ color: '#94a3b8' }}>
+              Quorum
+            </span>
+            <span className="text-xs font-medium" style={{ color: quorumReached ? '#22c55e' : '#f59e0b' }}>
+              {ballots.length}/{quorum}
+            </span>
+          </div>
           <div 
-            className="h-full transition-all duration-500"
-            style={{ 
-              width: `${quorumProgress}%`,
-              backgroundColor: quorumReached ? '#22c55e' : '#f59e0b'
-            }}
-          />
+            className="h-2 rounded-full overflow-hidden"
+            style={{ backgroundColor: '#1a2332' }}
+          >
+            <div 
+              className="h-full transition-all duration-500"
+              style={{ 
+                width: `${quorumProgress}%`,
+                backgroundColor: quorumReached ? '#22c55e' : '#f59e0b'
+              }}
+            />
+          </div>
         </div>
       </div>
 
@@ -160,7 +163,7 @@ export default function Plenum({ epoch }: PlenumProps) {
         </h3>
       )}
 
-      <div className="relative" style={{ height: 320, width: '100%' }}>
+      <div className="relative" style={{ height: 300, width: '100%' }}>
         {renderHemisphere()}
       </div>
 
