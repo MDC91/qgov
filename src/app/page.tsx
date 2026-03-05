@@ -41,7 +41,7 @@ export default function Home() {
   return (
     <div className="min-h-screen text-white" style={{ backgroundColor: '#101820' }}>
       <header className="border backdrop-blur-sm sticky top-0 z-10" style={{ backgroundColor: '#151e27', borderColor: '#202e3c' }}>
-        <div className="max-w-6xl mx-auto px-4 py-4">
+        <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-3">
               <img src="/Qubic-Logo-White.svg" alt="Qubic" className="h-10" style={{ width: 'auto' }} />
@@ -52,9 +52,9 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <div className="lg:col-span-2">
+      <main className="max-w-7xl mx-auto px-4 py-8">
+        <div className="flex flex-wrap gap-8">
+          <div className="flex-1 min-w-[250px]">
             <div className="rounded-xl p-6" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c' }}>
               <h2 className="text-xl font-semibold mb-4" style={{ color: '#23ffff' }}>Info</h2>
               <div style={{ color: '#94a3b8' }}>
@@ -63,7 +63,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="lg:col-span-9">
+          <div className="flex-[3] min-w-[300px]">
             <div className="rounded-xl p-8 text-center" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c', minHeight: '400px' }}>
               <h1 className="text-4xl font-bold mb-4" style={{ color: '#ffffff' }}>Welcome to QGov</h1>
               <p className="text-lg mb-6" style={{ color: '#94a3b8' }}>
@@ -81,7 +81,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="lg:col-span-2">
+          <div className="flex-1 min-w-[250px]">
             <div className="rounded-xl p-6" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c' }}>
               <h2 className="text-xl font-semibold mb-4" style={{ color: '#23ffff' }}>Active Proposals</h2>
               
