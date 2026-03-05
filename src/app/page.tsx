@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Plenum from '@/components/Plenum';
 
 interface ActiveProposal {
   epoch: number;
@@ -14,6 +15,7 @@ export default function Home() {
   const [currentEpoch, setCurrentEpoch] = useState<number>(0);
   const [activeProposals, setActiveProposals] = useState<ActiveProposal[]>([]);
   const [loading, setLoading] = useState(true);
+  const [plenumEpoch, setPlenumEpoch] = useState<number>(202);
 
   useEffect(() => {
     fetch('/api/epoches')
@@ -22,6 +24,7 @@ export default function Home() {
         if (data.epochs && data.epochs.length > 0) {
           const epoch = data.epochs[0].epoch;
           setCurrentEpoch(epoch);
+          setPlenumEpoch(epoch);
           
           fetch(`/api/proposals/${epoch}`)
             .then(res => res.json())
@@ -64,8 +67,8 @@ export default function Home() {
           </div>
 
           <div className="flex-[3] min-w-[300px]">
-            <div className="rounded-xl p-8 text-center" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c', minHeight: '400px' }}>
-              <h1 className="text-4xl font-bold" style={{ color: '#ffffff' }}>Welcome to QGov</h1>
+            <div className="rounded-xl p-6" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c' }}>
+              <Plenum epoch={plenumEpoch} />
             </div>
           </div>
 
