@@ -57,29 +57,29 @@ export default function Plenum({ epoch }: PlenumProps) {
   const quorum = 451;
   const quorumProgress = Math.min((ballots.length / quorum) * 100, 100);
 
-  const numRows = 20;
-  const centerX = 50;
+  const containerWidth = 600;
+  const containerHeight = 300;
+  const centerX = containerWidth / 2;
+  const startY = 50;
+  const maxRadius = 250;
+  const rowHeight = 12;
+  const seatSize = 8;
   
   const renderHemisphere = (): ReactNode[] => {
     const elements: ReactNode[] = [];
     const totalSeats = computors.length;
-    const baseRadius = 40;
-    const rowHeight = 3.5;
-    const seatSize = 3;
+    const numRows = Math.min(20, Math.ceil(totalSeats / 4));
     let seatIndex = 0;
 
     for (let row = 0; row < numRows; row++) {
       if (seatIndex >= totalSeats) break;
       
-      const radius = baseRadius - (row * rowHeight);
-      const circumference = Math.PI * radius;
-      const seatsInRow = Math.max(4, Math.floor(circumference / (seatSize + 1)));
+      const radius = maxRadius - (row * rowHeight);
+      
+      const seatsInRow = Math.max(4, Math.floor((Math.PI * radius) / (seatSize + 2)));
       const actualSeatsInRow = Math.min(seatsInRow, totalSeats - seatIndex);
       
       if (actualSeatsInRow <= 0) break;
-
-      const angleStep = Math.PI / (actualSeatsInRow + 1);
-      const startAngle = angleStep;
 
       for (let seat = 0; seat < actualSeatsInRow; seat++) {
         if (seatIndex >= totalSeats) break;
@@ -102,19 +102,19 @@ export default function Plenum({ epoch }: PlenumProps) {
           }
         }
 
-        const angle = startAngle + (seat * angleStep);
+        const angle = Math.PI * (seat / (actualSeatsInRow - 1 || 1));
         const x = centerX + radius * Math.cos(angle);
-        const y = 10 + (row * rowHeight) + (radius * Math.sin(angle) * 0.25);
+        const y = startY + radius * Math.sin(angle);
 
         elements.push(
           <div
             key={`seat-${seatIndex}`}
             className="absolute rounded-full transition-all"
             style={{
-              left: `${x}%`,
-              top: `${y}%`,
-              width: `${seatSize}%`,
-              height: `${seatSize * 1.5}%`,
+              left: x,
+              top: y,
+              width: seatSize,
+              height: seatSize,
               backgroundColor: bgColor,
               border: `1px solid ${borderColor}`,
               transform: 'translate(-50%, -50%)',
@@ -163,7 +163,10 @@ export default function Plenum({ epoch }: PlenumProps) {
         </h3>
       )}
 
-      <div className="relative" style={{ height: 300, width: '100%' }}>
+      <div 
+        className="relative mx-auto"
+        style={{ height: containerHeight, width: containerWidth }}
+      >
         {renderHemisphere()}
       </div>
 
