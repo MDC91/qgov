@@ -65,26 +65,30 @@ export default function Home() {
 
           <div className="flex-[3] min-w-[300px]">
             <div className="rounded-xl p-8 text-center" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c', minHeight: '400px' }}>
-              <h1 className="text-4xl font-bold mb-4" style={{ color: '#ffffff' }}>Welcome to QGov</h1>
-              <p className="text-lg mb-6" style={{ color: '#94a3b8' }}>
-                Explore and translate Qubic proposals
-              </p>
-              <div className="flex gap-4 justify-center">
-                <a
-                  href="/proposals"
-                  className="px-6 py-3 rounded-lg font-medium transition-all hover:opacity-80"
-                  style={{ backgroundColor: '#23ffff', color: '#0f172a' }}
-                >
-                  View All Proposals
-                </a>
-              </div>
+              <h1 className="text-4xl font-bold" style={{ color: '#ffffff' }}>Welcome to QGov</h1>
             </div>
           </div>
 
           <div className="flex-1 min-w-[250px]">
             <div className="rounded-xl p-6" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c' }}>
-              <h2 className="text-xl font-semibold mb-4" style={{ color: '#23ffff' }}>Active Proposals</h2>
+              <h2 className="text-xl font-semibold mb-4" style={{ color: '#23ffff' }}>Proposals</h2>
               
+              <div className="flex gap-2 mb-4">
+                <span 
+                  className="px-3 py-1 rounded text-sm font-medium"
+                  style={{ backgroundColor: '#1a2332', color: '#ffffff', border: '1px solid #2d3748' }}
+                >
+                  Active
+                </span>
+                <a
+                  href={`/proposals?epoch=${currentEpoch}`}
+                  className="px-3 py-1 rounded text-sm font-medium transition-opacity hover:opacity-80"
+                  style={{ backgroundColor: '#23ffff', color: '#0f172a', border: '1px solid #23ffff' }}
+                >
+                  History
+                </a>
+              </div>
+
               {loading ? (
                 <div className="flex justify-center py-4">
                   <div className="animate-spin rounded-full h-6 w-6 border-b-2" style={{ borderColor: '#23ffff' }}></div>
@@ -99,22 +103,11 @@ export default function Home() {
                       className="p-3 rounded-lg"
                       style={{ backgroundColor: '#1a2332', border: '1px solid #202e3c' }}
                     >
-                      <p className="text-sm font-medium truncate" style={{ color: '#ffffff' }}>
+                      <p className="text-sm font-medium" style={{ color: '#ffffff' }}>
                         {proposal.title || 'Untitled'}
-                      </p>
-                      <p className="text-xs mt-1" style={{ color: '#94a3b8' }}>
-                        Epoch {proposal.epoch}
                       </p>
                     </div>
                   ))}
-                  
-                  <a
-                    href={`/proposals?epoch=${currentEpoch}`}
-                    className="block text-center text-sm mt-4 py-2 rounded-lg transition-all hover:opacity-80"
-                    style={{ backgroundColor: '#23ffff', color: '#0f172a' }}
-                  >
-                    History →
-                  </a>
                 </div>
               )}
             </div>
