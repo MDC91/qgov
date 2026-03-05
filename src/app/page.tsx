@@ -54,7 +54,7 @@ export default function Home() {
 
       <main className="max-w-6xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-2">
             <div className="rounded-xl p-6" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c' }}>
               <h2 className="text-xl font-semibold mb-4" style={{ color: '#23ffff' }}>Info</h2>
               <div style={{ color: '#94a3b8' }}>
@@ -63,25 +63,25 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="lg:col-span-6">
-            <div className="rounded-xl p-8 text-center" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c' }}>
+          <div className="lg:col-span-9">
+            <div className="rounded-xl p-8 text-center" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c', minHeight: '400px' }}>
               <h1 className="text-4xl font-bold mb-4" style={{ color: '#ffffff' }}>Welcome to QGov</h1>
               <p className="text-lg mb-6" style={{ color: '#94a3b8' }}>
                 Explore and translate Qubic proposals
               </p>
               <div className="flex gap-4 justify-center">
-                <Link
+                <a
                   href="/proposals"
                   className="px-6 py-3 rounded-lg font-medium transition-all hover:opacity-80"
                   style={{ backgroundColor: '#23ffff', color: '#0f172a' }}
                 >
                   View All Proposals
-                </Link>
+                </a>
               </div>
             </div>
           </div>
 
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-2">
             <div className="rounded-xl p-6" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c' }}>
               <h2 className="text-xl font-semibold mb-4" style={{ color: '#23ffff' }}>Active Proposals</h2>
               
@@ -108,13 +108,13 @@ export default function Home() {
                     </div>
                   ))}
                   
-                  <Link
+                  <a
                     href={`/proposals?epoch=${currentEpoch}`}
                     className="block text-center text-sm mt-4 py-2 rounded-lg transition-all hover:opacity-80"
                     style={{ backgroundColor: '#23ffff', color: '#0f172a' }}
                   >
-                    View All →
-                  </Link>
+                    History →
+                  </a>
                 </div>
               )}
             </div>
