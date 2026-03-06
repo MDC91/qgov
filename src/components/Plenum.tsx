@@ -51,44 +51,86 @@ export default function Plenum({ epoch }: PlenumProps) {
   }
 
   const { computors, ballots, proposal, quorumReached } = data;
-  const votedComputorIds = new Set(ballots.map(b => b.computorId));
+  const voteByComputor = new Map(ballots.map(b => [b.computorId, b.vote]));
   const yesVotes = ballots.filter(b => b.vote === 1).length;
   const noVotes = ballots.filter(b => b.vote === 0).length;
   const quorum = 451;
   const quorumProgress = Math.min((ballots.length / quorum) * 100, 100);
 
-  const containerWidth = 1000;
-  const containerHeight = 520;
+  const containerWidth = 1080;
+  const containerHeight = 440;
   const centerX = containerWidth / 2;
-  const centerY = 400;
-  const maxRadius = 400;
-  const innerRadius = 24;
-  const rowHeight = (maxRadius - innerRadius) / 19;
+  const centerY = 430;
+  const maxRadius = 420;
+  const innerRadius = 48;
   const seatSize = 12;
+  const maxRows = 20;
+  const minSeatsPerRow = 8;
+  const estimatedRows = Math.floor(computors.length / minSeatsPerRow);
+  const numRows = Math.max(1, Math.min(maxRows, estimatedRows > 0 ? estimatedRows : 1));
+  const rowHeight = numRows > 1 ? (maxRadius - innerRadius) / (numRows - 1) : 0;
   
   const renderHemisphere = (): ReactNode[] => {
     const elements: ReactNode[] = [];
     const totalSeats = computors.length;
-    const numRows = Math.min(20, Math.ceil(totalSeats / 4));
+    const radii = Array.from({ length: numRows }, (_, row) => maxRadius - (row * rowHeight));
+    const seatsPerRow = Array.from({ length: numRows }, () => minSeatsPerRow);
+
+    const baseSeatTotal = seatsPerRow.reduce((sum, seats) => sum + seats, 0);
+    const remainingSeats = Math.max(0, totalSeats - baseSeatTotal);
+    const weightTotal = radii.reduce((sum, radius) => sum + radius, 0);
+
+    if (remainingSeats > 0 && weightTotal > 0) {
+      let distributed = 0;
+      const fractions: { row: number; fraction: number }[] = [];
+
+      for (let row = 0; row < numRows; row++) {
+        const exactExtra = (radii[row] / weightTotal) * remainingSeats;
+        const extra = Math.floor(exactExtra);
+        seatsPerRow[row] += extra;
+        distributed += extra;
+        fractions.push({ row, fraction: exactExtra - extra });
+      }
+
+      let leftovers = remainingSeats - distributed;
+      fractions.sort((a, b) => b.fraction - a.fraction);
+
+      let pointer = 0;
+      while (leftovers > 0 && fractions.length > 0) {
+        seatsPerRow[fractions[pointer % fractions.length].row] += 1;
+        pointer++;
+        leftovers--;
+      }
+    }
+
+    let assignedSeats = seatsPerRow.reduce((sum, seats) => sum + seats, 0);
+    if (assignedSeats > totalSeats) {
+      for (let row = numRows - 1; row >= 0 && assignedSeats > totalSeats; row--) {
+        while (seatsPerRow[row] > 1 && assignedSeats > totalSeats) {
+          seatsPerRow[row] -= 1;
+          assignedSeats--;
+        }
+      }
+    }
+
     let seatIndex = 0;
 
     for (let row = 0; row < numRows; row++) {
       if (seatIndex >= totalSeats) break;
       
-      const radius = maxRadius - (row * rowHeight);
-      const circumference = Math.PI * radius;
-      const seatsInRow = Math.max(4, Math.floor(circumference / (seatSize + 1.5)));
-      const actualSeatsInRow = Math.min(seatsInRow, totalSeats - seatIndex);
+      const radius = radii[row];
+      const seatsInRow = seatsPerRow[row];
       
-      if (actualSeatsInRow <= 0) break;
+      if (seatsInRow <= 0) continue;
 
-      for (let seat = 0; seat < actualSeatsInRow; seat++) {
+      for (let seat = 0; seat < seatsInRow; seat++) {
         if (seatIndex >= totalSeats) break;
 
         const computorId = computors[seatIndex];
-        const hasVoted = votedComputorIds.has(computorId);
-        const votedYes = ballots.find(b => b.computorId === computorId)?.vote === 1;
-        const votedNo = ballots.find(b => b.computorId === computorId)?.vote === 0;
+        const vote = voteByComputor.get(computorId);
+        const hasVoted = vote !== undefined;
+        const votedYes = vote === 1;
+        const votedNo = vote === 0;
 
         let bgColor = '#1a2332';
         let borderColor = '#2d3748';
@@ -103,7 +145,7 @@ export default function Plenum({ epoch }: PlenumProps) {
           }
         }
 
-        const angle = Math.PI * (seat / (actualSeatsInRow - 1 || 1));
+        const angle = seatsInRow > 1 ? Math.PI * (seat / (seatsInRow - 1)) : Math.PI / 2;
         const x = centerX + radius * Math.cos(angle);
         const y = centerY - radius * Math.sin(angle);
 
@@ -112,8 +154,8 @@ export default function Plenum({ epoch }: PlenumProps) {
             key={`seat-${seatIndex}`}
             className="absolute rounded-full transition-all"
             style={{
-              left: x,
-              top: y,
+              left: `${(x / containerWidth) * 100}%`,
+              top: `${(y / containerHeight) * 100}%`,
               width: seatSize,
               height: seatSize,
               backgroundColor: bgColor,
@@ -133,16 +175,20 @@ export default function Plenum({ epoch }: PlenumProps) {
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between mb-4">
-        <span className="px-4 py-2 rounded text-base font-medium" style={{ backgroundColor: '#23ffff', color: '#0f172a' }}>
-          Current Epoch: {epoch}
-        </span>
-        {proposal && (
-          <h2 className="text-3xl font-bold text-center mx-4" style={{ color: '#ffffff' }}>
-            {proposal.title || 'Untitled Proposal'}
-          </h2>
-        )}
-        <div className="w-28"></div>
+      <div className="flex items-center mb-4">
+        <div className="w-64 shrink-0">
+          <span className="inline-block px-4 py-2 rounded text-base font-medium" style={{ backgroundColor: '#23ffff', color: '#0f172a' }}>
+            Current Epoch: {epoch}
+          </span>
+        </div>
+        <div className="flex-1 text-center">
+          {proposal && (
+            <h2 className="text-3xl font-bold leading-tight" style={{ color: '#ffffff' }}>
+              {proposal.title || 'Untitled Proposal'}
+            </h2>
+          )}
+        </div>
+        <div className="w-64 shrink-0"></div>
       </div>
 
       <div className="flex items-start gap-4 mb-4">
@@ -172,7 +218,7 @@ export default function Plenum({ epoch }: PlenumProps) {
 
       <div 
         className="relative mx-auto"
-        style={{ height: containerHeight, maxWidth: containerWidth }}
+        style={{ height: containerHeight, width: '100%', maxWidth: containerWidth }}
       >
         {renderHemisphere()}
       </div>
