@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, ReactNode } from 'react';
+import ProposalMiniCard from './ProposalMiniCard';
 
 interface PlenumData {
   computors: string[];
@@ -12,8 +13,17 @@ interface PlenumData {
     yesVotes: number;
     noVotes: number;
     totalVotes: number;
+    ballots: { computorId: string; vote: number }[];
   } | null;
-  quorumReached: boolean;
+  allProposals: {
+    id: string;
+    title: string;
+    status: number;
+    yesVotes: number;
+    noVotes: number;
+    totalVotes: number;
+    ballots: { computorId: string; vote: number }[];
+  }[];
 }
 
 interface PlenumProps {
@@ -23,16 +33,35 @@ interface PlenumProps {
 export default function Plenum({ epoch }: PlenumProps) {
   const [data, setData] = useState<PlenumData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mainProposal, setMainProposal] = useState<any>(null);
+  const [miniOffset, setMiniOffset] = useState(0);
 
   useEffect(() => {
     fetch(`/api/plenum/${epoch}`)
       .then(res => res.json())
       .then(data => {
         setData(data);
+        if (data.proposal) {
+          setMainProposal(data.proposal);
+        }
         setLoading(false);
       })
       .catch(console.error);
   }, [epoch]);
+
+  const handleSelectProposal = (proposal: any) => {
+    setMainProposal(proposal);
+  };
+
+  const nextMini = () => {
+    if (!data?.allProposals) return;
+    setMiniOffset((prev) => (prev + 4) % data.allProposals.length);
+  };
+
+  const prevMini = () => {
+    if (!data?.allProposals) return;
+    setMiniOffset((prev) => (prev - 4 + data.allProposals.length) % data.allProposals.length);
+  };
 
   if (loading) {
     return (
@@ -50,10 +79,12 @@ export default function Plenum({ epoch }: PlenumProps) {
     );
   }
 
-  const { computors, ballots, proposal } = data;
-  const voteByComputor = new Map(ballots.map(b => [b.computorId, b.vote]));
-  const yesVotes = ballots.filter(b => b.vote === 1).length;
-  const noVotes = ballots.filter(b => b.vote === 0).length;
+  const { computors, allProposals } = data || {};
+  const ballots = mainProposal?.ballots || [];
+  const proposal = mainProposal;
+  const voteByComputor = new Map(ballots.map((b: any) => [b.computorId, b.vote]));
+  const yesVotes = ballots.filter((b: any) => b.vote === 1).length;
+  const noVotes = ballots.filter((b: any) => b.vote === 0).length;
   const quorum = 451;
   const quorumProgress = Math.min((ballots.length / quorum) * 100, 100);
   
@@ -264,6 +295,46 @@ export default function Plenum({ epoch }: PlenumProps) {
       >
         {renderHemisphere()}
       </div>
+
+      {allProposals && allProposals.length > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-4">
+          {allProposals.length > 4 && (
+            <button 
+              onClick={prevMini} 
+              className="p-1 text-2xl transition-opacity hover:opacity-80"
+              style={{ color: '#23ffff' }}
+            >
+              ‹
+            </button>
+          )}
+          
+          {allProposals.slice(miniOffset, miniOffset + 4).map((p: any) => (
+            <ProposalMiniCard
+              key={p.id}
+              proposal={p}
+              computors={computors || []}
+              isActive={p.id === mainProposal?.id}
+              onClick={() => handleSelectProposal(p)}
+            />
+          ))}
+          
+          {allProposals.length > 4 && (
+            <button 
+              onClick={nextMini} 
+              className="p-1 text-2xl transition-opacity hover:opacity-80"
+              style={{ color: '#23ffff' }}
+            >
+              ›
+            </button>
+          )}
+        </div>
+      )}
+
+      {allProposals && allProposals.length <= 1 && (
+        <p className="text-center text-sm mt-4" style={{ color: '#94a3b8' }}>
+          No additional proposals.
+        </p>
+      )}
 
       <div className="flex justify-center gap-6 mt-1">
         <div className="flex items-center gap-2">

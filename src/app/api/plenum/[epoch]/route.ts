@@ -12,57 +12,55 @@ export async function GET(
     const computors = getComputorsByEpoch(epoch);
     const proposals = getProposalsByEpoch(epoch);
     
-    const activeProposal = proposals.find(p => p.status === 2);
-    
-    if (!activeProposal) {
-      const latestProposal = proposals[0];
-      if (!latestProposal) {
-        return NextResponse.json({ 
-          computors: [], 
-          ballots: [],
-          proposal: null,
-          quorumReached: false,
-          message: 'No proposals found for this epoch'
-        });
-      }
-
-      const ballots = getBallotsByProposalId(latestProposal.id);
-      
-      return NextResponse.json({
-        computors: computors.map(c => c.computor_id),
+    const allProposalsData = proposals.map(p => {
+      const ballots = getBallotsByProposalId(p.id);
+      return {
+        id: p.id,
+        title: p.title,
+        status: p.status,
+        yesVotes: p.yes_votes,
+        noVotes: p.no_votes,
+        totalVotes: p.total_votes,
         ballots: ballots.map(b => ({
           computorId: b.computor_id,
           vote: b.vote
-        })),
-        proposal: {
-          id: latestProposal.id,
-          title: latestProposal.title,
-          status: latestProposal.status,
-          yesVotes: latestProposal.yes_votes,
-          noVotes: latestProposal.no_votes,
-          totalVotes: latestProposal.total_votes
-        },
-        quorumReached: latestProposal.total_votes >= 451
+        }))
+      };
+    });
+    
+    const activeProposal = proposals.find(p => p.status === 2);
+    const mainProposalData = activeProposal || proposals[0];
+    
+    if (!mainProposalData) {
+      return NextResponse.json({ 
+        computors: [], 
+        ballots: [],
+        proposal: null,
+        allProposals: [],
+        message: 'No proposals found for this epoch'
       });
     }
 
-    const ballots = getBallotsByProposalId(activeProposal.id);
-
-    return NextResponse.json({
-      computors: computors.map(c => c.computor_id),
+    const ballots = getBallotsByProposalId(mainProposalData.id);
+    
+    const mainProposal = {
+      id: mainProposalData.id,
+      title: mainProposalData.title,
+      status: mainProposalData.status,
+      yesVotes: mainProposalData.yes_votes,
+      noVotes: mainProposalData.no_votes,
+      totalVotes: mainProposalData.total_votes,
       ballots: ballots.map(b => ({
         computorId: b.computor_id,
         vote: b.vote
-      })),
-      proposal: {
-        id: activeProposal.id,
-        title: activeProposal.title,
-        status: activeProposal.status,
-        yesVotes: activeProposal.yes_votes,
-        noVotes: activeProposal.no_votes,
-        totalVotes: activeProposal.total_votes
-      },
-      quorumReached: activeProposal.total_votes >= 451
+      }))
+    };
+
+    return NextResponse.json({
+      computors: computors.map(c => c.computor_id),
+      ballots: mainProposal.ballots,
+      proposal: mainProposal,
+      allProposals: allProposalsData
     });
   } catch (error) {
     console.error('Error fetching plenum data:', error);
