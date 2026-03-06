@@ -62,6 +62,7 @@ export default function Plenum({ epoch }: PlenumProps) {
   const innerRadius = 170;
   const seatSize = 12;
   const topPadding = 4;
+  const horizontalStretch = 1.16;
   const centerX = containerWidth / 2;
   const centerY = maxRadius + topPadding;
   const containerHeight = Math.ceil(centerY + seatSize / 2 + 2);
@@ -177,7 +178,8 @@ export default function Plenum({ epoch }: PlenumProps) {
         }
 
         const angle = seatsInRow > 1 ? Math.PI * (seat / (seatsInRow - 1)) : Math.PI / 2;
-        const x = centerX + radius * Math.cos(angle);
+        const xRaw = centerX + radius * Math.cos(angle) * horizontalStretch;
+        const xPercent = Math.min(98, Math.max(2, (xRaw / containerWidth) * 100));
         const y = centerY - radius * Math.sin(angle);
 
         elements.push(
@@ -185,7 +187,7 @@ export default function Plenum({ epoch }: PlenumProps) {
             key={`seat-${seatIndex}`}
             className="absolute rounded-full transition-all"
             style={{
-              left: `${(x / containerWidth) * 100}%`,
+              left: `${xPercent}%`,
               top: `${(y / containerHeight) * 100}%`,
               width: seatSize,
               height: seatSize,
