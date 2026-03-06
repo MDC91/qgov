@@ -133,18 +133,30 @@ export default function Plenum({ epoch }: PlenumProps) {
 
   return (
     <div className="w-full">
-      <div className="flex items-start gap-4 mb-4">
-        <div className="w-32">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-xs px-2 py-1 rounded font-medium" style={{ backgroundColor: '#23ffff', color: '#0f172a' }}>
+          Current Epoch: {epoch}
+        </span>
+      </div>
+
+      {proposal && (
+        <h2 className="text-2xl font-bold text-center mb-4" style={{ color: '#ffffff' }}>
+          {proposal.title || 'Untitled Proposal'}
+        </h2>
+      )}
+
+      <div className="flex items-start gap-4 mb-6">
+        <div className="w-56">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs font-medium" style={{ color: '#94a3b8' }}>
+            <span className="text-sm font-medium" style={{ color: '#94a3b8' }}>
               Quorum
             </span>
-            <span className="text-xs font-medium" style={{ color: quorumReached ? '#22c55e' : '#f59e0b' }}>
+            <span className="text-sm font-medium" style={{ color: quorumReached ? '#22c55e' : '#f59e0b' }}>
               {ballots.length}/{quorum}
             </span>
           </div>
           <div 
-            className="h-2 rounded-full overflow-hidden"
+            className="h-3 rounded-full overflow-hidden"
             style={{ backgroundColor: '#1a2332' }}
           >
             <div 
@@ -157,12 +169,6 @@ export default function Plenum({ epoch }: PlenumProps) {
           </div>
         </div>
       </div>
-
-      {proposal && (
-        <h3 className="text-lg font-semibold text-center mb-4" style={{ color: '#ffffff' }}>
-          {proposal.title || 'Untitled Proposal'}
-        </h3>
-      )}
 
       <div 
         className="relative mx-auto"
