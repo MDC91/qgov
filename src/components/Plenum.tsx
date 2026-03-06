@@ -57,13 +57,14 @@ export default function Plenum({ epoch }: PlenumProps) {
   const quorum = 451;
   const quorumProgress = Math.min((ballots.length / quorum) * 100, 100);
 
-  const containerWidth = 1080;
-  const containerHeight = 440;
-  const centerX = containerWidth / 2;
-  const centerY = 430;
+  const containerWidth = 1120;
   const maxRadius = 420;
-  const innerRadius = 48;
+  const innerRadius = 96;
   const seatSize = 12;
+  const topPadding = 4;
+  const centerX = containerWidth / 2;
+  const centerY = maxRadius + topPadding;
+  const containerHeight = Math.ceil(centerY + seatSize / 2 + 2);
   const maxRows = 20;
   const minSeatsPerRow = 8;
   const estimatedRows = Math.floor(computors.length / minSeatsPerRow);
@@ -175,7 +176,7 @@ export default function Plenum({ epoch }: PlenumProps) {
 
   return (
     <div className="w-full">
-      <div className="flex items-center mb-4">
+      <div className="flex items-center mb-3">
         <div className="w-64 shrink-0">
           <span className="inline-block px-4 py-2 rounded text-base font-medium" style={{ backgroundColor: '#23ffff', color: '#0f172a' }}>
             Current Epoch: {epoch}
@@ -191,7 +192,7 @@ export default function Plenum({ epoch }: PlenumProps) {
         <div className="w-64 shrink-0"></div>
       </div>
 
-      <div className="flex items-start gap-4 mb-4">
+      <div className="flex items-start gap-4 mb-1">
         <div className="w-56">
           <div className="flex items-center justify-between mb-1">
             <span className="text-base font-medium" style={{ color: '#94a3b8' }}>
@@ -223,7 +224,7 @@ export default function Plenum({ epoch }: PlenumProps) {
         {renderHemisphere()}
       </div>
 
-      <div className="flex justify-center gap-6 mt-0">
+      <div className="flex justify-center gap-6 mt-0" style={{ marginTop: -2 }}>
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded-full" style={{ backgroundColor: '#22c55e', border: '1px solid #22c55e' }}></div>
           <span className="text-sm" style={{ color: '#94a3b8' }}>Yes: {yesVotes}</span>
