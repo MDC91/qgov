@@ -68,7 +68,10 @@ export default function Plenum({ epoch }: PlenumProps) {
   const maxRows = 20;
   const minSeatsPerRow = 8;
   const estimatedRows = Math.floor(computors.length / minSeatsPerRow);
-  const numRows = Math.max(1, Math.min(maxRows, estimatedRows > 0 ? estimatedRows : 1));
+  
+  const desiredRowGap = seatSize + 3;
+  const maxRowsByGap = Math.floor((maxRadius - innerRadius) / desiredRowGap) + 1;
+  const numRows = Math.max(1, Math.min(maxRows, maxRowsByGap, estimatedRows > 0 ? estimatedRows : 1));
   const rowHeight = numRows > 1 ? (maxRadius - innerRadius) / (numRows - 1) : 0;
   
   const renderHemisphere = (): ReactNode[] => {
@@ -77,9 +80,14 @@ export default function Plenum({ epoch }: PlenumProps) {
     const radii = Array.from({ length: numRows }, (_, row) => maxRadius - (row * rowHeight));
     const seatsPerRow = Array.from({ length: numRows }, () => minSeatsPerRow);
 
+    const minArcSpacing = seatSize + 4;
+    const maxSeatsByArc = radii.map((r) =>
+      Math.max(2, Math.floor((Math.PI * r) / minArcSpacing) + 1)
+    );
+
     const baseSeatTotal = seatsPerRow.reduce((sum, seats) => sum + seats, 0);
     const remainingSeats = Math.max(0, totalSeats - baseSeatTotal);
-    const distributionPower = 0.82;
+    const distributionPower = 1.08;
     const rowWeights = radii.map((radius) => Math.pow(radius, distributionPower));
     const weightTotal = rowWeights.reduce((sum, weight) => sum + weight, 0);
 
@@ -107,6 +115,26 @@ export default function Plenum({ epoch }: PlenumProps) {
     }
 
     let assignedSeats = seatsPerRow.reduce((sum, seats) => sum + seats, 0);
+    
+    for (let row = 0; row < numRows; row++) {
+      if (seatsPerRow[row] > maxSeatsByArc[row]) {
+        const diff = seatsPerRow[row] - maxSeatsByArc[row];
+        seatsPerRow[row] = maxSeatsByArc[row];
+        assignedSeats -= diff;
+      }
+    }
+    
+    if (assignedSeats < totalSeats) {
+      for (let row = 0; row < numRows && assignedSeats < totalSeats; row++) {
+        if (seatsPerRow[row] < maxSeatsByArc[row]) {
+          const canAdd = maxSeatsByArc[row] - seatsPerRow[row];
+          const toAdd = Math.min(canAdd, totalSeats - assignedSeats);
+          seatsPerRow[row] += toAdd;
+          assignedSeats += toAdd;
+        }
+      }
+    }
+    
     if (assignedSeats > totalSeats) {
       for (let row = numRows - 1; row >= 0 && assignedSeats > totalSeats; row--) {
         while (seatsPerRow[row] > 1 && assignedSeats > totalSeats) {
@@ -163,6 +191,7 @@ export default function Plenum({ epoch }: PlenumProps) {
               height: seatSize,
               backgroundColor: bgColor,
               border: `1px solid ${borderColor}`,
+              boxSizing: 'border-box',
               transform: 'translate(-50%, -50%)',
             }}
             title={computorId ? `Computor: ${computorId.slice(0, 12)}...` : ''}
