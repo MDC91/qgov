@@ -67,8 +67,8 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="flex-[3] min-w-[300px]">
-            <div className="rounded-xl p-6" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c' }}>
+          <div className="flex-[3] min-w-[400px]">
+            <div className="rounded-xl p-6 overflow-hidden" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c' }}>
               <Plenum epoch={plenumEpoch} />
             </div>
           </div>
