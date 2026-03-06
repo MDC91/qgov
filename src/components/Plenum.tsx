@@ -57,14 +57,14 @@ export default function Plenum({ epoch }: PlenumProps) {
   const quorum = 451;
   const quorumProgress = Math.min((ballots.length / quorum) * 100, 100);
 
-  const containerWidth = 820;
-  const containerHeight = 430;
+  const containerWidth = 900;
+  const containerHeight = 450;
   const centerX = containerWidth / 2;
-  const centerY = 320;
-  const maxRadius = 320;
-  const innerRadius = 20;
+  const centerY = 340;
+  const maxRadius = 340;
+  const innerRadius = 22;
   const rowHeight = (maxRadius - innerRadius) / 19;
-  const seatSize = 10.5;
+  const seatSize = 11;
   
   const renderHemisphere = (): ReactNode[] => {
     const elements: ReactNode[] = [];
@@ -133,19 +133,19 @@ export default function Plenum({ epoch }: PlenumProps) {
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-xs px-2 py-1 rounded font-medium" style={{ backgroundColor: '#23ffff', color: '#0f172a' }}>
+      <div className="flex items-center justify-between mb-4">
+        <span className="px-4 py-2 rounded text-base font-medium" style={{ backgroundColor: '#23ffff', color: '#0f172a' }}>
           Current Epoch: {epoch}
         </span>
+        {proposal && (
+          <h2 className="text-3xl font-bold text-center" style={{ color: '#ffffff' }}>
+            {proposal.title || 'Untitled Proposal'}
+          </h2>
+        )}
+        <div className="w-28"></div>
       </div>
 
-      {proposal && (
-        <h2 className="text-2xl font-bold text-center mb-4" style={{ color: '#ffffff' }}>
-          {proposal.title || 'Untitled Proposal'}
-        </h2>
-      )}
-
-      <div className="flex items-start gap-4 mb-6">
+      <div className="flex items-start gap-4 mb-4">
         <div className="w-56">
           <div className="flex items-center justify-between mb-1">
             <span className="text-sm font-medium" style={{ color: '#94a3b8' }}>
@@ -177,18 +177,18 @@ export default function Plenum({ epoch }: PlenumProps) {
         {renderHemisphere()}
       </div>
 
-      <div className="flex justify-center gap-6 mt-4">
+      <div className="flex justify-center gap-6 mt-2">
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#22c55e', border: '1px solid #22c55e' }}></div>
-          <span className="text-xs" style={{ color: '#94a3b8' }}>Yes: {yesVotes}</span>
+          <div className="w-4 h-4 rounded-full" style={{ backgroundColor: '#22c55e', border: '1px solid #22c55e' }}></div>
+          <span className="text-sm" style={{ color: '#94a3b8' }}>Yes: {yesVotes}</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#ef4444', border: '1px solid #ef4444' }}></div>
-          <span className="text-xs" style={{ color: '#94a3b8' }}>No: {noVotes}</span>
+          <div className="w-4 h-4 rounded-full" style={{ backgroundColor: '#ef4444', border: '1px solid #ef4444' }}></div>
+          <span className="text-sm" style={{ color: '#94a3b8' }}>No: {noVotes}</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#1a2332', border: '1px solid #2d3748' }}></div>
-          <span className="text-xs" style={{ color: '#94a3b8' }}>Not Voted: {computors.length - ballots.length}</span>
+          <div className="w-4 h-4 rounded-full" style={{ backgroundColor: '#1a2332', border: '1px solid #2d3748' }}></div>
+          <span className="text-sm" style={{ color: '#94a3b8' }}>Not Voted: {computors.length - ballots.length}</span>
         </div>
       </div>
     </div>
