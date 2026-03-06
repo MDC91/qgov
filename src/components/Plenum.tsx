@@ -50,12 +50,20 @@ export default function Plenum({ epoch }: PlenumProps) {
     );
   }
 
-  const { computors, ballots, proposal, quorumReached } = data;
+  const { computors, ballots, proposal } = data;
   const voteByComputor = new Map(ballots.map(b => [b.computorId, b.vote]));
   const yesVotes = ballots.filter(b => b.vote === 1).length;
   const noVotes = ballots.filter(b => b.vote === 0).length;
   const quorum = 451;
   const quorumProgress = Math.min((ballots.length / quorum) * 100, 100);
+  
+  const hasQuorum = ballots.length >= quorum;
+  const isLeadingYes = yesVotes > noVotes;
+  const quorumColor = !hasQuorum 
+    ? '#f59e0b' 
+    : isLeadingYes 
+      ? '#22c55e' 
+      : '#ef4444';
 
   const containerWidth = 1120;
   const maxRadius = 420;
@@ -231,7 +239,7 @@ export default function Plenum({ epoch }: PlenumProps) {
             <span className="text-base font-medium" style={{ color: '#94a3b8' }}>
               Quorum
             </span>
-            <span className="text-sm font-medium" style={{ color: quorumReached ? '#22c55e' : '#f59e0b' }}>
+            <span className="text-sm font-medium" style={{ color: quorumColor }}>
               {ballots.length}/{quorum}
             </span>
           </div>
@@ -241,9 +249,9 @@ export default function Plenum({ epoch }: PlenumProps) {
           >
             <div 
               className="h-full transition-all duration-500"
-              style={{ 
+                style={{ 
                 width: `${quorumProgress}%`,
-                backgroundColor: quorumReached ? '#22c55e' : '#f59e0b'
+                backgroundColor: quorumColor
               }}
             />
           </div>
