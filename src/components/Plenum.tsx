@@ -59,7 +59,7 @@ export default function Plenum({ epoch }: PlenumProps) {
 
   const containerWidth = 1120;
   const maxRadius = 420;
-  const innerRadius = 192;
+  const innerRadius = 170;
   const seatSize = 12;
   const topPadding = 4;
   const centerX = containerWidth / 2;
@@ -79,14 +79,16 @@ export default function Plenum({ epoch }: PlenumProps) {
 
     const baseSeatTotal = seatsPerRow.reduce((sum, seats) => sum + seats, 0);
     const remainingSeats = Math.max(0, totalSeats - baseSeatTotal);
-    const weightTotal = radii.reduce((sum, radius) => sum + radius, 0);
+    const distributionPower = 0.82;
+    const rowWeights = radii.map((radius) => Math.pow(radius, distributionPower));
+    const weightTotal = rowWeights.reduce((sum, weight) => sum + weight, 0);
 
     if (remainingSeats > 0 && weightTotal > 0) {
       let distributed = 0;
       const fractions: { row: number; fraction: number }[] = [];
 
       for (let row = 0; row < numRows; row++) {
-        const exactExtra = (radii[row] / weightTotal) * remainingSeats;
+        const exactExtra = (rowWeights[row] / weightTotal) * remainingSeats;
         const extra = Math.floor(exactExtra);
         seatsPerRow[row] += extra;
         distributed += extra;
@@ -224,7 +226,7 @@ export default function Plenum({ epoch }: PlenumProps) {
         {renderHemisphere()}
       </div>
 
-      <div className="flex justify-center gap-6 mt-0" style={{ marginTop: 0 }}>
+      <div className="flex justify-center gap-6 mt-1">
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded-full" style={{ backgroundColor: '#22c55e', border: '1px solid #22c55e' }}></div>
           <span className="text-sm" style={{ color: '#94a3b8' }}>Yes: {yesVotes}</span>
