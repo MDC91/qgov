@@ -49,7 +49,7 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
 
   return (
     <Link
-      href={`/proposal/${proposal.epoch}/${slug}`}
+      href={`/proposal/${proposal.epoch}/${slug}/en`}
       className="block rounded-xl p-5 transition-all group proposal-card-shell"
       style={{ 
         backgroundColor: '#151e27', 

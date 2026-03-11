@@ -274,13 +274,35 @@ export default function Plenum({ epoch }: PlenumProps) {
 
   return (
     <div className="w-full h-full flex flex-col" ref={containerRef}>
-      <div className="flex items-center mb-3">
-        <div className="w-64 shrink-0">
+      <div className="flex items-start mb-3">
+        <div className="w-64 shrink-0 flex flex-col gap-2">
           <span className="inline-block px-4 py-2 rounded text-base font-medium" style={{ backgroundColor: '#23ffff', color: '#0f172a' }}>
             Current Epoch: {epoch}
           </span>
+          <div className="w-56">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-base font-medium" style={{ color: '#94a3b8' }}>
+                Quorum
+              </span>
+              <span className="text-sm font-medium" style={{ color: quorumColor }}>
+                {ballots.length}/{quorum}
+              </span>
+            </div>
+            <div 
+              className="h-3 rounded-full overflow-hidden"
+              style={{ backgroundColor: '#1a2332' }}
+            >
+              <div 
+                className="h-full transition-all duration-500"
+                style={{ 
+                  width: `${quorumProgress}%`,
+                  backgroundColor: quorumColor
+                }}
+              />
+            </div>
+          </div>
         </div>
-        <div className="flex-1 text-center">
+        <div className="flex-1 text-center px-4">
           {proposal && (
             <h2 className="text-3xl font-bold leading-tight" style={{ color: '#ffffff', minHeight: '4.5rem' }}>
               {proposal.title || 'Untitled Proposal'}
@@ -288,31 +310,6 @@ export default function Plenum({ epoch }: PlenumProps) {
           )}
         </div>
         <div className="w-64 shrink-0"></div>
-      </div>
-
-      <div className="flex items-start gap-4 mb-2">
-        <div className="w-56">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-base font-medium" style={{ color: '#94a3b8' }}>
-              Quorum
-            </span>
-            <span className="text-sm font-medium" style={{ color: quorumColor }}>
-              {ballots.length}/{quorum}
-            </span>
-          </div>
-          <div 
-            className="h-3 rounded-full overflow-hidden"
-            style={{ backgroundColor: '#1a2332' }}
-          >
-            <div 
-              className="h-full transition-all duration-500"
-                style={{ 
-                width: `${quorumProgress}%`,
-                backgroundColor: quorumColor
-              }}
-            />
-          </div>
-        </div>
       </div>
 
       <div 

@@ -238,7 +238,7 @@ function HomeContent() {
                   return (
                     <a
                       key={`${result.epoch}-${result.id}`}
-                      href={`/proposal/${result.epoch}/${slug}`}
+                      href={`/proposal/${result.epoch}/${slug}/en`}
                       className="block rounded-xl p-5 transition-all group search-result-card"
                       style={{ backgroundColor: '#151e27', border: '1px solid #202e3c' }}
                       onMouseEnter={(e) => {

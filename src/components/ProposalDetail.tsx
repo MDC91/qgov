@@ -7,6 +7,7 @@ import rehypeRaw from 'rehype-raw';
 import rehypeSlug from 'rehype-slug';
 import { Proposal, LANGUAGES, PROPOSAL_STATUS } from '@/types';
 import LanguageTabs from './LanguageTabs';
+import { createProposalSlug } from '@/lib/proposal';
 
 const ADMONITION_LABELS: Record<string, string> = {
   IMPORTANT: '⚠️ IMPORTANT',
@@ -181,6 +182,19 @@ export default function ProposalDetail({ epoch, id, initialProposal, initialLang
   const [translation, setTranslation] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const slug = createProposalSlug(initialProposal.title, initialProposal.id);
+
+  useEffect(() => {
+    if (initialLang && initialLang !== selectedLang) {
+      const newUrl = `/proposal/${epoch}/${slug}/${selectedLang}`;
+      window.history.replaceState(null, '', newUrl);
+    }
+  }, [selectedLang, epoch, slug, initialLang]);
+
+  const handleLangChange = (lang: string) => {
+    setSelectedLang(lang);
+  };
 
   const status = PROPOSAL_STATUS[initialProposal.status as keyof typeof PROPOSAL_STATUS] || 'unknown';
   const statusClass = statusColors[status] || 'bg-slate-500/20 text-slate-400 border-slate-500/30';
@@ -374,7 +388,7 @@ export default function ProposalDetail({ epoch, id, initialProposal, initialLang
         <LanguageTabs
           selectedLang={selectedLang}
           availableLangs={availableLangs}
-          onSelect={setSelectedLang}
+          onSelect={handleLangChange}
         />
       </div>
 
