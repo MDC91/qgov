@@ -24,6 +24,8 @@ interface ComputorStats {
   votes_no: number;
   votes_abstain: number;
   participation_rate: number;
+  first_epoch: number;
+  last_epoch: number;
   first_vote_tick: number | null;
   last_vote_tick: number | null;
 }
@@ -45,6 +47,8 @@ interface SearchResult {
   votes_no: number;
   votes_abstain: number;
   participation_rate: number;
+  first_epoch: number;
+  last_epoch: number;
 }
 
 export default function StatisticsPage() {
@@ -224,10 +228,10 @@ export default function StatisticsPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-mono text-sm" style={{ color: '#ffffff' }}>
-                        {result.computor_id.slice(0, 20)}...
+                        {result.computor_id}
                       </p>
                       <p className="text-xs mt-1" style={{ color: '#94a3b8' }}>
-                        Epochs: {result.total_epochs} | Proposals: {result.total_proposals}
+                        Epochs: {result.first_epoch}-{result.last_epoch} ({result.total_epochs}) | Proposals: {result.total_proposals}
                       </p>
                     </div>
                     <div className="text-right">
@@ -251,7 +255,7 @@ export default function StatisticsPage() {
           <div className="rounded-xl p-6" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c' }}>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold" style={{ color: '#ffffff' }}>
-                Detail: {selectedComputor.computor_id.slice(0, 24)}...
+                Detail: {selectedComputor.computor_id}
               </h2>
               <button
                 onClick={() => setSelectedComputor(null)}
@@ -270,7 +274,7 @@ export default function StatisticsPage() {
               <div>
                 <p className="text-xs" style={{ color: '#94a3b8' }}>Epoch Range</p>
                 <p className="text-lg font-bold" style={{ color: '#ffffff' }}>
-                  {Math.min(...selectedComputor.epochs)} - {Math.max(...selectedComputor.epochs)}
+                  {selectedComputor.first_epoch} - {selectedComputor.last_epoch}
                 </p>
               </div>
               <div>
