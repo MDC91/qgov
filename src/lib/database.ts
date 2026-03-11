@@ -84,11 +84,16 @@ function initSchema() {
       votes_no INTEGER DEFAULT 0,
       votes_abstain INTEGER DEFAULT 0,
       participation_rate REAL DEFAULT 0,
+      first_epoch INTEGER DEFAULT 0,
+      last_epoch INTEGER DEFAULT 0,
       last_updated DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 
     CREATE TABLE IF NOT EXISTS proposal_votes (
       proposal_id TEXT PRIMARY KEY,
+      proposal_epoch INTEGER DEFAULT 0,
+      proposal_title TEXT,
+      proposal_status INTEGER DEFAULT 0,
       yes_count INTEGER DEFAULT 0,
       no_count INTEGER DEFAULT 0,
       abstain_count INTEGER DEFAULT 0,
@@ -378,11 +383,16 @@ export interface ComputorVoteStatsRow {
   votes_no: number;
   votes_abstain: number;
   participation_rate: number;
+  first_epoch: number;
+  last_epoch: number;
   last_updated: string;
 }
 
 export interface ProposalVotesRow {
   proposal_id: string;
+  proposal_epoch: number;
+  proposal_title: string | null;
+  proposal_status: number;
   yes_count: number;
   no_count: number;
   abstain_count: number;
@@ -406,6 +416,8 @@ export interface ComputorDetailStats {
   votes_no: number;
   votes_abstain: number;
   participation_rate: number;
+  first_epoch: number;
+  last_epoch: number;
   first_vote_tick: number | null;
   last_vote_tick: number | null;
 }
@@ -459,6 +471,8 @@ export function getComputorStatsById(computorId: string): ComputorDetailStats | 
     votes_no: stats.votes_no || 0,
     votes_abstain: stats.votes_abstain || 0,
     participation_rate: Math.round(participationRate * 100) / 100,
+    first_epoch: minEpoch,
+    last_epoch: maxEpoch,
     first_vote_tick: stats.first_vote_tick || null,
     last_vote_tick: stats.last_vote_tick || null
   };
