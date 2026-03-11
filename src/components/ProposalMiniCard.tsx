@@ -18,8 +18,7 @@ interface ProposalMiniCardProps {
 export default function ProposalMiniCard({ proposal, computors, isActive, onClick }: ProposalMiniCardProps) {
   const totalComputors = 676;
   const quorum = 451;
-  const quorumProgress = Math.min((proposal.totalVotes / totalComputors) * 100, 100);
-  const quorumMarkerPercent = (quorum / totalComputors) * 100;
+  const quorumProgress = (proposal.totalVotes / totalComputors) * 100;
   
   const hasQuorum = proposal.totalVotes >= quorum;
   const isLeadingYes = proposal.yesVotes > proposal.noVotes;
@@ -30,14 +29,21 @@ export default function ProposalMiniCard({ proposal, computors, isActive, onClic
       ? '#22c55e' 
       : '#ef4444';
 
-  const circumference = Math.PI * 50;
-  const strokeDashoffset = circumference - (quorumProgress / 100) * circumference;
-  const markerDashoffset = circumference - (quorumMarkerPercent / 100) * circumference;
+  const arcRadius = 45;
+  const strokeWidth = 42;
+  const circumference = Math.PI * arcRadius;
+  const progressOffset = circumference - (quorumProgress / 100) * circumference;
+
+  const quorumAngle = (quorum / totalComputors) * Math.PI;
+  const markerX = 70 - arcRadius * Math.cos(quorumAngle);
+  const markerY = 70 - arcRadius * Math.sin(quorumAngle);
+  const markerX2 = 70 - (arcRadius - strokeWidth) * Math.cos(quorumAngle);
+  const markerY2 = 70 - (arcRadius - strokeWidth) * Math.sin(quorumAngle);
 
   return (
     <div 
       onClick={onClick}
-      className="flex-1 p-3 rounded-lg cursor-pointer transition-all min-h-[150px] flex flex-col"
+      className="flex-1 p-3 rounded-lg cursor-pointer transition-all min-h-[180px] flex flex-col"
       style={{ 
         backgroundColor: '#1a2332', 
         border: '1px solid #202e3c' 
@@ -52,7 +58,7 @@ export default function ProposalMiniCard({ proposal, computors, isActive, onClic
       }}
     >
       <p 
-        className="text-sm font-semibold text-center mb-3" 
+        className="text-sm font-semibold text-center mb-2" 
         style={{ color: '#ffffff' }}
       >
         {proposal.title || 'Untitled Proposal'}
@@ -61,37 +67,37 @@ export default function ProposalMiniCard({ proposal, computors, isActive, onClic
       <div className="flex-1 flex items-center justify-center">
         <svg width="140" height="80" viewBox="0 0 140 80" className="overflow-visible">
           <path
-            d="M 15 70 A 55 55 0 0 1 125 70"
+            d="M 25 70 A 45 45 0 0 1 115 70"
             fill="none"
             stroke="#2d3748"
-            strokeWidth="14"
+            strokeWidth={strokeWidth}
             strokeLinecap="round"
           />
           
           <path
-            d="M 15 70 A 55 55 0 0 1 125 70"
+            d="M 25 70 A 45 45 0 0 1 115 70"
             fill="none"
             stroke={quorumColor}
-            strokeWidth="14"
+            strokeWidth={strokeWidth}
             strokeLinecap="round"
             strokeDasharray={circumference}
-            strokeDashoffset={strokeDashoffset}
+            strokeDashoffset={progressOffset}
             style={{ transition: 'stroke-dashoffset 0.5s ease' }}
           />
           
-          <path
-            d="M 15 70 A 55 55 0 0 1 125 70"
-            fill="none"
+          <line
+            x1={markerX}
+            y1={markerY - strokeWidth/2 - 2}
+            x2={markerX2}
+            y2={markerY2 + strokeWidth/2 + 2}
             stroke="#ffffff"
             strokeWidth="2"
-            strokeDasharray="4 4"
-            strokeDashoffset={markerDashoffset}
             style={{ opacity: 0.8 }}
           />
           
           <text
             x="70"
-            y="65"
+            y="68"
             textAnchor="middle"
             fill="#ffffff"
             fontSize="14"
@@ -102,7 +108,7 @@ export default function ProposalMiniCard({ proposal, computors, isActive, onClic
         </svg>
       </div>
       
-      <div className="text-center mt-1">
+      <div className="text-center">
         <span className="text-xs" style={{ color: '#94a3b8' }}>
           {proposal.totalVotes}/{quorum}
         </span>
