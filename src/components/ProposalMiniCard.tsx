@@ -30,15 +30,15 @@ export default function ProposalMiniCard({ proposal, computors, isActive, onClic
       : '#ef4444';
 
   const arcRadius = 45;
-  const strokeWidth = 42;
+  const strokeWidth = 38;
   const circumference = Math.PI * arcRadius;
   const progressOffset = circumference - (quorumProgress / 100) * circumference;
 
   const quorumAngle = (quorum / totalComputors) * Math.PI;
-  const markerX = 70 - arcRadius * Math.cos(quorumAngle);
-  const markerY = 70 - arcRadius * Math.sin(quorumAngle);
-  const markerX2 = 70 - (arcRadius - strokeWidth) * Math.cos(quorumAngle);
-  const markerY2 = 70 - (arcRadius - strokeWidth) * Math.sin(quorumAngle);
+  const markerInnerX = 70 - (arcRadius - strokeWidth/2 - 2) * Math.cos(quorumAngle);
+  const markerInnerY = 70 - (arcRadius - strokeWidth/2 - 2) * Math.sin(quorumAngle);
+  const markerOuterX = 70 - (arcRadius + strokeWidth/2 + 2) * Math.cos(quorumAngle);
+  const markerOuterY = 70 - (arcRadius + strokeWidth/2 + 2) * Math.sin(quorumAngle);
 
   return (
     <div 
@@ -86,10 +86,10 @@ export default function ProposalMiniCard({ proposal, computors, isActive, onClic
           />
           
           <line
-            x1={markerX}
-            y1={markerY - strokeWidth/2 - 2}
-            x2={markerX2}
-            y2={markerY2 + strokeWidth/2 + 2}
+            x1={markerInnerX}
+            y1={markerInnerY}
+            x2={markerOuterX}
+            y2={markerOuterY}
             stroke="#ffffff"
             strokeWidth="2"
             style={{ opacity: 0.8 }}
