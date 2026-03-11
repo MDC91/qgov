@@ -273,9 +273,9 @@ export default function Plenum({ epoch }: PlenumProps) {
   };
 
   return (
-    <div className="w-full" ref={containerRef}>
+    <div className="w-full h-full flex flex-col" ref={containerRef}>
       <div className="flex items-start mb-4">
-        <div className="ml-4">
+        <div className="w-64 shrink-0 ml-4">
           <div className="mt-4">
             <span className="inline-block px-4 py-2 rounded text-base font-medium" style={{ backgroundColor: '#23ffff', color: '#0f172a' }}>
               Current Epoch: {epoch}
@@ -315,6 +315,8 @@ export default function Plenum({ epoch }: PlenumProps) {
             </h2>
           )}
         </div>
+
+        <div className="w-64 shrink-0"></div>
       </div>
 
       <div 
@@ -340,11 +342,11 @@ export default function Plenum({ epoch }: PlenumProps) {
       </div>
 
       {otherProposals.length > 0 && (
-        <div className="flex items-center justify-center gap-2 mb-4">
+        <div className="flex-1 flex gap-2 mb-4 mx-4">
           {otherProposals.length > 4 && (
             <button 
               onClick={prevMini} 
-              className="p-1 text-2xl transition-opacity hover:opacity-80"
+              className="p-1 text-2xl transition-opacity hover:opacity-80 self-center"
               style={{ color: '#23ffff' }}
             >
               ‹
@@ -364,7 +366,7 @@ export default function Plenum({ epoch }: PlenumProps) {
           {otherProposals.length > 4 && (
             <button 
               onClick={nextMini} 
-              className="p-1 text-2xl transition-opacity hover:opacity-80"
+              className="p-1 text-2xl transition-opacity hover:opacity-80 self-center"
               style={{ color: '#23ffff' }}
             >
               ›
