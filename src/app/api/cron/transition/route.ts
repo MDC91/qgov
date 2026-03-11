@@ -46,16 +46,17 @@ async function fetchWithTimeout(url: string, options: RequestInit = {}, timeout 
   }
 }
 
-function isWednesday12UTC(): boolean {
+function isWednesdayTransitionWindow(): boolean {
   const now = new Date();
   const utcDay = now.getUTCDay();
   const utcHours = now.getUTCHours();
   const utcMinutes = now.getUTCMinutes();
   
   const isWednesday = utcDay === 3;
-  const isAround12UTC = utcHours === 12 && utcMinutes >= 0 && utcMinutes <= 5;
+  const isTransitionTime = (utcHours === 11 && utcMinutes >= 55) || 
+                           (utcHours === 12 && utcMinutes <= 30);
   
-  return isWednesday && isAround12UTC;
+  return isWednesday && isTransitionTime;
 }
 
 export async function GET(request: Request) {
@@ -69,10 +70,10 @@ export async function GET(request: Request) {
 
   const forceRun = url.searchParams.get('force') === 'true';
   
-  if (!forceRun && !isWednesday12UTC()) {
+  if (!forceRun && !isWednesdayTransitionWindow()) {
     return NextResponse.json({ 
       status: 'skipped',
-      reason: 'Not in epoch transition window (Wednesday 12:00-12:05 UTC)',
+      reason: 'Not in epoch transition window (Wednesday 11:55-12:30 UTC)',
       currentTime: new Date().toISOString()
     });
   }
