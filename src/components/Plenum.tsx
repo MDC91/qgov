@@ -82,9 +82,9 @@ export default function Plenum({ epoch }: PlenumProps) {
 
   const { computors, allProposals } = data || {};
   
-  // Filter: Nur Status 2 (active), ohne das aktuelle Hauptproposal
+  // Filter: Status 2,3,4,6 for testing old epochs
   const otherProposals = allProposals?.filter(
-    (p: any) => p.status === 2 && p.id !== mainProposal?.id
+    (p: any) => [2, 3, 4, 6].includes(p.status) && p.id !== mainProposal?.id
   ) || [];
   
   const ballots = mainProposal?.ballots || [];
