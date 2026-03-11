@@ -29,21 +29,21 @@ export default function ProposalMiniCard({ proposal, computors, isActive, onClic
       ? '#22c55e' 
       : '#ef4444';
 
-  const arcRadius = 45;
+  const arcRadius = 55;
   const strokeWidth = 38;
   const circumference = Math.PI * arcRadius;
   const progressOffset = circumference - (quorumProgress / 100) * circumference;
 
   const quorumAngle = (quorum / totalComputors) * Math.PI;
-  const markerInnerX = 70 - (arcRadius - strokeWidth/2 - 2) * Math.cos(quorumAngle);
-  const markerInnerY = 70 - (arcRadius - strokeWidth/2 - 2) * Math.sin(quorumAngle);
-  const markerOuterX = 70 - (arcRadius + strokeWidth/2 + 2) * Math.cos(quorumAngle);
-  const markerOuterY = 70 - (arcRadius + strokeWidth/2 + 2) * Math.sin(quorumAngle);
+  const markerInnerX = 87 - (arcRadius - strokeWidth/2 - 2) * Math.cos(quorumAngle);
+  const markerInnerY = 85 - (arcRadius - strokeWidth/2 - 2) * Math.sin(quorumAngle);
+  const markerOuterX = 87 - (arcRadius + strokeWidth/2 + 2) * Math.cos(quorumAngle);
+  const markerOuterY = 85 - (arcRadius + strokeWidth/2 + 2) * Math.sin(quorumAngle);
 
   return (
     <div 
       onClick={onClick}
-      className="flex-1 p-3 rounded-lg cursor-pointer transition-all min-h-[180px] flex flex-col"
+      className="flex-1 p-3 rounded-lg cursor-pointer transition-all min-h-[200px] flex flex-col"
       style={{ 
         backgroundColor: '#1a2332', 
         border: '1px solid #202e3c' 
@@ -65,9 +65,9 @@ export default function ProposalMiniCard({ proposal, computors, isActive, onClic
       </p>
       
       <div className="flex-1 flex items-center justify-center">
-        <svg width="140" height="80" viewBox="0 0 140 80" className="overflow-visible">
+        <svg width="175" height="100" viewBox="0 0 175 100" className="overflow-visible">
           <path
-            d="M 25 70 A 45 45 0 0 1 115 70"
+            d="M 32 85 A 55 55 0 0 1 142 85"
             fill="none"
             stroke="#2d3748"
             strokeWidth={strokeWidth}
@@ -75,7 +75,7 @@ export default function ProposalMiniCard({ proposal, computors, isActive, onClic
           />
           
           <path
-            d="M 25 70 A 45 45 0 0 1 115 70"
+            d="M 32 85 A 55 55 0 0 1 142 85"
             fill="none"
             stroke={quorumColor}
             strokeWidth={strokeWidth}
@@ -96,8 +96,8 @@ export default function ProposalMiniCard({ proposal, computors, isActive, onClic
           />
           
           <text
-            x="70"
-            y="68"
+            x="87"
+            y="82"
             textAnchor="middle"
             fill="#ffffff"
             fontSize="14"
