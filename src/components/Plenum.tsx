@@ -51,16 +51,17 @@ export default function Plenum({ epoch }: PlenumProps) {
 
   const handleSelectProposal = (proposal: any) => {
     setMainProposal(proposal);
+    setMiniOffset(0);
   };
 
   const nextMini = () => {
-    if (!data?.allProposals) return;
-    setMiniOffset((prev) => (prev + 4) % data.allProposals.length);
+    if (!otherProposals.length) return;
+    setMiniOffset((prev) => (prev + 4) % otherProposals.length);
   };
 
   const prevMini = () => {
-    if (!data?.allProposals) return;
-    setMiniOffset((prev) => (prev - 4 + data.allProposals.length) % data.allProposals.length);
+    if (!otherProposals.length) return;
+    setMiniOffset((prev) => (prev - 4 + otherProposals.length) % otherProposals.length);
   };
 
   if (loading) {
@@ -80,6 +81,12 @@ export default function Plenum({ epoch }: PlenumProps) {
   }
 
   const { computors, allProposals } = data || {};
+  
+  // Filter: Nur Status 2 (active), ohne das aktuelle Hauptproposal
+  const otherProposals = allProposals?.filter(
+    (p: any) => p.status === 2 && p.id !== mainProposal?.id
+  ) || [];
+  
   const ballots = mainProposal?.ballots || [];
   const proposal = mainProposal;
   const voteByComputor = new Map(ballots.map((b: any) => [b.computorId, b.vote]));
@@ -256,7 +263,7 @@ export default function Plenum({ epoch }: PlenumProps) {
         </div>
         <div className="flex-1 text-center">
           {proposal && (
-            <h2 className="text-3xl font-bold leading-tight" style={{ color: '#ffffff' }}>
+            <h2 className="text-3xl font-bold leading-tight" style={{ color: '#ffffff', minHeight: '3.5rem' }}>
               {proposal.title || 'Untitled Proposal'}
             </h2>
           )}
@@ -296,46 +303,6 @@ export default function Plenum({ epoch }: PlenumProps) {
         {renderHemisphere()}
       </div>
 
-      {allProposals && allProposals.length > 1 && (
-        <div className="flex items-center justify-center gap-2 mt-4">
-          {allProposals.length > 4 && (
-            <button 
-              onClick={prevMini} 
-              className="p-1 text-2xl transition-opacity hover:opacity-80"
-              style={{ color: '#23ffff' }}
-            >
-              ‹
-            </button>
-          )}
-          
-          {allProposals.slice(miniOffset, miniOffset + 4).map((p: any) => (
-            <ProposalMiniCard
-              key={p.id}
-              proposal={p}
-              computors={computors || []}
-              isActive={p.id === mainProposal?.id}
-              onClick={() => handleSelectProposal(p)}
-            />
-          ))}
-          
-          {allProposals.length > 4 && (
-            <button 
-              onClick={nextMini} 
-              className="p-1 text-2xl transition-opacity hover:opacity-80"
-              style={{ color: '#23ffff' }}
-            >
-              ›
-            </button>
-          )}
-        </div>
-      )}
-
-      {allProposals && allProposals.length <= 1 && (
-        <p className="text-center text-sm mt-4" style={{ color: '#94a3b8' }}>
-          No additional proposals.
-        </p>
-      )}
-
       <div className="flex justify-center gap-6 mt-1">
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded-full" style={{ backgroundColor: '#22c55e', border: '1px solid #22c55e' }}></div>
@@ -350,6 +317,46 @@ export default function Plenum({ epoch }: PlenumProps) {
           <span className="text-sm" style={{ color: '#94a3b8' }}>Not Voted: {computors.length - ballots.length}</span>
         </div>
       </div>
+
+      {otherProposals.length > 0 && (
+        <div className="flex items-center justify-center gap-2 mt-4">
+          {otherProposals.length > 4 && (
+            <button 
+              onClick={prevMini} 
+              className="p-1 text-2xl transition-opacity hover:opacity-80"
+              style={{ color: '#23ffff' }}
+            >
+              ‹
+            </button>
+          )}
+          
+          {otherProposals.slice(miniOffset, miniOffset + 4).map((p: any) => (
+            <ProposalMiniCard
+              key={p.id}
+              proposal={p}
+              computors={computors || []}
+              isActive={p.id === mainProposal?.id}
+              onClick={() => handleSelectProposal(p)}
+            />
+          ))}
+          
+          {otherProposals.length > 4 && (
+            <button 
+              onClick={nextMini} 
+              className="p-1 text-2xl transition-opacity hover:opacity-80"
+              style={{ color: '#23ffff' }}
+            >
+              ›
+            </button>
+          )}
+        </div>
+      )}
+
+      {otherProposals.length === 0 && (
+        <p className="text-center text-sm mt-4" style={{ color: '#94a3b8' }}>
+          No additional active proposals.
+        </p>
+      )}
     </div>
   );
 }
