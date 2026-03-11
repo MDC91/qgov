@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, ReactNode, useRef } from 'react';
+import Link from 'next/link';
 import ProposalMiniCard from './ProposalMiniCard';
 
 interface PlenumData {
@@ -276,10 +277,17 @@ export default function Plenum({ epoch }: PlenumProps) {
     <div className="w-full h-full flex flex-col" ref={containerRef}>
       <div className="flex items-start mb-4">
         <div className="w-64 shrink-0 ml-4">
-          <div className="mt-4">
+          <div className="mt-4 flex gap-2">
             <span className="inline-block px-4 py-2 rounded text-base font-medium" style={{ backgroundColor: '#23ffff', color: '#0f172a' }}>
               Current Epoch: {epoch}
             </span>
+            <Link 
+              href="/statistics"
+              className="inline-block px-4 py-2 rounded text-base font-medium transition-opacity hover:opacity-80"
+              style={{ backgroundColor: '#23ffff', color: '#0f172a' }}
+            >
+              Statistics
+            </Link>
           </div>
 
           <div className="mt-4">

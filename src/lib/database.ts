@@ -74,6 +74,31 @@ function initSchema() {
     );
 
     CREATE INDEX IF NOT EXISTS idx_computors_epoch ON computors(epoch);
+
+    CREATE TABLE IF NOT EXISTS computor_vote_stats (
+      computor_id TEXT PRIMARY KEY,
+      total_epochs INTEGER DEFAULT 0,
+      total_proposals INTEGER DEFAULT 0,
+      votes_cast INTEGER DEFAULT 0,
+      votes_yes INTEGER DEFAULT 0,
+      votes_no INTEGER DEFAULT 0,
+      votes_abstain INTEGER DEFAULT 0,
+      participation_rate REAL DEFAULT 0,
+      last_updated DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS proposal_votes (
+      proposal_id TEXT PRIMARY KEY,
+      yes_count INTEGER DEFAULT 0,
+      no_count INTEGER DEFAULT 0,
+      abstain_count INTEGER DEFAULT 0,
+      total_votes INTEGER DEFAULT 0,
+      voters_json TEXT,
+      last_updated DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (proposal_id) REFERENCES proposals(id)
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_ballots_computor_epoch ON ballots(computor_id, vote_tick);
   `);
 }
 
@@ -342,4 +367,226 @@ export function getLatestComputorEpoch(): number {
   const database = getDb();
   const row = database.prepare(`SELECT MAX(epoch) as maxEpoch FROM computors`).get() as { maxEpoch: number | null };
   return row?.maxEpoch || 0;
+}
+
+export interface ComputorVoteStatsRow {
+  computor_id: string;
+  total_epochs: number;
+  total_proposals: number;
+  votes_cast: number;
+  votes_yes: number;
+  votes_no: number;
+  votes_abstain: number;
+  participation_rate: number;
+  last_updated: string;
+}
+
+export interface ProposalVotesRow {
+  proposal_id: string;
+  yes_count: number;
+  no_count: number;
+  abstain_count: number;
+  total_votes: number;
+  voters_json: string | null;
+  last_updated: string;
+}
+
+export interface ComputorEpochInfo {
+  epoch: number;
+  was_computor: boolean;
+}
+
+export interface ComputorDetailStats {
+  computor_id: string;
+  epochs: number[];
+  total_epochs: number;
+  total_proposals: number;
+  votes_cast: number;
+  votes_yes: number;
+  votes_no: number;
+  votes_abstain: number;
+  participation_rate: number;
+  first_vote_tick: number | null;
+  last_vote_tick: number | null;
+}
+
+export interface VoteDetail {
+  proposal_id: string;
+  epoch: number;
+  vote: number;
+  vote_tick: number;
+  proposal_title: string | null;
+}
+
+export function getComputorStatsById(computorId: string): ComputorDetailStats | undefined {
+  const database = getDb();
+  
+  const epochs = database.prepare(`
+    SELECT epoch FROM computors WHERE computor_id = ? ORDER BY epoch ASC
+  `).all(computorId) as { epoch: number }[];
+  
+  if (epochs.length === 0) return undefined;
+  
+  const epochNumbers = epochs.map(e => e.epoch);
+  const minEpoch = Math.min(...epochNumbers);
+  const maxEpoch = Math.max(...epochNumbers);
+  
+  const proposals = database.prepare(`
+    SELECT COUNT(*) as cnt FROM proposals 
+    WHERE epoch >= ? AND epoch <= ?
+  `).get(minEpoch, maxEpoch) as { cnt: number };
+  
+  const stats = database.prepare(`
+    SELECT 
+      COUNT(*) as votes_cast,
+      SUM(CASE WHEN vote = 1 THEN 1 ELSE 0 END) as votes_yes,
+      SUM(CASE WHEN vote = 0 THEN 1 ELSE 0 END) as votes_no,
+      SUM(CASE WHEN vote = 2 THEN 1 ELSE 0 END) as votes_abstain,
+      MIN(vote_tick) as first_vote_tick,
+      MAX(vote_tick) as last_vote_tick
+    FROM ballots WHERE computor_id = ?
+  `).get(computorId) as any;
+  
+  const participationRate = proposals.cnt > 0 ? (stats.votes_cast / proposals.cnt) * 100 : 0;
+  
+  return {
+    computor_id: computorId,
+    epochs: epochNumbers,
+    total_epochs: epochNumbers.length,
+    total_proposals: proposals.cnt,
+    votes_cast: stats.votes_cast || 0,
+    votes_yes: stats.votes_yes || 0,
+    votes_no: stats.votes_no || 0,
+    votes_abstain: stats.votes_abstain || 0,
+    participation_rate: Math.round(participationRate * 100) / 100,
+    first_vote_tick: stats.first_vote_tick || null,
+    last_vote_tick: stats.last_vote_tick || null
+  };
+}
+
+export function getVoteHistoryByComputorId(computorId: string): VoteDetail[] {
+  const database = getDb();
+  return database.prepare(`
+    SELECT 
+      b.proposal_id,
+      p.epoch,
+      b.vote,
+      b.vote_tick,
+      p.title
+    FROM ballots b
+    JOIN proposals p ON b.proposal_id = p.id
+    WHERE b.computor_id = ?
+    ORDER BY p.epoch DESC, b.vote_tick DESC
+  `).all(computorId) as VoteDetail[];
+}
+
+export function getAllComputorStats(): ComputorVoteStatsRow[] {
+  const database = getDb();
+  return database.prepare(`
+    SELECT * FROM computor_vote_stats ORDER BY participation_rate DESC
+  `).all() as ComputorVoteStatsRow[];
+}
+
+export function getProposalVotesById(proposalId: string): ProposalVotesRow | undefined {
+  const database = getDb();
+  return database.prepare(`
+    SELECT * FROM proposal_votes WHERE proposal_id = ?
+  `).get(proposalId) as ProposalVotesRow | undefined;
+}
+
+export function getGlobalStats(): {
+  totalComputors: number;
+  totalProposals: number;
+  totalVotes: number;
+  avgParticipation: number;
+  yesPercentage: number;
+  noPercentage: number;
+  abstainPercentage: number;
+} {
+  const database = getDb();
+  
+  const computorsCount = database.prepare(`SELECT COUNT(DISTINCT computor_id) as cnt FROM computors`).get() as { cnt: number };
+  const proposalsCount = database.prepare(`SELECT COUNT(*) as cnt FROM proposals`).get() as { cnt: number };
+  const votesCount = database.prepare(`SELECT COUNT(*) as cnt FROM ballots`).get() as { cnt: number };
+  
+  const voteCounts = database.prepare(`
+    SELECT 
+      SUM(CASE WHEN vote = 1 THEN 1 ELSE 0 END) as yes_count,
+      SUM(CASE WHEN vote = 0 THEN 1 ELSE 0 END) as no_count,
+      SUM(CASE WHEN vote = 2 THEN 1 ELSE 0 END) as abstain_count
+    FROM ballots
+  `).get() as { yes_count: number; no_count: number; abstain_count: number };
+  
+  const participation = database.prepare(`
+    SELECT AVG(participation_rate) as avg FROM computor_vote_stats
+  `).get() as { avg: number | null };
+  
+  const total = votesCount.cnt || 1;
+  
+  return {
+    totalComputors: computorsCount.cnt || 0,
+    totalProposals: proposalsCount.cnt || 0,
+    totalVotes: votesCount.cnt || 0,
+    avgParticipation: Math.round((participation.avg || 0) * 100) / 100,
+    yesPercentage: Math.round((voteCounts.yes_count / total) * 10000) / 100,
+    noPercentage: Math.round((voteCounts.no_count / total) * 10000) / 100,
+    abstainPercentage: Math.round((voteCounts.abstain_count / total) * 10000) / 100
+  };
+}
+
+export function searchComputors(query: string): ComputorVoteStatsRow[] {
+  const database = getDb();
+  const queryLower = query.toLowerCase();
+  return database.prepare(`
+    SELECT * FROM computor_vote_stats 
+    WHERE computor_id LIKE ?
+    ORDER BY participation_rate DESC
+    LIMIT 50
+  `).all(`%${queryLower}%`) as ComputorVoteStatsRow[];
+}
+
+export function updateStatistics(): void {
+  const database = getDb();
+  
+  database.exec(`
+    INSERT OR REPLACE INTO computor_vote_stats (
+      computor_id, total_epochs, total_proposals, votes_cast,
+      votes_yes, votes_no, votes_abstain, participation_rate, last_updated
+    )
+    SELECT 
+      c.computor_id,
+      COUNT(DISTINCT c.epoch) as total_epochs,
+      (SELECT COUNT(*) FROM proposals p WHERE p.epoch >= MIN(c.epoch) AND p.epoch <= MAX(c.epoch)) as total_proposals,
+      COUNT(b.vote) as votes_cast,
+      SUM(CASE WHEN b.vote = 1 THEN 1 ELSE 0 END) as votes_yes,
+      SUM(CASE WHEN b.vote = 0 THEN 1 ELSE 0 END) as votes_no,
+      SUM(CASE WHEN b.vote = 2 THEN 1 ELSE 0 END) as votes_abstain,
+      CAST(COUNT(b.vote) AS REAL) / NULLIF((SELECT COUNT(*) FROM proposals p WHERE p.epoch >= MIN(c.epoch) AND p.epoch <= MAX(c.epoch)), 0) * 100 as participation_rate,
+      CURRENT_TIMESTAMP
+    FROM computors c
+    LEFT JOIN ballots b ON c.computor_id = b.computor_id
+    GROUP BY c.computor_id
+  `);
+  
+  database.exec(`
+    INSERT OR REPLACE INTO proposal_votes (
+      proposal_id, yes_count, no_count, abstain_count, total_votes, voters_json, last_updated
+    )
+    SELECT 
+      p.id,
+      p.yes_votes as yes_count,
+      p.no_votes as no_count,
+      0 as abstain_count,
+      p.total_votes as total_votes,
+      (
+        SELECT json_group_array(
+          json_object('computor_id', computor_id, 'vote', vote, 'epoch', (
+            SELECT epoch FROM proposals WHERE id = proposal_id
+          ))
+        )
+        FROM ballots WHERE proposal_id = p.id
+      ) as voters_json,
+      CURRENT_TIMESTAMP
+    FROM proposals p
+  `);
 }
