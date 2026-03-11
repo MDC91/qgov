@@ -263,7 +263,7 @@ export default function Plenum({ epoch }: PlenumProps) {
         </div>
         <div className="flex-1 text-center">
           {proposal && (
-            <h2 className="text-3xl font-bold leading-tight" style={{ color: '#ffffff', minHeight: '3.5rem' }}>
+            <h2 className="text-3xl font-bold leading-tight" style={{ color: '#ffffff', minHeight: '4.5rem' }}>
               {proposal.title || 'Untitled Proposal'}
             </h2>
           )}
