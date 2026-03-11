@@ -3,12 +3,19 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Plenum from '@/components/Plenum';
+import ActiveProposalCard from '@/components/ActiveProposalCard';
+
+interface Translation {
+  text: string;
+  updatedAt: number;
+}
 
 interface ActiveProposal {
   epoch: number;
   id: string;
   title: string;
   status: number;
+  translations: Record<string, Translation>;
 }
 
 export default function Home() {
@@ -104,15 +111,14 @@ export default function Home() {
               ) : (
                 <div className="space-y-3">
                   {activeProposals.map((proposal) => (
-                    <div
+                    <ActiveProposalCard
                       key={proposal.id}
-                      className="p-3 rounded-lg"
-                      style={{ backgroundColor: '#1a2332', border: '1px solid #202e3c' }}
-                    >
-                      <p className="text-sm font-medium" style={{ color: '#ffffff' }}>
-                        {proposal.title || 'Untitled'}
-                      </p>
-                    </div>
+                      epoch={proposal.epoch}
+                      id={proposal.id}
+                      title={proposal.title}
+                      status={proposal.status}
+                      translations={proposal.translations || {}}
+                    />
                   ))}
                 </div>
               )}

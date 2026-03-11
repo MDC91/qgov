@@ -163,6 +163,7 @@ interface ProposalDetailProps {
   epoch: number;
   id: string;
   initialProposal: Proposal;
+  initialLang?: string;
 }
 
 const statusColors: Record<string, string> = {
@@ -175,8 +176,8 @@ const statusColors: Record<string, string> = {
 
 const contractBadgeStyle = 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30';
 
-export default function ProposalDetail({ epoch, id, initialProposal }: ProposalDetailProps) {
-  const [selectedLang, setSelectedLang] = useState('en');
+export default function ProposalDetail({ epoch, id, initialProposal, initialLang }: ProposalDetailProps) {
+  const [selectedLang, setSelectedLang] = useState(initialLang || 'en');
   const [translation, setTranslation] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
