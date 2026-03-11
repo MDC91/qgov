@@ -15,7 +15,7 @@ export default function Home() {
   const [currentEpoch, setCurrentEpoch] = useState<number>(0);
   const [activeProposals, setActiveProposals] = useState<ActiveProposal[]>([]);
   const [loading, setLoading] = useState(true);
-  const [plenumEpoch, setPlenumEpoch] = useState<number>(202);
+  const [plenumEpoch, setPlenumEpoch] = useState<number>(200);
 
   useEffect(() => {
     fetch('/api/epoches')
@@ -24,7 +24,7 @@ export default function Home() {
         if (data.epochs && data.epochs.length > 0) {
           const epoch = data.epochs[0].epoch;
           setCurrentEpoch(epoch);
-          // Keep plenumEpoch at 202 for testing
+          // Keep plenumEpoch at 200 for testing mini cards
           // setPlenumEpoch(epoch);
           
           fetch(`/api/proposals/${epoch}`)
