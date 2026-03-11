@@ -11,6 +11,7 @@ interface GlobalStats {
   yesPercentage: number;
   noPercentage: number;
   abstainPercentage: number;
+  sinceEpoch: number;
 }
 
 interface ComputorStats {
@@ -147,18 +148,22 @@ export default function StatisticsPage() {
             <div className="rounded-xl p-4" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c' }}>
               <p className="text-xs mb-1" style={{ color: '#94a3b8' }}>Total Computors</p>
               <p className="text-2xl font-bold" style={{ color: '#23ffff' }}>{globalStats.totalComputors.toLocaleString()}</p>
+              <p className="text-xs mt-1" style={{ color: '#64748b' }}>since epoch {globalStats.sinceEpoch}</p>
             </div>
             <div className="rounded-xl p-4" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c' }}>
               <p className="text-xs mb-1" style={{ color: '#94a3b8' }}>Total Proposals</p>
               <p className="text-2xl font-bold" style={{ color: '#23ffff' }}>{globalStats.totalProposals.toLocaleString()}</p>
+              <p className="text-xs mt-1" style={{ color: '#64748b' }}>since epoch {globalStats.sinceEpoch}</p>
             </div>
             <div className="rounded-xl p-4" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c' }}>
               <p className="text-xs mb-1" style={{ color: '#94a3b8' }}>Total Votes</p>
               <p className="text-2xl font-bold" style={{ color: '#23ffff' }}>{globalStats.totalVotes.toLocaleString()}</p>
+              <p className="text-xs mt-1" style={{ color: '#64748b' }}>since epoch {globalStats.sinceEpoch}</p>
             </div>
             <div className="rounded-xl p-4" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c' }}>
               <p className="text-xs mb-1" style={{ color: '#94a3b8' }}>Avg Participation</p>
               <p className="text-2xl font-bold" style={{ color: '#23ffff' }}>{(globalStats.avgParticipation ?? 0).toFixed(1)}%</p>
+              <p className="text-xs mt-1" style={{ color: '#64748b' }}>since epoch {globalStats.sinceEpoch}</p>
             </div>
           </div>
         )}

@@ -502,24 +502,37 @@ export function getGlobalStats(): {
   yesPercentage: number;
   noPercentage: number;
   abstainPercentage: number;
+  sinceEpoch: number;
 } {
   const database = getDb();
   
-  const computorsCount = database.prepare(`SELECT COUNT(DISTINCT computor_id) as cnt FROM computors`).get() as { cnt: number };
-  const proposalsCount = database.prepare(`SELECT COUNT(*) as cnt FROM proposals`).get() as { cnt: number };
-  const votesCount = database.prepare(`SELECT COUNT(*) as cnt FROM ballots`).get() as { cnt: number };
+  const computorsCount = database.prepare(`SELECT COUNT(DISTINCT computor_id) as cnt FROM computors WHERE epoch >= 165`).get() as { cnt: number };
+  const proposalsCount = database.prepare(`SELECT COUNT(*) as cnt FROM proposals WHERE epoch >= 165 AND status != 5`).get() as { cnt: number };
+  const votesCount = database.prepare(`SELECT COUNT(*) as cnt FROM ballots b 
+    INNER JOIN proposals p ON b.proposal_id = p.id 
+    WHERE p.epoch >= 165 AND p.status != 5 AND b.vote IN (0, 1)`).get() as { cnt: number };
   
   const voteCounts = database.prepare(`
     SELECT 
-      COALESCE(SUM(CASE WHEN vote = 1 THEN 1 ELSE 0 END), 0) as yes_count,
-      COALESCE(SUM(CASE WHEN vote = 0 THEN 1 ELSE 0 END), 0) as no_count,
-      COALESCE(SUM(CASE WHEN vote = 2 THEN 1 ELSE 0 END), 0) as abstain_count
-    FROM ballots
+      COALESCE(SUM(CASE WHEN b.vote = 1 THEN 1 ELSE 0 END), 0) as yes_count,
+      COALESCE(SUM(CASE WHEN b.vote = 0 THEN 1 ELSE 0 END), 0) as no_count,
+      COALESCE(SUM(CASE WHEN b.vote = 2 THEN 1 ELSE 0 END), 0) as abstain_count
+    FROM ballots b
+    INNER JOIN proposals p ON b.proposal_id = p.id
+    WHERE p.epoch >= 165 AND p.status != 5
   `).get() as { yes_count: number; no_count: number; abstain_count: number };
   
   const participation = database.prepare(`
     SELECT AVG(participation_rate) as avg FROM computor_vote_stats
   `).get() as { avg: number | null };
+  
+  const sinceEpoch = database.prepare(`
+    SELECT MIN(epoch) as minEpoch FROM (
+      SELECT epoch FROM proposals WHERE epoch >= 165 AND status != 5
+      UNION
+      SELECT epoch FROM computors WHERE epoch >= 165
+    )
+  `).get() as { minEpoch: number | null };
   
   const total = votesCount.cnt || 1;
   
@@ -530,7 +543,8 @@ export function getGlobalStats(): {
     avgParticipation: Math.round((participation.avg || 0) * 100) / 100,
     yesPercentage: Math.round(((voteCounts.yes_count || 0) / total) * 10000) / 100,
     noPercentage: Math.round(((voteCounts.no_count || 0) / total) * 10000) / 100,
-    abstainPercentage: Math.round(((voteCounts.abstain_count || 0) / total) * 10000) / 100
+    abstainPercentage: Math.round(((voteCounts.abstain_count || 0) / total) * 10000) / 100,
+    sinceEpoch: sinceEpoch.minEpoch || 165
   };
 }
 
