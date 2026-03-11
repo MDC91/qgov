@@ -273,44 +273,48 @@ export default function Plenum({ epoch }: PlenumProps) {
   };
 
   return (
-    <div className="w-full h-full flex flex-col" ref={containerRef}>
-      <div className="mt-4 ml-4">
-        <span className="inline-block px-4 py-2 rounded text-base font-medium" style={{ backgroundColor: '#23ffff', color: '#0f172a' }}>
-          Current Epoch: {epoch}
-        </span>
-      </div>
-
-      <div className="mt-4 ml-4">
-        <div className="w-56">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-base font-medium" style={{ color: '#94a3b8' }}>
-              Quorum
-            </span>
-            <span className="text-sm font-medium" style={{ color: quorumColor }}>
-              {ballots.length}/{quorum}
+    <div className="w-full" ref={containerRef}>
+      <div className="flex items-start mb-4">
+        <div className="ml-4">
+          <div className="mt-4">
+            <span className="inline-block px-4 py-2 rounded text-base font-medium" style={{ backgroundColor: '#23ffff', color: '#0f172a' }}>
+              Current Epoch: {epoch}
             </span>
           </div>
-          <div 
-            className="h-3 rounded-full overflow-hidden"
-            style={{ backgroundColor: '#1a2332' }}
-          >
-            <div 
-              className="h-full transition-all duration-500"
-              style={{ 
-                width: `${quorumProgress}%`,
-                backgroundColor: quorumColor
-              }}
-            />
+
+          <div className="mt-4">
+            <div className="w-56">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-base font-medium" style={{ color: '#94a3b8' }}>
+                  Quorum
+                </span>
+                <span className="text-sm font-medium" style={{ color: quorumColor }}>
+                  {ballots.length}/{quorum}
+                </span>
+              </div>
+              <div 
+                className="h-3 rounded-full overflow-hidden"
+                style={{ backgroundColor: '#1a2332' }}
+              >
+                <div 
+                  className="h-full transition-all duration-500"
+                  style={{ 
+                    width: `${quorumProgress}%`,
+                    backgroundColor: quorumColor
+                  }}
+                />
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="flex-1 flex items-center justify-center">
-        {proposal && (
-          <h2 className="text-3xl font-bold leading-tight text-center px-4" style={{ color: '#ffffff' }}>
-            {proposal.title || 'Untitled Proposal'}
-          </h2>
-        )}
+        <div className="flex-1 flex items-center justify-center px-4 mt-4">
+          {proposal && (
+            <h2 className="text-3xl font-bold leading-tight text-center" style={{ color: '#ffffff' }}>
+              {proposal.title || 'Untitled Proposal'}
+            </h2>
+          )}
+        </div>
       </div>
 
       <div 
@@ -320,7 +324,7 @@ export default function Plenum({ epoch }: PlenumProps) {
         {renderHemisphere()}
       </div>
 
-      <div className="flex justify-center gap-6 mt-1 mb-4">
+      <div className="flex justify-center gap-6 mt-4 mb-4">
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded-full" style={{ backgroundColor: '#22c55e', border: '1px solid #22c55e' }}></div>
           <span className="text-sm" style={{ color: '#94a3b8' }}>Yes: {yesVotes}</span>
