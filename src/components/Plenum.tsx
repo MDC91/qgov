@@ -274,42 +274,43 @@ export default function Plenum({ epoch }: PlenumProps) {
 
   return (
     <div className="w-full h-full flex flex-col" ref={containerRef}>
-      <div className="flex items-start mb-3">
-        <div className="w-64 shrink-0 flex flex-col gap-2">
-          <span className="inline-block px-4 py-2 rounded text-base font-medium" style={{ backgroundColor: '#23ffff', color: '#0f172a' }}>
-            Current Epoch: {epoch}
-          </span>
-          <div className="w-56">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-base font-medium" style={{ color: '#94a3b8' }}>
-                Quorum
-              </span>
-              <span className="text-sm font-medium" style={{ color: quorumColor }}>
-                {ballots.length}/{quorum}
-              </span>
-            </div>
+      <div className="mt-4 ml-4">
+        <span className="inline-block px-4 py-2 rounded text-base font-medium" style={{ backgroundColor: '#23ffff', color: '#0f172a' }}>
+          Current Epoch: {epoch}
+        </span>
+      </div>
+
+      <div className="mt-4 ml-4">
+        <div className="w-56">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-base font-medium" style={{ color: '#94a3b8' }}>
+              Quorum
+            </span>
+            <span className="text-sm font-medium" style={{ color: quorumColor }}>
+              {ballots.length}/{quorum}
+            </span>
+          </div>
+          <div 
+            className="h-3 rounded-full overflow-hidden"
+            style={{ backgroundColor: '#1a2332' }}
+          >
             <div 
-              className="h-3 rounded-full overflow-hidden"
-              style={{ backgroundColor: '#1a2332' }}
-            >
-              <div 
-                className="h-full transition-all duration-500"
-                style={{ 
-                  width: `${quorumProgress}%`,
-                  backgroundColor: quorumColor
-                }}
-              />
-            </div>
+              className="h-full transition-all duration-500"
+              style={{ 
+                width: `${quorumProgress}%`,
+                backgroundColor: quorumColor
+              }}
+            />
           </div>
         </div>
-        <div className="flex-1 text-center px-4">
-          {proposal && (
-            <h2 className="text-3xl font-bold leading-tight" style={{ color: '#ffffff', minHeight: '4.5rem' }}>
-              {proposal.title || 'Untitled Proposal'}
-            </h2>
-          )}
-        </div>
-        <div className="w-64 shrink-0"></div>
+      </div>
+
+      <div className="flex-1 flex items-center justify-center">
+        {proposal && (
+          <h2 className="text-3xl font-bold leading-tight text-center px-4" style={{ color: '#ffffff' }}>
+            {proposal.title || 'Untitled Proposal'}
+          </h2>
+        )}
       </div>
 
       <div 
@@ -319,7 +320,7 @@ export default function Plenum({ epoch }: PlenumProps) {
         {renderHemisphere()}
       </div>
 
-      <div className="flex justify-center gap-6 mt-1">
+      <div className="flex justify-center gap-6 mt-1 mb-4">
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded-full" style={{ backgroundColor: '#22c55e', border: '1px solid #22c55e' }}></div>
           <span className="text-sm" style={{ color: '#94a3b8' }}>Yes: {yesVotes}</span>
@@ -335,7 +336,7 @@ export default function Plenum({ epoch }: PlenumProps) {
       </div>
 
       {otherProposals.length > 0 && (
-        <div className="flex items-center justify-center gap-2 mt-4">
+        <div className="flex items-center justify-center gap-2 mb-4">
           {otherProposals.length > 4 && (
             <button 
               onClick={prevMini} 
@@ -369,7 +370,7 @@ export default function Plenum({ epoch }: PlenumProps) {
       )}
 
       {otherProposals.length === 0 && (
-        <p className="text-center text-sm mt-4" style={{ color: '#94a3b8' }}>
+        <p className="text-center text-sm mb-4" style={{ color: '#94a3b8' }}>
           No additional active proposals.
         </p>
       )}
