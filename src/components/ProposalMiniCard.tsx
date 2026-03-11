@@ -16,8 +16,10 @@ interface ProposalMiniCardProps {
 }
 
 export default function ProposalMiniCard({ proposal, computors, isActive, onClick }: ProposalMiniCardProps) {
+  const totalComputors = 676;
   const quorum = 451;
-  const quorumProgress = Math.min((proposal.totalVotes / quorum) * 100, 100);
+  const quorumProgress = Math.min((proposal.totalVotes / totalComputors) * 100, 100);
+  const quorumMarkerPercent = (quorum / totalComputors) * 100;
   
   const hasQuorum = proposal.totalVotes >= quorum;
   const isLeadingYes = proposal.yesVotes > proposal.noVotes;
@@ -28,16 +30,25 @@ export default function ProposalMiniCard({ proposal, computors, isActive, onClic
       ? '#22c55e' 
       : '#ef4444';
 
-  const circumference = Math.PI * 45;
+  const circumference = Math.PI * 50;
   const strokeDashoffset = circumference - (quorumProgress / 100) * circumference;
+  const markerDashoffset = circumference - (quorumMarkerPercent / 100) * circumference;
 
   return (
     <div 
       onClick={onClick}
-      className={`flex-1 p-3 rounded-lg cursor-pointer transition-all hover:opacity-80 min-h-[150px] flex flex-col ${isActive ? 'border-2' : ''}`}
+      className="flex-1 p-3 rounded-lg cursor-pointer transition-all min-h-[150px] flex flex-col"
       style={{ 
         backgroundColor: '#1a2332', 
-        borderColor: isActive ? '#23ffff' : 'transparent' 
+        border: '1px solid #202e3c' 
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.backgroundColor = '#202e3c';
+        e.currentTarget.style.borderColor = '#23ffff';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.backgroundColor = '#1a2332';
+        e.currentTarget.style.borderColor = isActive ? '#23ffff' : '#202e3c';
       }}
     >
       <p 
@@ -48,40 +59,42 @@ export default function ProposalMiniCard({ proposal, computors, isActive, onClic
       </p>
       
       <div className="flex-1 flex items-center justify-center">
-        <svg width="120" height="70" viewBox="0 0 120 70" className="overflow-visible">
-          <defs>
-            <linearGradient id={`quorumGradient-${proposal.id}`} x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor={quorumColor} stopOpacity="0.3" />
-              <stop offset="50%" stopColor={quorumColor} />
-              <stop offset="100%" stopColor={quorumColor} stopOpacity="0.3" />
-            </linearGradient>
-          </defs>
-          
+        <svg width="140" height="80" viewBox="0 0 140 80" className="overflow-visible">
           <path
-            d="M 10 60 A 50 50 0 0 1 110 60"
+            d="M 15 70 A 55 55 0 0 1 125 70"
             fill="none"
             stroke="#2d3748"
-            strokeWidth="8"
+            strokeWidth="14"
             strokeLinecap="round"
           />
           
           <path
-            d="M 10 60 A 50 50 0 0 1 110 60"
+            d="M 15 70 A 55 55 0 0 1 125 70"
             fill="none"
             stroke={quorumColor}
-            strokeWidth="8"
+            strokeWidth="14"
             strokeLinecap="round"
             strokeDasharray={circumference}
             strokeDashoffset={strokeDashoffset}
             style={{ transition: 'stroke-dashoffset 0.5s ease' }}
           />
           
+          <path
+            d="M 15 70 A 55 55 0 0 1 125 70"
+            fill="none"
+            stroke="#ffffff"
+            strokeWidth="2"
+            strokeDasharray="4 4"
+            strokeDashoffset={markerDashoffset}
+            style={{ opacity: 0.8 }}
+          />
+          
           <text
-            x="60"
-            y="55"
+            x="70"
+            y="65"
             textAnchor="middle"
             fill="#ffffff"
-            fontSize="12"
+            fontSize="14"
             fontWeight="bold"
           >
             {Math.round(quorumProgress)}%
@@ -89,7 +102,7 @@ export default function ProposalMiniCard({ proposal, computors, isActive, onClic
         </svg>
       </div>
       
-      <div className="text-center mt-2">
+      <div className="text-center mt-1">
         <span className="text-xs" style={{ color: '#94a3b8' }}>
           {proposal.totalVotes}/{quorum}
         </span>
