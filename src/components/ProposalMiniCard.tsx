@@ -71,7 +71,6 @@ export default function ProposalMiniCard({ proposal, computors, isActive, onClic
             fill="none"
             stroke="#2d3748"
             strokeWidth={strokeWidth}
-            strokeLinecap="round"
           />
           
           <path
@@ -79,7 +78,6 @@ export default function ProposalMiniCard({ proposal, computors, isActive, onClic
             fill="none"
             stroke={quorumColor}
             strokeWidth={strokeWidth}
-            strokeLinecap="round"
             strokeDasharray={circumference}
             strokeDashoffset={progressOffset}
             style={{ transition: 'stroke-dashoffset 0.5s ease' }}
