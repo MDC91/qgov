@@ -50,7 +50,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen text-white" style={{ backgroundColor: '#101820' }}>
+    <div className="min-h-screen flex flex-col text-white" style={{ backgroundColor: '#101820' }}>
       <header className="border backdrop-blur-sm sticky top-0 z-10 w-full" style={{ backgroundColor: '#151e27', borderColor: '#202e3c' }}>
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
@@ -63,28 +63,28 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="w-full mx-auto px-4 py-8">
-        <div className="flex flex-wrap gap-8">
-          <div className="flex-1 min-w-[250px]">
-            <div className="rounded-xl p-6" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c' }}>
-              <h2 className="text-xl font-semibold mb-4" style={{ color: '#23ffff' }}>Info</h2>
-              <div style={{ color: '#94a3b8' }}>
-                <p className="mb-4">Coming soon...</p>
-              </div>
+      <main className="flex flex-1 overflow-hidden">
+        <div className="flex flex-1 p-4 gap-4">
+          <div className="flex-1 min-w-[250px] rounded-xl overflow-hidden" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c' }}>
+            <div className="p-4 border-b" style={{ borderColor: '#202e3c' }}>
+              <h2 className="text-xl font-semibold" style={{ color: '#23ffff' }}>Info</h2>
+            </div>
+            <div className="p-4 overflow-y-auto h-[calc(100%-57px)]" style={{ color: '#94a3b8' }}>
+              <p className="mb-4">Coming soon...</p>
             </div>
           </div>
 
-          <div className="flex-[3] min-w-[400px]">
-            <div className="rounded-xl p-6 overflow-hidden" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c' }}>
-              <Plenum epoch={plenumEpoch} />
-            </div>
+          <div className="flex-[3] min-w-[400px] rounded-xl overflow-hidden flex flex-col" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c' }}>
+            <Plenum epoch={plenumEpoch} />
           </div>
 
-          <div className="flex-1 min-w-[250px]">
-            <div className="rounded-xl p-6" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c' }}>
-              <h2 className="text-xl font-semibold mb-4 text-center" style={{ color: '#23ffff' }}>Proposals</h2>
-              
-              <div className="flex gap-2 mb-4">
+          <div className="flex-1 min-w-[250px] rounded-xl overflow-hidden flex flex-col" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c' }}>
+            <div className="p-4 border-b" style={{ borderColor: '#202e3c' }}>
+              <h2 className="text-xl font-semibold text-center" style={{ color: '#23ffff' }}>Proposals</h2>
+            </div>
+            
+            <div className="p-4 border-b" style={{ borderColor: '#202e3c' }}>
+              <div className="flex gap-2">
                 <span 
                   className="flex-1 px-4 py-2 rounded text-base font-medium text-center"
                   style={{ backgroundColor: '#1a2332', color: '#ffffff', border: '1px solid #2d3748' }}
@@ -101,7 +101,9 @@ export default function Home() {
                   </a>
                 )}
               </div>
+            </div>
 
+            <div className="flex-1 overflow-y-auto p-4">
               {loading ? (
                 <div className="flex justify-center py-4">
                   <div className="animate-spin rounded-full h-6 w-6 border-b-2" style={{ borderColor: '#23ffff' }}></div>

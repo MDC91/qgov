@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, ReactNode } from 'react';
+import { useState, useEffect, ReactNode, useRef } from 'react';
 import ProposalMiniCard from './ProposalMiniCard';
 
 interface PlenumData {
@@ -35,6 +35,26 @@ export default function Plenum({ epoch }: PlenumProps) {
   const [loading, setLoading] = useState(true);
   const [mainProposal, setMainProposal] = useState<any>(null);
   const [miniOffset, setMiniOffset] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(1120);
+
+  useEffect(() => {
+    const updateWidth = () => {
+      if (containerRef.current) {
+        const width = containerRef.current.offsetWidth;
+        setContainerWidth(width);
+      }
+    };
+
+    updateWidth();
+
+    const resizeObserver = new ResizeObserver(updateWidth);
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
+
+    return () => resizeObserver.disconnect();
+  }, []);
 
   useEffect(() => {
     fetch(`/api/plenum/${epoch}`)
@@ -103,7 +123,6 @@ export default function Plenum({ epoch }: PlenumProps) {
       ? '#22c55e' 
       : '#ef4444';
 
-  const containerWidth = 1120;
   const maxRadius = 420;
   const innerRadius = 170;
   const seatSize = 12;
@@ -254,7 +273,7 @@ export default function Plenum({ epoch }: PlenumProps) {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full h-full flex flex-col" ref={containerRef}>
       <div className="flex items-center mb-3">
         <div className="w-64 shrink-0">
           <span className="inline-block px-4 py-2 rounded text-base font-medium" style={{ backgroundColor: '#23ffff', color: '#0f172a' }}>
