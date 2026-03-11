@@ -511,9 +511,9 @@ export function getGlobalStats(): {
   
   const voteCounts = database.prepare(`
     SELECT 
-      SUM(CASE WHEN vote = 1 THEN 1 ELSE 0 END) as yes_count,
-      SUM(CASE WHEN vote = 0 THEN 1 ELSE 0 END) as no_count,
-      SUM(CASE WHEN vote = 2 THEN 1 ELSE 0 END) as abstain_count
+      COALESCE(SUM(CASE WHEN vote = 1 THEN 1 ELSE 0 END), 0) as yes_count,
+      COALESCE(SUM(CASE WHEN vote = 0 THEN 1 ELSE 0 END), 0) as no_count,
+      COALESCE(SUM(CASE WHEN vote = 2 THEN 1 ELSE 0 END), 0) as abstain_count
     FROM ballots
   `).get() as { yes_count: number; no_count: number; abstain_count: number };
   
@@ -528,9 +528,9 @@ export function getGlobalStats(): {
     totalProposals: proposalsCount.cnt || 0,
     totalVotes: votesCount.cnt || 0,
     avgParticipation: Math.round((participation.avg || 0) * 100) / 100,
-    yesPercentage: Math.round((voteCounts.yes_count / total) * 10000) / 100,
-    noPercentage: Math.round((voteCounts.no_count / total) * 10000) / 100,
-    abstainPercentage: Math.round((voteCounts.abstain_count / total) * 10000) / 100
+    yesPercentage: Math.round(((voteCounts.yes_count || 0) / total) * 10000) / 100,
+    noPercentage: Math.round(((voteCounts.no_count || 0) / total) * 10000) / 100,
+    abstainPercentage: Math.round(((voteCounts.abstain_count || 0) / total) * 10000) / 100
   };
 }
 
@@ -556,16 +556,58 @@ export function updateStatistics(): void {
     SELECT 
       c.computor_id,
       COUNT(DISTINCT c.epoch) as total_epochs,
-      (SELECT COUNT(*) FROM proposals p WHERE p.epoch >= MIN(c.epoch) AND p.epoch <= MAX(c.epoch)) as total_proposals,
+      (SELECT COUNT(DISTINCT p.id) FROM proposals p 
+       INNER JOIN computors c2 ON p.epoch = c2.epoch AND p.epoch >= c2.epoch AND p.epoch <= c2.epoch
+       WHERE c2.computor_id = c.computor_id AND c2.epoch = c.epoch) as proposals_in_active_epochs,
       COUNT(b.vote) as votes_cast,
       SUM(CASE WHEN b.vote = 1 THEN 1 ELSE 0 END) as votes_yes,
       SUM(CASE WHEN b.vote = 0 THEN 1 ELSE 0 END) as votes_no,
       SUM(CASE WHEN b.vote = 2 THEN 1 ELSE 0 END) as votes_abstain,
-      CAST(COUNT(b.vote) AS REAL) / NULLIF((SELECT COUNT(*) FROM proposals p WHERE p.epoch >= MIN(c.epoch) AND p.epoch <= MAX(c.epoch)), 0) * 100 as participation_rate,
+      CAST(COUNT(b.vote) AS REAL) / NULLIF(
+        (SELECT COUNT(DISTINCT p.id) FROM proposals p 
+         INNER JOIN computors c2 ON p.epoch = c2.epoch 
+         WHERE c2.computor_id = c.computor_id AND c2.epoch = c.epoch), 0
+      ) * 100 as participation_rate,
       CURRENT_TIMESTAMP
     FROM computors c
-    LEFT JOIN ballots b ON c.computor_id = b.computor_id
-    GROUP BY c.computor_id
+    LEFT JOIN ballots b ON c.computor_id = b.computor_id AND b.proposal_id IN (
+      SELECT id FROM proposals WHERE epoch = c.epoch
+    )
+    GROUP BY c.computor_id, c.epoch
+  `);
+  
+  database.exec(`
+    INSERT OR REPLACE INTO computor_vote_stats (
+      computor_id, total_epochs, total_proposals, votes_cast,
+      votes_yes, votes_no, votes_abstain, participation_rate, last_updated
+    )
+    SELECT 
+      computor_id,
+      total_epochs,
+      SUM(proposals_in_active_epochs) as total_proposals,
+      SUM(votes_cast) as votes_cast,
+      SUM(votes_yes) as votes_yes,
+      SUM(votes_no) as votes_no,
+      SUM(votes_abstain) as votes_abstain,
+      CAST(SUM(votes_cast) AS REAL) / NULLIF(SUM(proposals_in_active_epochs), 0) * 100 as participation_rate,
+      CURRENT_TIMESTAMP
+    FROM (
+      SELECT 
+        c.computor_id,
+        c.epoch as epoch,
+        1 as total_epochs,
+        (SELECT COUNT(*) FROM proposals WHERE epoch = c.epoch) as proposals_in_active_epochs,
+        COUNT(b.vote) as votes_cast,
+        SUM(CASE WHEN b.vote = 1 THEN 1 ELSE 0 END) as votes_yes,
+        SUM(CASE WHEN b.vote = 0 THEN 1 ELSE 0 END) as votes_no,
+        SUM(CASE WHEN b.vote = 2 THEN 1 ELSE 0 END) as votes_abstain
+      FROM computors c
+      LEFT JOIN ballots b ON c.computor_id = b.computor_id AND b.proposal_id IN (
+        SELECT id FROM proposals WHERE epoch = c.epoch
+      )
+      GROUP BY c.computor_id, c.epoch
+    )
+    GROUP BY computor_id
   `);
   
   database.exec(`
@@ -576,13 +618,11 @@ export function updateStatistics(): void {
       p.id,
       p.yes_votes as yes_count,
       p.no_votes as no_count,
-      0 as abstain_count,
+      COALESCE((SELECT COUNT(*) FROM ballots WHERE proposal_id = p.id AND vote = 2), 0) as abstain_count,
       p.total_votes as total_votes,
       (
         SELECT json_group_array(
-          json_object('computor_id', computor_id, 'vote', vote, 'epoch', (
-            SELECT epoch FROM proposals WHERE id = proposal_id
-          ))
+          json_object('computor_id', computor_id, 'vote', vote, 'epoch', p.epoch)
         )
         FROM ballots WHERE proposal_id = p.id
       ) as voters_json,

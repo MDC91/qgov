@@ -158,7 +158,7 @@ export default function StatisticsPage() {
             </div>
             <div className="rounded-xl p-4" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c' }}>
               <p className="text-xs mb-1" style={{ color: '#94a3b8' }}>Avg Participation</p>
-              <p className="text-2xl font-bold" style={{ color: '#23ffff' }}>{globalStats.avgParticipation.toFixed(1)}%</p>
+              <p className="text-2xl font-bold" style={{ color: '#23ffff' }}>{(globalStats.avgParticipation ?? 0).toFixed(1)}%</p>
             </div>
           </div>
         )}
@@ -167,15 +167,15 @@ export default function StatisticsPage() {
           <div className="grid grid-cols-3 gap-4 mb-8">
             <div className="rounded-xl p-4" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c' }}>
               <p className="text-xs mb-1" style={{ color: '#94a3b8' }}>Yes Votes</p>
-              <p className="text-xl font-bold" style={{ color: '#22c55e' }}>{globalStats.yesPercentage.toFixed(1)}%</p>
+              <p className="text-xl font-bold" style={{ color: '#22c55e' }}>{(globalStats.yesPercentage ?? 0).toFixed(1)}%</p>
             </div>
             <div className="rounded-xl p-4" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c' }}>
               <p className="text-xs mb-1" style={{ color: '#94a3b8' }}>No Votes</p>
-              <p className="text-xl font-bold" style={{ color: '#ef4444' }}>{globalStats.noPercentage.toFixed(1)}%</p>
+              <p className="text-xl font-bold" style={{ color: '#ef4444' }}>{(globalStats.noPercentage ?? 0).toFixed(1)}%</p>
             </div>
             <div className="rounded-xl p-4" style={{ backgroundColor: '#151e27', border: '1px solid #202e3c' }}>
               <p className="text-xs mb-1" style={{ color: '#94a3b8' }}>Abstain</p>
-              <p className="text-xl font-bold" style={{ color: '#94a3b8' }}>{globalStats.abstainPercentage.toFixed(1)}%</p>
+              <p className="text-xl font-bold" style={{ color: '#94a3b8' }}>{(globalStats.abstainPercentage ?? 0).toFixed(1)}%</p>
             </div>
           </div>
         )}
@@ -227,7 +227,7 @@ export default function StatisticsPage() {
                     </div>
                     <div className="text-right">
                       <p className="text-lg font-bold" style={{ color: '#23ffff' }}>
-                        {result.participation_rate.toFixed(1)}%
+                        {(result.participation_rate ?? 0).toFixed(1)}%
                       </p>
                       <p className="text-xs" style={{ color: '#94a3b8' }}>participation</p>
                     </div>
