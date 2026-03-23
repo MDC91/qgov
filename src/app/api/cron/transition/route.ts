@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getCurrentEpoch } from '@/lib/qubic-api';
-import { saveProposals, getLatestEpoch } from '@/lib/database';
+import { saveProposals, getLatestEpoch, getDb } from '@/lib/database';
 
 const CRON_SECRET = process.env.CRON_SECRET;
 
@@ -88,7 +88,20 @@ export async function GET(request: Request) {
     const storedLatestEpoch = getLatestEpoch();
     const results: any[] = [];
 
-    if (currentEpoch > storedLatestEpoch) {
+    let processPreviousEpoch = currentEpoch > storedLatestEpoch;
+    
+    if (!processPreviousEpoch && storedLatestEpoch > 0) {
+      const database = getDb();
+      const currentEpochProposals = database.prepare(
+        `SELECT COUNT(*) as cnt FROM proposals WHERE epoch = ? AND status = 2`
+      ).get(currentEpoch) as { cnt: number };
+      
+      if (currentEpochProposals && currentEpochProposals.cnt > 0) {
+        processPreviousEpoch = true;
+      }
+    }
+    
+    if (processPreviousEpoch) {
       const previousEpoch = storedLatestEpoch;
       
       if (previousEpoch > 0) {
